@@ -1,6 +1,6 @@
 {
-  "name": "TODO",
-  "description": "TODO",
+  "name": "research-journal",
+  "description": "For the MSc Strategy and Design for the Anthropocene",
   "version": "0.0.1",
   "scripts": {
     "dev": "sapper dev",

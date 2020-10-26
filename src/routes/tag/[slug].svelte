@@ -59,7 +59,7 @@
 <script>
 	import { getContext } from 'svelte';
 	import { route } from '../../stores/route.js';
-	import LayoutContentPage from '../../components/layout/LayoutContentPage.svelte';
+	import LayoutContentPage from '../../components/LayoutContentPage.svelte';
 	import View from '../../components/content/View.svelte';
 
 	export let full_slug;

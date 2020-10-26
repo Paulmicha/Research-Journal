@@ -2,6 +2,7 @@ import path from 'path';
 import resolve from '@rollup/plugin-node-resolve';
 import replace from '@rollup/plugin-replace';
 import commonjs from '@rollup/plugin-commonjs';
+import json from '@rollup/plugin-json';
 import url from '@rollup/plugin-url';
 import svelte from 'rollup-plugin-svelte';
 import babel from '@rollup/plugin-babel';
@@ -26,6 +27,9 @@ export default {
 			replace({
 				'process.browser': true,
 				'process.env.NODE_ENV': JSON.stringify(mode)
+			}),
+			json({
+				compact: true
 			}),
 			svelte({
 				dev,
@@ -75,6 +79,9 @@ export default {
 			replace({
 				'process.browser': false,
 				'process.env.NODE_ENV': JSON.stringify(mode)
+			}),
+			json({
+				compact: true
 			}),
 			svelte({
 				generate: 'ssr',

@@ -1,22 +1,20 @@
-<script>
-	import Nav from '../components/Nav.svelte';
-
-	export let segment;
+<script context="module">
+	import * as global_data from '../entities/config/global.json';
+	import * as translation_data from '../entities/config/translation.json';
+	import * as menu_main from '../entities/menu/main.json'
 </script>
 
-<style>
-	main {
-		position: relative;
-		max-width: 56em;
-		background-color: white;
-		padding: 2em;
-		margin: 0 auto;
-		box-sizing: border-box;
-	}
-</style>
+<script>
+	import { setContext } from 'svelte';
+	import Meta from '../components/Meta.svelte';
 
-<Nav {segment}/>
+	const globals = global_data.default;
+	globals.translations = translation_data.default;
+	globals.menu_main = menu_main.default;
 
-<main>
-	<slot></slot>
-</main>
+	setContext('global_data', globals);
+</script>
+
+<Meta></Meta>
+
+<slot></slot>

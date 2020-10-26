@@ -1,4 +1,11 @@
+* {
+	padding: 0;
+	margin: 0;
+	box-sizing: border-box;
+}
+
 body {
 	font-family: 'Gudea', sans-serif;
 	overflow: hidden;
+	min-height: 100vh;
 }

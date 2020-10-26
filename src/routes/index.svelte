@@ -31,6 +31,9 @@
 <!-- <pre>index.svelte : nav_menu_get_items($route) = {JSON.stringify(nav_menu_get_items($route), null, 2)}</pre> -->
 <!-- <pre>index.svelte : $route.trails = {JSON.stringify($route.trails, null, 2)}</pre> -->
 
+<MenuMain bind:items={menu_main_items} />
+
 <h1>{ masthead.title }</h1>
 <p>WIP</p>
+
 <Footer></Footer>

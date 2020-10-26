@@ -1,0 +1,56 @@
+{
+	"lang": "en",
+	"title": "Articles",
+	"description": "Latest articles.",
+	"content": [
+		{
+			"c": "View",
+			"props": {
+				"filters": [
+					{
+						"in": "content/article"
+					}
+				],
+				"cache": {
+					"settings": {
+						"display": {
+							"c": "ViewDisplayGrid",
+							"props": {
+								"align": "center",
+								"space": "large",
+								"view_mode": "Card"
+							}
+						},
+						"filters": {
+							"op": "AND",
+							"items": [
+								{
+									"in": "content/article"
+								}
+							]
+						},
+						"sorts": [
+							{
+								"published": "desc"
+							}
+						],
+						"pager": {
+							"items": 10
+						},
+						"exposed": {}
+					},
+					"results": [
+						{
+							"lang": "en",
+							"title": "Article test.",
+							"description": "Testing articles.",
+							"image": "media/2020/10/tools.jpg",
+							"published": "2020-10-26T14:53:34.371Z",
+							"path": "2020/10/article-test"
+						}
+					]
+				}
+			}
+		}
+	]
+}

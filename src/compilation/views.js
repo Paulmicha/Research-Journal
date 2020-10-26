@@ -58,6 +58,7 @@ const views_get_results = (settings, args = []) => {
 	// the implementation. For now, only OR root group filters are implemented.
 	if ('content_types' in f) {
 		f.content_types.forEach(ct => {
+			console.log(`loading '${ct}' entities...`);
 			content_entities_load_all_by_type(ct).forEach(r => results.push({...r}));
 		});
 	}
@@ -154,7 +155,7 @@ const views_process_filters = (filters) => {
  *  - in
  * @param {String} filter_value : Examples :
  *  - 'term/tag:$1'
- *  - 'content/blog'
+ *  - 'content/article'
  *
  * @return {Object} {entity_type, bundle, arg}
  */
@@ -280,7 +281,7 @@ const views_hash_props = (str, seed = 0) => {
  * Converts "stringified" views props into object.
  *
  * Example of stringified_props :
- *  f.0.referencing=term/tag:$1&f.0.in=content/blog
+ *  f.0.referencing=term/tag:$1&f.0.in=content/article
  *
  * Rules :
  * - filters & sorts keys are grouped by numerical counter (starting from 0)

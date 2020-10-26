@@ -4,8 +4,8 @@
   "version": "0.0.1",
   "scripts": {
     "dev": "sapper dev",
-    "build": "sapper build --legacy",
-    "export": "sapper export --legacy",
+    "build": "node src/compilation/before_build.js && sapper build --legacy",
+    "export": "node src/compilation/before_build.js && node src/compilation/sapper_export.js",
     "start": "node __sapper__/build"
   },
   "dependencies": {
@@ -25,10 +25,18 @@
     "@rollup/plugin-node-resolve": "^8.0.0",
     "@rollup/plugin-replace": "^2.2.0",
     "@rollup/plugin-url": "^5.0.0",
+    "husky": "^4.3.0",
+    "mkdirp": "^1.0.4",
     "rollup": "^2.3.4",
     "rollup-plugin-svelte": "^6.0.0",
     "rollup-plugin-terser": "^7.0.0",
     "sapper": "^0.28.0",
-    "svelte": "^3.17.3"
+    "svelte": "^3.17.3",
+    "uuid": "^8.3.1"
+  },
+  "husky": {
+    "hooks": {
+      "pre-commit": "node src/compilation/git_hooks/pre_commit.js"
+    }
   }
 }

@@ -103,9 +103,9 @@ const content_entities_get_path = (entity) => {
 };
 
 module.exports = {
-	"content_entities_get_path": content_entities_get_path,
-	"content_entities_load_all": content_entities_load_all,
-	"content_entities_load_all_by_type": content_entities_load_all_by_type,
-	"taxonomy_terms_load_all": taxonomy_terms_load_all,
-	"taxonomy_terms_load_all_by_vocabulary": taxonomy_terms_load_all_by_vocabulary
+	content_entities_get_path,
+	content_entities_load_all,
+	content_entities_load_all_by_type,
+	taxonomy_terms_load_all,
+	taxonomy_terms_load_all_by_vocabulary
 };

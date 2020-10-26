@@ -57,7 +57,7 @@ const cache_taxonomy_terms = () => {
 }
 
 module.exports = {
-	"cache_views_results": cache_views_results,
-	"cache_page_routing_trails": cache_page_routing_trails,
-	"cache_taxonomy_terms": cache_taxonomy_terms
+	cache_views_results,
+	cache_page_routing_trails,
+	cache_taxonomy_terms
 };

@@ -1,0 +1,13 @@
+{
+	"lang": "en",
+	"title": "About",
+	"description": "Research journal work in progress.",
+	"content": [
+		{
+			"c": "Lede",
+			"props": {
+				"text": "Research journal work in progress."
+			}
+		}
+	]
+}

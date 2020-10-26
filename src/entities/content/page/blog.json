@@ -1,0 +1,17 @@
+{
+	"lang": "en",
+	"title": "Articles",
+	"description": "Latest articles.",
+	"content": [
+		{
+			"c": "View",
+			"props": {
+				"filters": [
+					{
+						"in": "content/article"
+					}
+				]
+			}
+		}
+	]
+}

@@ -1,0 +1,15 @@
+{
+	"lang": "en",
+	"title": "Article test.",
+	"description": "Testing articles.",
+	"image": "media/2020/10/tools.jpg",
+	"published": "2020-10-26T14:53:34.371Z",
+	"content": [
+		{
+			"c": "Lede",
+			"props": {
+				"text": "Still testing articles."
+			}
+		}
+	]
+}

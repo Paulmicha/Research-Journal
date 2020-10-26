@@ -1,0 +1,16 @@
+{
+	"en": [
+		{
+			"title": "About",
+			"path": "about"
+		},
+		{
+			"title": "Experiments",
+			"path": "experiments"
+		},
+		{
+			"title": "Articles",
+			"path": "articles"
+		}
+	]
+}

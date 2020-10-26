@@ -1,64 +1,36 @@
-<script>
-	import { onMount } from 'svelte';
-	import successkid from 'images/successkid.jpg';
-
-	onMount(() => {
-		if (window.netlifyIdentity) {
-			window.netlifyIdentity.on("init", user => {
-				if (!user) {
-					window.netlifyIdentity.on("login", () => {
-						document.location.href = "/admin/";
-					});
-				}
-			});
-		}
-	});
+<script context="module">
+	import * as homepage_masthead from '../entities/block/homepage_masthead.json'
 </script>
 
-<style>
-	h1, figure, p {
-		text-align: center;
-		margin: 0 auto;
-	}
+<script>
+	import { route } from '../stores/route.js';
+	import { getContext } from 'svelte';
+	import { nav_menu_get_items } from '../utils/nav.js';
+	import MenuMain from '../components/MenuMain.svelte';
+	import DropCap from '../components/DropCap.svelte';
+	import Footer from '../components/Footer.svelte';
 
-	h1 {
-		font-size: 2.8em;
-		text-transform: uppercase;
-		font-weight: 700;
-		margin: 0 0 0.5em 0;
-	}
+	const global_data = getContext('global_data');
 
-	figure {
-		margin: 0 0 1em 0;
-	}
+	route.update(existing => {
+		existing.path = "";
+		existing.title = global_data.site_name;
+		existing.description = "Experimental research journal.";
+		existing.lang = "en";
+		return existing;
+	});
 
-	img {
-		width: 100%;
-		max-width: 400px;
-		margin: 0 0 1em 0;
-	}
+	const masthead = homepage_masthead[$route.lang];
+	let menu_main_items = nav_menu_get_items(global_data, $route, 0);
+</script>
 
-	p {
-		margin: 1em auto;
-	}
+<!-- DEBUG -->
+<!-- <pre>index.svelte : global_data = {JSON.stringify(global_data, null, 2)}</pre> -->
+<!-- <pre>index.svelte : $route = {JSON.stringify($route, null, 2)}</pre> -->
+<!-- <pre>index.svelte : menu_main_items = {JSON.stringify(menu_main_items, null, 2)}</pre> -->
+<!-- <pre>index.svelte : nav_menu_get_items($route) = {JSON.stringify(nav_menu_get_items($route), null, 2)}</pre> -->
+<!-- <pre>index.svelte : $route.trails = {JSON.stringify($route.trails, null, 2)}</pre> -->
 
-	@media (min-width: 480px) {
-		h1 {
-			font-size: 4em;
-		}
-	}
-</style>
-
-<svelte:head>
-	<title>Sapper project template</title>
-	<script src="https://identity.netlify.com/v1/netlify-identity-widget.js"></script>
-</svelte:head>
-
-<h1>Great success!</h1>
-
-<figure>
-	<img alt="Success Kid" src="{successkid}">
-	<figcaption>Have fun with Sapper!</figcaption>
-</figure>
-
-<p><strong>Try editing this file (src/routes/index.svelte) to test live reloading.</strong></p>
+<h1>{ masthead.title }</h1>
+<p>WIP</p>
+<Footer></Footer>

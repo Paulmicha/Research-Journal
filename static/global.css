@@ -25,7 +25,7 @@
 
 body {
 	font-family: 'Gudea', sans-serif;
-	overflow: hidden;
+	overflow-x: hidden;
 }
 
 #sapper {

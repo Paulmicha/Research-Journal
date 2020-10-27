@@ -18,6 +18,7 @@
 		text-align: center;
 	}
 	hr {
+		margin-top: 1.5rem;
 		margin-bottom: .33rem;
 	}
 	.wrap {

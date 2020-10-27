@@ -1,1 +1,1 @@
-{"documentation-workshop":{"active_lv0":"experiments","menu_lv1":"experiments"},"experiments":{"depth":0,"title":"Experiments","children":[{"weight":0,"path":"documentation-workshop","title":"Documentation Workshop"}]}}
+{"experiments/documentation-workshop":{"active_lv0":"experiments","menu_lv1":"experiments"},"experiments":{"depth":0,"title":"Experiments","children":[{"weight":0,"path":"experiments/documentation-workshop","title":"Documentation Workshop"}]}}

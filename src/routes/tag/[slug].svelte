@@ -1,5 +1,5 @@
 <script context="module">
-	import * as tags_data from '../../cache/tag.json';
+	import * as tags_data from '../../../data/cache/tag.json';
 	import { views_get_cache_file_path } from '../../utils/views_cache.js';
 
 	const tags = tags_data.default;
@@ -29,6 +29,15 @@
 	export async function preload(page, session) {
 		const { slug } = page.params;
 		const full_slug = 'tag/' + slug;
+
+		// TODO [wip] instead of importing tags_data from 'data/cache/tag.json',
+		// implement async preload - e.g. as in :
+		// const res = await this.fetch(`data/${slug.join('/')}.json`);
+		// if (res.status !== 200) {
+		// 	this.error(res.status, `The path data/${slug.join('/')} was not found`);
+		// 	return {};
+		// }
+		// const model = await res.json();
 
 		const uuid = tag_get_uuid_by_path(full_slug);
 		const cached_views_data = [];
@@ -83,7 +92,7 @@
 
 	// Specific nav state for tags pages.
 	// @see src/components/layout/LayoutContentPage.svelte
-	// @see src/components/nav/nav.js
+	// @see src/utils/nav.js
 	model.parent_page = 'articles';
 </script>
 

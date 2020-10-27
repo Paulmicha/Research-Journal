@@ -1,5 +1,5 @@
 <script context="module">
-	import * as footer_data from '../entities/block/footer.json'
+	import * as footer_data from '../../data/entities/block/footer.json'
 </script>
 
 <script>
@@ -20,8 +20,10 @@
 	hr {
 		margin-bottom: .33rem;
 	}
-	a {
+	.wrap {
 		padding: .5rem;
+	}
+	a {
 		text-transform: uppercase;
 		text-decoration: none;
 	}
@@ -29,7 +31,10 @@
 
 <footer>
 	<hr>
-	<a href="{ footer.license_url }">
-		<abbr title="{ footer.license_title }">{ footer.license_text }</abbr>
-	</a>
+	<div class="wrap">
+		{ footer.license_prefix }
+		<a href="{ footer.license_url }">
+			<abbr title="{ footer.license_title }">{ footer.license_text }</abbr>
+		</a>
+	</div>
 </footer>

@@ -8,7 +8,7 @@
 		margin-right: -100%;
 		margin-bottom: 2.5rem;
 		padding: 1rem 100%;
-		background-color: lightslategray;
+		background-color: rgba(0,0,0,.66);
 	}
 	.inner-wrap {
 		display: flex;
@@ -23,7 +23,7 @@
 	}
 	.MenuMain {
 		display: flex;
-		justify-content: center;
+		justify-content: space-evenly;
 		width: 100%;
 	}
 	.MenuMain-item {
@@ -38,7 +38,8 @@
 	}
 	.MenuMain-link:focus,
 	.MenuMain-link:hover {
-		color: greenyellow;
+		/* color: greenyellow; */
+		color: deepskyblue;
 	}
 </style>
 

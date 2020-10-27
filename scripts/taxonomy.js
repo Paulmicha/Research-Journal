@@ -25,7 +25,7 @@ const build_taxonomy_cache = () => {
 			const uuid = data.uuid;
 
 			// Also keyed by lang to facilitate translations (fallbacks to default
-			// language defined in src/entities/config/global.json).
+			// language defined in data/entities/config/global.json).
 			const lang = data.lang;
 
 			// We won't need to store the following keys.

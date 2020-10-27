@@ -9,7 +9,7 @@
 const { exec } = require('child_process');
 
 exec(
-	"node src/cache_rebuild.js && git diff --name-only",
+	"node scripts/before_build.js && git diff --name-only",
 	(err, stdout, stderr) => {
 		if (err) {
 			console.log(stderr);
@@ -22,8 +22,9 @@ exec(
 			if (!diff_line.length) {
 				return;
 			}
+			// Whitelisted (update as needed).
 			switch (diff_line) {
-				case 'src/cache/page_routing_trails.json':
+				case 'data/cache/page_routing_trails.json':
 					exec(`git add ${diff_line}`);
 					break;
 			}

@@ -14,7 +14,7 @@ const mode = process.env.NODE_ENV;
 const dev = mode === 'development';
 const legacy = !!process.env.SAPPER_LEGACY_BUILD;
 
-import getPreprocessor from 'svelte-preprocess';
+// import getPreprocessor from 'svelte-preprocess';
 import autoload from './src/preprocess.js'
 
 const preprocess = [

@@ -41,7 +41,7 @@ const build_page_routing_trails = () => {
 
 	// First, organize all pages by depth - regardless of parent-child links.
 	// Level 0 (root) : all pages that have no parent.
-	walk('src/entities/content/page', '.json').map((file_path) => {
+	walk('data/entities/content/page', '.json').map((file_path) => {
 		page_path = path.parse(file_path).name;
 		page_data = JSON.parse(fs.readFileSync(file_path).toString());
 		page_data.path = page_path;

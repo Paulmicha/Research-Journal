@@ -3,38 +3,40 @@
 	/**
 	 * Implements Sapper route preload "hook".
 	 *
-	 * Provides page data ("model").
+	 * Provides blog post data ("model").
 	 *
 	 * @param page : object containing `{ path, params, query }`.
 	 * @param session : used for credentialled requests.
 	 * @return object : page data (model).
 	 *
-	 * @see src/routes/[...slug].json.js
+	 * @see src/routes/[year([0-9]+)]/[month([0-9]+)]/[slug].json.js
 	 */
 	export async function preload(page, session) {
-		const { slug } = page.params;
-		const res = await this.fetch(`data/entities/content/page/${slug.join('/')}.json`);
+		let {year, month, slug} = page.params;
+		const res = await this.fetch(`data/entities/content/article/${year}/${month}/${slug}.json`);
 
 		if (res.status !== 200) {
-			this.error(res.status, `The path data/${slug.join('/')} was not found`);
+			this.error(res.status, `The path data/${year}/${month}/${slug} was not found`);
 			return {};
 		}
 
 		const model = await res.json();
-		model.slug = slug.join('/');
+		model.slug = `${year}/${month}/${slug}`;
+
+		// Specific nav state for blog posts.
+		// @see src/components/LayoutContentPage.svelte
+		// @see src/utils/nav.js
+		model.parent_page = 'articles';
+
 		return { model };
 	}
 </script>
 
 <script>
-	import LayoutContentPage from '../components/LayoutContentPage.svelte';
+	import LayoutContentPage from '../../../components/LayoutContentPage.svelte';
 	// placeholder://src/preprocess.js
 	export let model;
 </script>
-
-<!-- DEBUG -->
-<!-- <pre>[slug].svelte : slug = {JSON.stringify(model.slug, null, 2)}</pre> -->
-<!-- <pre>[slug].svelte : model = {JSON.stringify(model, null, 2)}</pre> -->
 
 <LayoutContentPage {model}>
 	{#each model.content as { c, props }}

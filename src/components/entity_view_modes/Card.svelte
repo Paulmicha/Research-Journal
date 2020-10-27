@@ -7,7 +7,7 @@
 	export let description;
 	export let published;
 	export let image;
-	export let tags;
+	export let tags = [];
 
 	if (!image) {
 		image = 'theme/article-default-500x309.jpg';

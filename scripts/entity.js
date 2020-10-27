@@ -17,7 +17,7 @@ const content_entities_load_all = () => {
 		return content_entities;
 	}
 	content_entities = {};
-	walk('src/entities/content', '.json').map(file_path => {
+	walk('data/entities/content', '.json').map(file_path => {
 		const content_type = file_path.split('/')[3];
 		if (!(content_type in content_entities)) {
 			content_entities[content_type] = [];
@@ -53,7 +53,7 @@ const taxonomy_terms_load_all = () => {
 		return term_entities;
 	}
 	term_entities = {};
-	walk('src/entities/taxonomy', '.json').map(file_path => {
+	walk('data/entities/taxonomy', '.json').map(file_path => {
 		const vocabulary = file_path.split('/')[3];
 		if (!(vocabulary in term_entities)) {
 			term_entities[vocabulary] = [];
@@ -83,7 +83,7 @@ const taxonomy_terms_load_all_by_vocabulary = vocabulary => {
  * Gets content entity path.
  *
  * For file-based storage, the URL of content entities is the path to the JSON
- * data file relative to the 'src/entities/content/<type>' folder.
+ * data file relative to the 'data/entities/content/<type>' folder.
  */
 const content_entities_get_path = (entity) => {
 	if (!("storage" in entity)) {
@@ -94,8 +94,8 @@ const content_entities_get_path = (entity) => {
 
 	if (entity.storage.backend === 'file') {
 		path = entity.storage.file_path;
-		path = path.replace(new RegExp('src/entities/content/[^/]+/'), '');
-		path = path.replace(new RegExp('src/entities/taxonomy/'), '');
+		path = path.replace(new RegExp('data/entities/content/[^/]+/'), '');
+		path = path.replace(new RegExp('data/entities/taxonomy/'), '');
 		path = path.replace(new RegExp('\.json$'), '');
 	}
 

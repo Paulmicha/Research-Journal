@@ -22,7 +22,7 @@
 				// Allow to specify active menu items through the route store.
 				// @see src/routes/[year([0-9]+)]/[month([0-9]+)]/[slug].svelte
 				// @see src/routes/tag/[slug].svelte
-				// @see src/components/nav/nav.js
+				// @see src/utils/nav.js
 				if ('parent_page' in model) {
 					existing.parent_page = model.parent_page;
 				}

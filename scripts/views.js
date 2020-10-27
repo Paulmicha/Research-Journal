@@ -58,7 +58,6 @@ const views_get_results = (settings, args = []) => {
 	// the implementation. For now, only OR root group filters are implemented.
 	if ('content_types' in f) {
 		f.content_types.forEach(ct => {
-			console.log(`loading '${ct}' entities...`);
 			content_entities_load_all_by_type(ct).forEach(r => results.push({...r}));
 		});
 	}

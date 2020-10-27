@@ -4,8 +4,8 @@
   "version": "0.0.1",
   "scripts": {
     "dev": "sapper dev",
-    "build": "node src/compilation/before_build.js && sapper build --legacy",
-    "export": "node src/compilation/before_build.js && node src/compilation/sapper_export.js",
+    "build": "node scripts/before_build.js && sapper build --legacy",
+    "export": "node scripts/before_build.js && node scripts/sapper_export.js",
     "start": "node __sapper__/build"
   },
   "dependencies": {
@@ -36,7 +36,7 @@
   },
   "husky": {
     "hooks": {
-      "pre-commit": "node src/compilation/git_hooks/pre_commit.js"
+      "pre-commit": "node scripts/git_hooks/pre_commit.js"
     }
   }
 }

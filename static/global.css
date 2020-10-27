@@ -9,3 +9,8 @@ body {
 	overflow: hidden;
 	min-height: 100vh;
 }
+
+img {
+	display: inline-block;
+	max-width: 100%;
+}

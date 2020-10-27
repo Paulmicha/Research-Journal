@@ -15,34 +15,6 @@
 	setContext('global_data', globals);
 </script>
 
-<style>
-	/*
-	.wrapper {
-		display: grid;
-		grid-template-columns:
-			1fr
-			min(65ch, 100%)
-			1fr;
-	}
-	.wrapper > * {
-		grid-column: 2;
-	}
-	.full-bleed {
-		width: 100%;
-		grid-column: 1 / 4;
-	}
-	*/
-	.wrapper {
-		display: block;
-		margin-left: auto;
-		margin-right: auto;
-		width: 80ch;
-		max-width: 100%;
-	}
-</style>
-
 <Meta></Meta>
 
-<div class="wrapper">
-	<slot></slot>
-</div>
+<slot></slot>

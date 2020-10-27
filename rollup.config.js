@@ -14,6 +14,20 @@ const mode = process.env.NODE_ENV;
 const dev = mode === 'development';
 const legacy = !!process.env.SAPPER_LEGACY_BUILD;
 
+import getPreprocessor from 'svelte-preprocess';
+import autoload from './src/preprocess.js'
+
+const preprocess = [
+	autoload
+	// getPreprocessor({
+	// 	transformers: {
+	// 		postcss: {
+	// 			plugins: postcssPlugins()
+	// 		}
+	// 	}
+	// })
+];
+
 const onwarn = (warning, onwarn) =>
 	(warning.code === 'MISSING_EXPORT' && /'preload'/.test(warning.message)) ||
 	(warning.code === 'CIRCULAR_DEPENDENCY' && /[/\\]@sapper[/\\]/.test(warning.message)) ||
@@ -32,6 +46,7 @@ export default {
 				compact: true
 			}),
 			svelte({
+				preprocess,
 				dev,
 				hydratable: true,
 				emitCss: true
@@ -84,6 +99,7 @@ export default {
 				compact: true
 			}),
 			svelte({
+				preprocess,
 				generate: 'ssr',
 				hydratable: true,
 				dev

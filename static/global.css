@@ -7,10 +7,36 @@
 body {
 	font-family: 'Gudea', sans-serif;
 	overflow: hidden;
+}
+
+#sapper {
+	display: flex;
+	flex-direction: column;
+	justify-content: space-between;
+	margin-left: auto;
+	margin-right: auto;
+	width: 80ch;
+	max-width: 100%;
 	min-height: 100vh;
 }
 
 img {
 	display: inline-block;
 	max-width: 100%;
+}
+
+a:visited {
+	color: currentColor;
+}
+
+a:focus,
+a:hover {
+	color: cornflowerblue;
+}
+
+hr {
+	border: 0;
+	height: 1px;
+	/* background-image: linear-gradient(to right, rgba(255, 255, 255, 0), rgba(255, 255, 255, 0.75), rgba(255, 255, 255, 0)); */
+	background-image: linear-gradient(to right, rgba(0, 0, 0, 0), rgba(0, 0, 0, 0.75), rgba(0, 0, 0, 0));
 }

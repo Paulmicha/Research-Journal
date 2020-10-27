@@ -3,9 +3,28 @@
 </script>
 
 <style>
+	.wrap {
+		margin-left: -100%;
+		margin-right: -100%;
+		margin-bottom: 2.5rem;
+		padding: 1rem 100%;
+		background-color: lightslategray;
+	}
+	.inner-wrap {
+		display: flex;
+		align-items: center;
+		width: 100%;
+	}
+	.logo {
+		display: block;
+		line-height: 1;
+		width: 3rem;
+		text-decoration: none;
+	}
 	.MenuMain {
 		display: flex;
 		justify-content: center;
+		width: 100%;
 	}
 	.MenuMain-item {
 		padding: 0 .5rem;
@@ -20,23 +39,6 @@
 	.MenuMain-link:focus,
 	.MenuMain-link:hover {
 		color: greenyellow;
-	}
-	.wrap {
-		margin-left: -100%;
-		margin-right: -100%;
-		padding: 1rem 100%;
-		background-color: lightslategray;
-	}
-	.inner-wrap {
-		display: flex;
-		align-items: center;
-		width: 100%;
-	}
-	.logo {
-		display: block;
-		line-height: 1;
-		width: 3rem;
-		text-decoration: none;
 	}
 </style>
 

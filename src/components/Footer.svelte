@@ -12,6 +12,21 @@
 		footer_data[global_data.default_lang];
 </script>
 
+<style>
+  footer {
+		padding: .5rem 0;
+		text-align: center;
+	}
+	hr {
+		margin-bottom: .33rem;
+	}
+	a {
+		padding: .5rem;
+		text-transform: uppercase;
+		text-decoration: none;
+	}
+</style>
+
 <footer>
 	<hr>
 	<a href="{ footer.license_url }">

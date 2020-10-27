@@ -51,9 +51,8 @@
 	});
 </script>
 
-<Header {model}></Header>
-
 <main id="main-content">
+	<Header {model}></Header>
 	<slot></slot>
 </main>
 

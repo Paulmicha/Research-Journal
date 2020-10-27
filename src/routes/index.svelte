@@ -10,6 +10,20 @@
 	import DropCap from '../components/DropCap.svelte';
 	import Footer from '../components/Footer.svelte';
 
+	// TODO [wip] debug netlify 404.
+	import { onMount } from 'svelte';
+	onMount(() => {
+		if (window.netlifyIdentity) {
+			window.netlifyIdentity.on("init", user => {
+				if (!user) {
+					window.netlifyIdentity.on("login", () => {
+						document.location.href = "/admin/";
+					});
+				}
+			});
+		}
+	});
+
 	const global_data = getContext('global_data');
 
 	route.update(existing => {

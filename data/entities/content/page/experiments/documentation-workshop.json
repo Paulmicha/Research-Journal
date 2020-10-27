@@ -8,10 +8,8 @@
 	},
 	"content": [
 		{
-			"c": "RichText",
-			"props": {
-				"markup": "TODO"
-			}
+			"c": "ExpDocuWorkshop",
+			"props": {}
 		}
 	]
 }

@@ -21,14 +21,15 @@
 <style>
 	.SubNav {
 		display: flex;
-		justify-content: center;
+		justify-content: flex-end;
 		align-content: flex-start;
 		align-items: stretch;
-		margin-top: -2.5rem;
-		margin-bottom: 2rem;
+		margin-top: -1.5rem;
+		margin-bottom: 1.5rem;
 	}
 	.SubNav-link {
-		padding: .5rem;
+		border-bottom: .16rem solid transparent;
+		padding: .4rem .16rem;
 		font-size: .66rem;
 		font-weight: bold;
 		line-height: 1;
@@ -39,8 +40,9 @@
 	.SubNav-link:focus,
 	.SubNav-link:hover,
 	.SubNav-link.is-active {
-		background-color: var(--color-invert-bg);
-		color: var(--color-invert-link-on);
+		/* background-color: var(--color-invert-bg);
+		color: var(--color-invert-link-on); */
+		border-color: var(--color-invert-bg);
 	}
 </style>
 

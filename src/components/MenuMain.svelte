@@ -6,7 +6,7 @@
 	.wrap {
 		margin-left: -100%;
 		margin-right: -100%;
-		margin-bottom: 2.5rem;
+		margin-bottom: 1.5rem;
 		padding: 1rem 100%;
 		background-color: var(--color-invert-bg);
 	}
@@ -35,7 +35,7 @@
 		text-transform: uppercase;
 		letter-spacing: .16ch;
 		color: var(--color-invert-link-off);
-		font-weight: bold;
+		/* font-weight: bold; */
 		text-decoration: none;
 	}
 	.MenuMain-link:focus,

@@ -37,8 +37,8 @@
 		text-decoration: none;
 	}
 	.MenuMain-link:focus,
-	.MenuMain-link:hover {
-		/* color: greenyellow; */
+	.MenuMain-link:hover,
+	.MenuMain-link.is-active {
 		color: deepskyblue;
 	}
 </style>
@@ -57,7 +57,7 @@
 					{#if is_active}
 						<span class="MenuMain-deco"></span>
 					{/if}
-					<a class="MenuMain-link" rel=prefetch href="/{ path }" aria-current={ is_active ? "page" : undefined }>
+					<a class="MenuMain-link{ is_active ? ' is-active' : '' }" rel=prefetch href="/{ path }" aria-current={ is_active ? "page" : undefined }>
 						{ title }
 					</a>
 				</div>

@@ -4,6 +4,25 @@
 	box-sizing: border-box;
 }
 
+/* :root,
+	html {
+	font-size: 1rem;
+} */
+
+@media (min-width: 30rem) {
+	:root,
+	html {
+		font-size: calc(1rem + .5 * ((100vw - 30rem) / 70));
+	}
+}
+
+@media (min-width: 100rem) {
+	:root,
+	html {
+		font-size: 1.5rem;
+	}
+}
+
 body {
 	font-family: 'Gudea', sans-serif;
 	overflow: hidden;

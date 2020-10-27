@@ -1,0 +1,17 @@
+{
+	"lang": "en",
+	"title": "Documentation Workshop",
+	"description": "Custom experiment for the documentation workshop.",
+	"parent_page": {
+		"path": "experiments",
+		"weight": 0
+	},
+	"content": [
+		{
+			"c": "RichText",
+			"props": {
+				"text": "Hello <a href='/about'>test markup</a>."
+			}
+		}
+	]
+}

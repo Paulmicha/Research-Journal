@@ -91,7 +91,7 @@
 	model.slug = full_slug;
 
 	// Specific nav state for tags pages.
-	// @see src/components/layout/LayoutContentPage.svelte
+	// @see src/components/LayoutContentPage.svelte
 	// @see src/utils/nav.js
 	model.parent_page = 'articles';
 </script>

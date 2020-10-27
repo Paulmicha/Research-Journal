@@ -43,6 +43,10 @@ const build_page_routing_trails = () => {
 	// Level 0 (root) : all pages that have no parent.
 	walk('data/entities/content/page', '.json').map((file_path) => {
 		page_path = path.parse(file_path).name;
+
+		// Debug.
+		console.log(`page_path = ${page_path}`)
+
 		page_data = JSON.parse(fs.readFileSync(file_path).toString());
 		page_data.path = page_path;
 		if ('parent_page' in page_data) {

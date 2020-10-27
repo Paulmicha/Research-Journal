@@ -29,7 +29,7 @@ const nav_menu_get_items = (global_data, route, depth) => {
 	// Root-level = main menu items : active state is current path, or it can be
 	// specifically provided through model.parent_page.
 	// @see src/routes/[year([0-9]+)]/[month([0-9]+)]/[slug].svelte
-	// @see src/components/layout/LayoutContentPage.svelte
+	// @see src/components/LayoutContentPage.svelte
 	if (!depth) {
 		let active_lv0_path = route.path;
 		if (route.path in route.trails && `active_lv${depth}` in route.trails[route.path]) {

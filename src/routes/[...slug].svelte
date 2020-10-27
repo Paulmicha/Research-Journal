@@ -16,7 +16,7 @@
 		const res = await this.fetch(`data/entities/content/page/${slug.join('/')}.json`);
 
 		if (res.status !== 200) {
-			this.error(res.status, `The path data/${slug.join('/')} was not found`);
+			this.error(res.status, `The page '${slug.join('/')}' was not found`);
 			return {};
 		}
 

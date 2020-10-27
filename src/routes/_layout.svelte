@@ -1,7 +1,7 @@
 <script context="module">
-	import * as global_data from '../../data/entities/config/global.json';
-	import * as translation_data from '../../data/entities/config/translation.json';
-	import * as menu_main from '../../data/entities/menu/main.json'
+	import * as global_data from '../../static/data/entities/config/global.json';
+	import * as translation_data from '../../static/data/entities/config/translation.json';
+	import * as menu_main from '../../static/data/entities/menu/main.json'
 </script>
 
 <script>

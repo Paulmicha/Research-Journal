@@ -1,7 +1,7 @@
 <script>
-	import { onMount } from 'svelte';
+	import ExternalScript from '../ExternalScript.svelte';
 
-	onMount(() => {
+	const onLoaded = () => {
 		// Get the canvas element from the DOM
 		const canvas = document.getElementById('scene');
 		canvas.width = canvas.clientWidth;
@@ -130,7 +130,7 @@
 
 		// Render the scene
 		window.requestAnimationFrame(render);
-	});
+	};
 
 </script>
 
@@ -147,9 +147,7 @@
 	}
 </style>
 
-<svelte:head>
-	<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.5.1/gsap.min.js"></script>
-</svelte:head>
+<ExternalScript url="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.5.1/gsap.min.js" on:loaded="{onLoaded}" />
 
 <h2>Test canvas</h2>
 <canvas id="scene"></canvas>

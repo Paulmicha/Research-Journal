@@ -13,10 +13,10 @@
 	 */
 	export async function preload(page, session) {
 		let {year, month, slug} = page.params;
-		const res = await this.fetch(`data/entities/content/article/${year}/${month}/${slug}.json`);
+		const res = await this.fetch(`/data/entities/content/article/${year}/${month}/${slug}.json`);
 
 		if (res.status !== 200) {
-			this.error(res.status, `The path data/${year}/${month}/${slug} was not found`);
+			this.error(res.status, `The path ${year}/${month}/${slug} was not found`);
 			return {};
 		}
 

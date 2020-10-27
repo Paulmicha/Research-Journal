@@ -13,7 +13,7 @@
 	 */
 	export async function preload(page, session) {
 		const { slug } = page.params;
-		const res = await this.fetch(`data/entities/content/page/${slug.join('/')}.json`);
+		const res = await this.fetch(`/data/entities/content/page/${slug.join('/')}.json`);
 
 		if (res.status !== 200) {
 			this.error(res.status, `The page '${slug.join('/')}' was not found`);

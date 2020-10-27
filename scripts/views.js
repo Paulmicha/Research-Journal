@@ -85,7 +85,7 @@ const views_get_results = (settings, args = []) => {
 	}
 
 	// URL to content entities is the path to the JSON data file relative to
-	// the 'data/entities/content/<type>' folder.
+	// the 'static/data/entities/content/<type>' folder.
 	results.forEach((result, j) => {
 		results[j].path = content_entities_get_path(result);
 	});

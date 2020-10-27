@@ -41,11 +41,11 @@ const build_page_routing_trails = () => {
 
 	// First, organize all pages by depth - regardless of parent-child links.
 	// Level 0 (root) : all pages that have no parent.
-	walk('data/entities/content/page', '.json').map((file_path) => {
+	walk('static/data/entities/content/page', '.json').map((file_path) => {
 		// Update : allow sub-folders to form sub-paths.
 		// page_path = path.parse(file_path).name;
 		page_path = file_path
-			.replace('data/entities/content/page/', '')
+			.replace('static/data/entities/content/page/', '')
 			.replace('.json', '')
 
 		// Debug.

@@ -1,5 +1,5 @@
 <script context="module">
-	import * as homepage_masthead from '../../data/entities/block/homepage_masthead.json'
+	import * as homepage_masthead from '../../static/data/entities/block/homepage_masthead.json'
 </script>
 
 <script>

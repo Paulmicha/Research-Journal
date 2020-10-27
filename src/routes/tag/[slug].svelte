@@ -1,5 +1,5 @@
 <script context="module">
-	import * as tags_data from '../../../data/cache/tag.json';
+	import * as tags_data from '../../../static/data/cache/tag.json';
 	import { views_get_cache_file_path } from '../../utils/views_cache.js';
 
 	const tags = tags_data.default;

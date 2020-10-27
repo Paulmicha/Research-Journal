@@ -9,10 +9,10 @@ const fs = require('fs');
 
 export async function get(req, res, next) {
 	const { slug } = req.params;
-	const file = 'data/' + slug.join('/') + '.json';
+	const file = 'data/' + slug.filter((item) => item && item !== '').join('/') + '.json';
 
 	// Debug.
-	// console.log(`src/routes/data/[...slug].json.js : slug = ${slug}`)
+	// console.log(`src/routes/data/[...slug].json.js : slug = ${slug.filter((item) => item && item !== '')}`)
 
 	const content_json = fs.readFileSync(file).toString();
 

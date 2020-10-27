@@ -106,9 +106,9 @@ const markup_alter = (content, filename) => {
 
 		generated_contents += '{/if}';
 
-		console.log(filename);
+		// console.log(filename);
 		// console.log(generated_imports);
-		console.log(generated_contents);
+		// console.log(generated_contents);
 
 		content = content.replace(get_placeholder('imports', component_type), generated_imports);
 		content = content.replace(get_placeholder('content', component_type), generated_contents);

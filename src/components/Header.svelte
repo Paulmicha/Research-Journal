@@ -18,7 +18,41 @@
 	});
 </script>
 
+<style>
+	.SubNav {
+		display: flex;
+		justify-content: center;
+		align-content: flex-start;
+		align-items: stretch;
+		margin-top: -2.5rem;
+		margin-bottom: 2rem;
+	}
+	.SubNav-link {
+		padding: .5rem;
+		font-size: .66rem;
+		font-weight: bold;
+		line-height: 1;
+		text-transform: uppercase;
+		letter-spacing: .16ch;
+		text-decoration: none;
+	}
+	.SubNav-link:focus,
+	.SubNav-link:hover,
+	.SubNav-link.is-active {
+		background-color: var(--color-invert-bg);
+		color: var(--color-invert-link-on);
+	}
+</style>
+
 <MenuMain bind:items={menu_main_items} />
+
+{#if menu_subnav_items.length}
+	<div class="SubNav">
+		{#each menu_subnav_items as { path, title, is_active }, i}
+			<a href="/{ path }" class="SubNav-link{ is_active ? ' is-active' : '' }" rel=prefetch>{ title }</a>
+		{/each}
+	</div>
+{/if}
 
 <!-- DEBUG -->
 <!-- <pre>Header.svelte : breadcrumb_items = {JSON.stringify(breadcrumb_items, null, 2)}</pre> -->
@@ -49,21 +83,5 @@
 			</span>
 		</nav>
 	{/if}
-
 	<h1>{ model.title }</h1>
-
-	{#if menu_subnav_items.length}
-		<div class="u-center u-bottom">
-			<div class="u-inline-block">
-				<div class="o-tgrid o-tgrid--gutter o-tgrid--bottom">
-					{#each menu_subnav_items as { path, title, is_active }, i}
-						<div class="o-tgrid__item">
-							<a href="/{ path }" class="c-subnav-link{ is_active ? ' active' : '' }" rel=prefetch>{ title }</a>
-						</div>
-					{/each}
-				</div>
-			</div>
-		</div>
-	{/if}
-
 </header>

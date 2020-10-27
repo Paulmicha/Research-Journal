@@ -6,7 +6,7 @@
 		{
 			"c": "RichText",
 			"props": {
-				"text": "Hello <a href='/about'>test markup</a>."
+				"markup": "Hello <a href='/about'>test markup</a>."
 			}
 		}
 	]

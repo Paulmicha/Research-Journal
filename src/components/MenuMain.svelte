@@ -8,7 +8,7 @@
 		margin-right: -100%;
 		margin-bottom: 2.5rem;
 		padding: 1rem 100%;
-		background-color: rgba(0,0,0,.66);
+		background-color: var(--color-invert-bg);
 	}
 	.inner-wrap {
 		display: flex;
@@ -28,18 +28,20 @@
 	}
 	.MenuMain-item {
 		padding: 0 .5rem;
-		font-size: 1.25rem;
+		font-size: 1.15rem;
 	}
 	.MenuMain-link {
-		font-variant-caps: all-small-caps;
-		color: white;
+		/* font-variant-caps: all-small-caps; */
+		text-transform: uppercase;
+		letter-spacing: .16ch;
+		color: var(--color-invert-link-off);
 		font-weight: bold;
 		text-decoration: none;
 	}
 	.MenuMain-link:focus,
 	.MenuMain-link:hover,
 	.MenuMain-link.is-active {
-		color: deepskyblue;
+		color: var(--color-invert-link-on);
 	}
 </style>
 

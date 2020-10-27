@@ -49,7 +49,7 @@ const build_page_routing_trails = () => {
 			.replace('.json', '')
 
 		// Debug.
-		console.log(`page_path = ${page_path}`)
+		// console.log(`page_path = ${page_path}`)
 
 		page_data = JSON.parse(fs.readFileSync(file_path).toString());
 		page_data.path = page_path;

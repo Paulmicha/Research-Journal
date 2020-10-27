@@ -1,28 +1,33 @@
+/* Ugly reset */
 * {
 	padding: 0;
 	margin: 0;
 	box-sizing: border-box;
 }
 
-/* :root,
-	html {
-	font-size: 1rem;
-} */
-
-@media (min-width: 30rem) {
-	:root,
-	html {
-		font-size: calc(1rem + .5 * ((100vw - 30rem) / 70));
-	}
+/* Shared values */
+:root,
+html {
+	--color-invert-bg: rgba(0, 0, 0, .66);
+	--color-invert-link-off: white;
+	--color-invert-link-on: deepskyblue;
 }
 
+/* Responsive font-size */
+@media (min-width: 30rem) and (max-width: 100rem) {
+	:root,
+	html {
+		font-size: calc(1rem + .33 * ((100vw - 30rem) / 70));
+	}
+}
 @media (min-width: 100rem) {
 	:root,
 	html {
-		font-size: 1.5rem;
+		font-size: 1.33rem;
 	}
 }
 
+/* Main page "frame" */
 body {
 	font-family: 'Gudea', sans-serif;
 	overflow-x: hidden;
@@ -39,6 +44,7 @@ body {
 	min-height: 100vh;
 }
 
+/* Default tags */
 img {
 	display: inline-block;
 	max-width: 100%;
@@ -47,9 +53,9 @@ img {
 a:visited {
 	color: currentColor;
 }
-
 a:focus,
-a:hover {
+a:hover,
+a.is-active {
 	color: cornflowerblue;
 }
 
@@ -58,4 +64,24 @@ hr {
 	height: 1px;
 	/* background-image: linear-gradient(to right, rgba(255, 255, 255, 0), rgba(255, 255, 255, 0.75), rgba(255, 255, 255, 0)); */
 	background-image: linear-gradient(to right, rgba(0, 0, 0, 0), rgba(0, 0, 0, 0.75), rgba(0, 0, 0, 0));
+}
+
+/* Generic utilities */
+
+/**
+ * Hide elements visually, but keep them available for screen-readers.
+ *
+ * Used for information required for screen-reader users to understand and use
+ * the site where visual display is undesirable. Information provided in this
+ * manner should be kept concise, to avoid unnecessary burden on the user.
+ */
+.u-sr-only {
+	position: absolute;
+	overflow: hidden;
+	clip: rect(0, 0, 0, 0);
+	border: 0;
+	margin: -1px;
+	padding: 0;
+	width: 1px;
+	height: 1px;
 }

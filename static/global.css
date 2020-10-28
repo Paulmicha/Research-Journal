@@ -11,6 +11,8 @@ html {
 	--color-invert-bg: rgba(0, 0, 0, .66);
 	--color-invert-link-off: white;
 	--color-invert-link-on: deepskyblue;
+	--content-width: 80ch;
+	--content-bleed: calc((100vw - var(--content-width)) / 2);
 }
 
 /* Responsive font-size */
@@ -39,9 +41,18 @@ body {
 	justify-content: space-between;
 	margin-left: auto;
 	margin-right: auto;
-	width: 80ch;
+	width: var(--content-width);
 	max-width: 100%;
 	min-height: 100vh;
+}
+
+.full-vw {
+	margin-left: calc(var(--content-bleed) * -1);
+	margin-right: calc(var(--content-bleed) * -1);
+}
+.full-vw--padded {
+	padding-right: var(--content-bleed);
+	padding-left: var(--content-bleed);
 }
 
 /* Default tags */

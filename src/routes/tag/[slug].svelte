@@ -1,6 +1,6 @@
 <script context="module">
 	import * as tags_data from '../../../static/data/cache/tag.json';
-	import { views_get_cache_file_path } from '../../utils/views_cache.js';
+	import { views_get_cache_file_path } from '../../lib/views_cache.js';
 
 	const tags = tags_data.default;
 
@@ -92,7 +92,7 @@
 
 	// Specific nav state for tags pages.
 	// @see src/components/LayoutContentPage.svelte
-	// @see src/utils/nav.js
+	// @see src/lib/nav.js
 	model.parent_page = 'articles';
 </script>
 

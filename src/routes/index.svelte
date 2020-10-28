@@ -5,7 +5,7 @@
 <script>
 	import { route } from '../stores/route.js';
 	import { getContext } from 'svelte';
-	import { nav_menu_get_items } from '../utils/nav.js';
+	import { nav_menu_get_items } from '../lib/nav.js';
 	import MenuMain from '../components/MenuMain.svelte';
 	import DropCap from '../components/DropCap.svelte';
 	import Footer from '../components/Footer.svelte';

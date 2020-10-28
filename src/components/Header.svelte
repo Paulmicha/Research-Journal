@@ -1,7 +1,7 @@
 <script>
 	import MenuMain from './MenuMain.svelte';
 	import { getContext } from 'svelte';
-	import { nav_menu_get_items, nav_breadcrumb_get_items } from '../utils/nav.js';
+	import { nav_menu_get_items, nav_breadcrumb_get_items } from '../lib/nav.js';
 	import { route } from '../stores/route.js';
 
 	export let model;
@@ -46,16 +46,6 @@
 	}
 </style>
 
-<MenuMain bind:items={menu_main_items} />
-
-{#if menu_subnav_items.length}
-	<div class="SubNav">
-		{#each menu_subnav_items as { path, title, is_active }, i}
-			<a href="/{ path }" class="SubNav-link{ is_active ? ' is-active' : '' }" rel=prefetch>{ title }</a>
-		{/each}
-	</div>
-{/if}
-
 <!-- DEBUG -->
 <!-- <pre>Header.svelte : breadcrumb_items = {JSON.stringify(breadcrumb_items, null, 2)}</pre> -->
 <!-- <pre>Header.svelte : menu_subnav_items = {JSON.stringify(menu_subnav_items, null, 2)}</pre> -->
@@ -68,6 +58,14 @@
 <!-- <pre>Header.svelte : menu_main_items = {JSON.stringify(menu_main_items, null, 2)}</pre> -->
 
 <header>
+	<MenuMain bind:items={menu_main_items} />
+	{#if menu_subnav_items.length}
+		<div class="SubNav">
+			{#each menu_subnav_items as { path, title, is_active }, i}
+				<a href="/{ path }" class="SubNav-link{ is_active ? ' is-active' : '' }" rel=prefetch>{ title }</a>
+			{/each}
+		</div>
+	{/if}
 	{#if breadcrumb_items.length}
 		<nav class="Breadcrumb">
 			{#each breadcrumb_items as { path, title }, i}

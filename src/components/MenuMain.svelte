@@ -4,10 +4,9 @@
 
 <style>
 	.wrap {
-		margin-left: -100%;
-		margin-right: -100%;
 		margin-bottom: 1.5rem;
-		padding: 1rem 100%;
+		padding-top: 1rem;
+		padding-bottom: 1rem;
 		background-color: var(--color-invert-bg);
 	}
 	.inner-wrap {
@@ -48,7 +47,7 @@
 <!-- DEBUG -->
 <!-- <pre>MenuMain.svelte : items = {JSON.stringify(items, null, 2)}</pre> -->
 
-<div class="wrap">
+<div class="wrap full-vw full-vw--padded">
 	<div class="inner-wrap">
 		<a class="logo" href="/">
 			<img src="/logo.svg" alt="Experimental research journal logo" />

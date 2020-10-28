@@ -25,7 +25,7 @@
 
 		// Specific nav state for blog posts.
 		// @see src/components/LayoutContentPage.svelte
-		// @see src/utils/nav.js
+		// @see src/lib/nav.js
 		model.parent_page = 'articles';
 
 		return { model };

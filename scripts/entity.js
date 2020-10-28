@@ -18,7 +18,7 @@ const content_entities_load_all = () => {
 	}
 	content_entities = {};
 	walk('static/data/entities/content', '.json').map(file_path => {
-		const content_type = file_path.split('/')[3];
+		const content_type = file_path.split('/')[4];
 		if (!(content_type in content_entities)) {
 			content_entities[content_type] = [];
 		}
@@ -30,6 +30,10 @@ const content_entities_load_all = () => {
 		};
 		content_entities[content_type].push(data);
 	});
+
+	// Debug
+	// console.log(`content_entities = ${JSON.stringify(content_entities)}`);
+
 	return content_entities;
 };
 
@@ -53,8 +57,8 @@ const taxonomy_terms_load_all = () => {
 		return term_entities;
 	}
 	term_entities = {};
-	walk('data/entities/taxonomy', '.json').map(file_path => {
-		const vocabulary = file_path.split('/')[3];
+	walk('static/data/entities/taxonomy', '.json').map(file_path => {
+		const vocabulary = file_path.split('/')[4];
 		if (!(vocabulary in term_entities)) {
 			term_entities[vocabulary] = [];
 		}
@@ -95,7 +99,7 @@ const content_entities_get_path = (entity) => {
 	if (entity.storage.backend === 'file') {
 		path = entity.storage.file_path;
 		path = path.replace(new RegExp('static/data/entities/content/[^/]+/'), '');
-		path = path.replace(new RegExp('data/entities/taxonomy/'), '');
+		path = path.replace(new RegExp('static/data/entities/taxonomy/'), '');
 		path = path.replace(new RegExp('\.json$'), '');
 	}
 

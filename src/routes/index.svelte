@@ -10,7 +10,7 @@
 	import DropCap from '../components/DropCap.svelte';
 	import Footer from '../components/Footer.svelte';
 
-	// TODO [wip] debug netlify 404.
+	// TODO Evaluate using Netflify CMS.
 	import { onMount } from 'svelte';
 	onMount(() => {
 		if (window.netlifyIdentity) {

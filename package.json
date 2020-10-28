@@ -5,7 +5,7 @@
   "scripts": {
     "dev": "sapper dev",
     "build": "node scripts/before_build.js && sapper build --legacy",
-    "export": "node scripts/before_build.js && node scripts/sapper_export.js",
+    "export": "node scripts/before_build.js && sapper export --legacy",
     "start": "node __sapper__/build"
   },
   "dependencies": {

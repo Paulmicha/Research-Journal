@@ -10,7 +10,7 @@ export function views_get_cache_file_path(stringified_props, args_arr = []) {
 	if (!tail.length) {
 		tail = '/default';
 	}
-	return `data/cache/views/${views_hash_props(stringified_props)}${tail}.json`;
+	return `static/data/cache/views/${views_hash_props(stringified_props)}${tail}.json`;
 }
 
 /**

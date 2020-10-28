@@ -30,7 +30,7 @@
 		const { slug } = page.params;
 		const full_slug = 'tag/' + slug;
 
-		// TODO [wip] instead of importing tags_data from 'data/cache/tag.json',
+		// TODO [wip] instead of importing tags_data from '/data/cache/tag.json',
 		// implement async preload - e.g. as in :
 		// const res = await this.fetch(`data/${slug.join('/')}.json`);
 		// if (res.status !== 200) {

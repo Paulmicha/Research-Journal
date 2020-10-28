@@ -17,7 +17,7 @@ const { build_taxonomy_cache } = require('./taxonomy');
  * @see build_page_routing_trails()
  */
 const cache_page_routing_trails = () => {
-	write_file('data/cache/page_routing_trails.json', JSON.stringify(build_page_routing_trails()));
+	write_file('static/data/cache/page_routing_trails.json', JSON.stringify(build_page_routing_trails()));
 }
 
 /**
@@ -52,7 +52,7 @@ const cache_views_results = () => {
  */
 const cache_taxonomy_terms = () => {
 	for (const [vocabulary, terms] of Object.entries(build_taxonomy_cache())) {
-		write_file(`data/cache/${vocabulary}.json`, JSON.stringify(terms));
+		write_file(`static/data/cache/${vocabulary}.json`, JSON.stringify(terms));
 	}
 }
 

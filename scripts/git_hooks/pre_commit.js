@@ -24,7 +24,7 @@ exec(
 			}
 			// Whitelisted (update as needed).
 			switch (diff_line) {
-				case 'data/cache/page_routing_trails.json':
+				case 'static/data/cache/page_routing_trails.json':
 					exec(`git add ${diff_line}`);
 					break;
 			}

@@ -6,6 +6,9 @@
 		"path": "experiments",
 		"weight": 0
 	},
+	"data": {
+		"postures": "data/entities/experiment/postures.json"
+	},
 	"content": [
 		{
 			"c": "ExpDocuWorkshop",

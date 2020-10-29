@@ -11,7 +11,7 @@ html {
 	--color-invert-bg: rgba(0, 0, 0, .66);
 	--color-invert-link-off: white;
 	--color-invert-link-on: deepskyblue;
-	--content-width: 80ch;
+	--content-width: 60ch;
 	--content-bleed: calc((100vw - var(--content-width)) / 2);
 }
 
@@ -46,13 +46,15 @@ body {
 	min-height: 100vh;
 }
 
-.full-vw {
-	margin-left: calc(var(--content-bleed) * -1);
-	margin-right: calc(var(--content-bleed) * -1);
-}
-.full-vw--padded {
-	padding-right: var(--content-bleed);
-	padding-left: var(--content-bleed);
+@media (min-width: 60ch) {
+	.full-vw {
+		margin-left: calc(var(--content-bleed) * -1);
+		margin-right: calc(var(--content-bleed) * -1);
+	}
+	.full-vw--padded {
+		padding-right: var(--content-bleed);
+		padding-left: var(--content-bleed);
+	}
 }
 
 /* Default tags */

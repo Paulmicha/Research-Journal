@@ -5,8 +5,8 @@
 <style>
 	.wrap {
 		margin-bottom: 1.5rem;
-		padding-top: 1rem;
-		padding-bottom: 1rem;
+		padding-top: .25rem;
+		padding-bottom: .25rem;
 		background-color: var(--color-invert-bg);
 	}
 	.inner-wrap {
@@ -17,7 +17,7 @@
 	.logo {
 		display: block;
 		line-height: 1;
-		width: 3rem;
+		width: 2rem;
 		text-decoration: none;
 	}
 	.MenuMain {
@@ -27,14 +27,14 @@
 	}
 	.MenuMain-item {
 		padding: 0 .5rem;
-		font-size: 1.15rem;
 	}
 	.MenuMain-link {
 		/* font-variant-caps: all-small-caps; */
 		text-transform: uppercase;
 		letter-spacing: .16ch;
 		color: var(--color-invert-link-off);
-		/* font-weight: bold; */
+		font-size: .66rem;
+		font-weight: bold;
 		text-decoration: none;
 	}
 	.MenuMain-link:focus,

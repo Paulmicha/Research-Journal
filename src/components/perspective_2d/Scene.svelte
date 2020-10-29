@@ -12,9 +12,11 @@
 	 */
 	const init = element => {
 		// Debug.
-		console.log(element)
-		console.log(`width = ${element.clientWidth}`)
-		console.log(`height = ${element.clientHeight}`)
+		// console.log(element)
+		// console.log(`width = ${element.clientWidth}`)
+		// console.log(`height = ${element.clientHeight}`)
+
+		const s = new Scene(element.clientWidth, element.clientHeight);
 
 		return {
 			destroy() {

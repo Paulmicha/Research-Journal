@@ -1,6 +1,6 @@
 <script>
-	import Scene from '../perspective_2d/Scene.svelte';
 	import { spring } from 'svelte/motion';
+	import Scene from '../perspective_2d/Scene.svelte';
 
 	let coords = spring({ x: 50, y: 50 }, {
 		stiffness: 0.03,

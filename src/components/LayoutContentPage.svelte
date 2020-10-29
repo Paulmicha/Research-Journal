@@ -30,6 +30,14 @@
 					delete existing.parent_page;
 				}
 
+				// Idem for arbitrary additional data.
+				if ('data' in model) {
+					existing.data = model.data;
+				}
+				else if ('data' in existing) {
+					delete existing.data;
+				}
+
 				return existing;
 			});
 		}

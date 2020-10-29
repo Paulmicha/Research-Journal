@@ -8,8 +8,6 @@
 	 * @param page : object containing `{ path, params, query }`.
 	 * @param session : used for credentialled requests.
 	 * @return object : page data (model).
-	 *
-	 * @see src/routes/[...slug].json.js
 	 */
 	export async function preload(page, session) {
 		const { slug } = page.params;
@@ -52,7 +50,7 @@
 
 <!-- DEBUG -->
 <!-- <pre>[slug].svelte : slug = {JSON.stringify(model.slug, null, 2)}</pre> -->
-<pre>[slug].svelte : model = {JSON.stringify(model, null, 2)}</pre>
+<!-- <pre>[slug].svelte : model = {JSON.stringify(model, null, 2)}</pre> -->
 
 <LayoutContentPage {model}>
 	{#each model.content as { c, props }}

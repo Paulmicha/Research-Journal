@@ -1,10 +1,85 @@
 {
 	"items": [
 		{
-			"title": "Multi-casquettes, \"Caméléon\", Infiltré"
+			"title": "Médiateur, Intermédiaire, Pacificateur",
+			"instruments": "Communication non-violente, Baton à parole",
+			"effets": "Résolution de conflit, organisation communicationnelle",
+			"partial": 0,
+			"informel": 2,
+			"conflictuel": 0
 		},
 		{
-			"title": "Archéologue, Historien"
+			"title": "Archéologue, Historien",
+			"instruments": "Cherche dans archives, traces terrain, histoire du territoire, voyageur",
+			"effets": "Expliquer le présent, petite histoire dans la grande histoire",
+			"partial": 5,
+			"informel": 2,
+			"conflictuel": 6
+		},
+		{
+			"title": "Expert",
+			"instruments": "Connaissances, rapports, études",
+			"effets": "Prioriser les choses, hierarchiser les choses",
+			"partial": 5,
+			"informel": 2,
+			"conflictuel": 8
+		},
+		{
+			"title": "Ingénu, Profane, Néophyte, Innocent, Apprenant",
+			"instruments": "Humilité, écoute",
+			"effets": "Déclencher un dialogue, valoriser les personnes interviewées",
+			"partial": 2,
+			"informel": 8,
+			"conflictuel": 3
+		},
+		{
+			"title": "Étudiant, Chercheur",
+			"instruments": "",
+			"effets": "",
+			"partial": 5,
+			"informel": 6,
+			"conflictuel": 4
+		},
+		{
+			"title": "Journaliste, Investigateur",
+			"instruments": "Smartphone (vidéo, audio, photos), pads",
+			"effets": "Méfiance, déversoir",
+			"partial": 1,
+			"informel": 1,
+			"conflictuel": 6
+		},
+		{
+			"title": "Intellectuel",
+			"instruments": "Dialogue, écoute",
+			"effets": "Mettre les mots, prendre de haut, faire la leçon",
+			"partial": 8,
+			"informel": 1,
+			"conflictuel": 8
+		},
+		{
+			"title": "Sociologue, Anthropologue, Ethnographe",
+			"instruments": "Dialogue, écoute",
+			"effets": "Dubitatif",
+			"partial": 2,
+			"informel": 3,
+			"conflictuel": 3
+		},
+		{
+			"title": "Sociologue, Anthropologue, Ethnographe",
+			"instruments": "Dialogue, écoute",
+			"effets": "Dubitatif",
+			"partial": 2,
+			"informel": 3,
+			"conflictuel": 3
+		},
+		{
+			"title": "Designer, Facilitateur, Lubrifiant",
+			"instruments": "Design thinking (Ethnographic methods, Personas, Journey map, Brainstorming, Mind map, Visualization, Prototyping, Experiments)",
+			"effets": "Clarification, empathie, questionnement, visualisation",
+			"partial": 2,
+			"informel": 5,
+			"conflictuel": 3
 		}
+
 	]
 }

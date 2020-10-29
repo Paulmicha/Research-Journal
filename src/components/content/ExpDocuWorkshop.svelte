@@ -1,13 +1,15 @@
 <script>
 	import { spring } from 'svelte/motion';
 	import { route } from '../../stores/route.js';
-	import Scene from '../perspective_2d/Scene.svelte';
+	// import Scene from '../perspective_2d/Scene.svelte';
 
 	// Load custom data.
 	let postures = [];
-	if ($route.data && $route.data.postures && $route.data.postures.items) {
-		postures = $route.data.postures.items;
-	}
+	route.subscribe(o => {
+		if (o.data) {
+			postures = o.data.postures.items
+		}
+	})
 
 	// Tests WIP.
 	let coords = spring({ x: 50, y: 50 }, {
@@ -20,6 +22,9 @@
 	.wrap {
 		flex-grow: 1;
 		text-align: center;
+		display: flex;
+		flex-direction: column;
+		justify-content: center;
 	}
 	.mouse-tracker {
 		position: absolute;
@@ -40,9 +45,10 @@
 		margin-top: calc(var(--width) / 4);
 		margin-bottom: calc(var(--width) / 4);
 		width: var(--width);
-		padding: 1rem 0;
+		padding: 1.25rem 0;
 		text-align: center;
 		font-size: .75rem;
+		font-weight: bold;
 		color: white;
 		background: var(--bg-color);
 	}
@@ -63,32 +69,28 @@
 		top: 100%;
 		border-top: calc(var(--width) / 4) solid var(--bg-color);
 	}
-	/* .hexagon-inner-wrap {
-		position: absolute;
-		top: calc(var(--width) / 4);
-		right: 0;
-		bottom: calc(var(--width) / 4);
-		left: 0;
-		display: flex;
-		align-items: stretch;
-	} */
 </style>
 
-<h2>Test canvas</h2>
+<h2>Test WIP</h2>
 
 <!-- Debug. -->
 <!-- <pre>src/components/content/ExpDocuWorkshop.svelte : $route = {JSON.stringify($route, null, 2)}</pre> -->
-<pre>src/components/content/ExpDocuWorkshop.svelte : postures = {JSON.stringify(postures, null, 2)}</pre>
+<!-- <pre>src/components/content/ExpDocuWorkshop.svelte : postures = {JSON.stringify(postures, null, 2)}</pre> -->
 
+<hr class="full-vw" />
 <div class="wrap full-vw" on:mousemove="{e => coords.set({ x: e.clientX, y: e.clientY })}">
-	<hr/>
-	{#each postures as posture}
-		<div class="hexagon" style="--bg-color:hsla({ Math.random() * 360 }, 100%, 30%, 1)">
-			<div class="hexagon-inner-wrap">
-				<p>{ posture.title }</p>
+
+	<div class="f-grid">
+		{#each postures as posture}
+			<div class="item">
+				<div class="hexagon" style="--bg-color:hsla({ Math.round(Math.random() * 360) }, 100%, 30%, 1)">
+					<div class="hexagon-inner-wrap">
+						<p>{ posture.title }</p>
+					</div>
+				</div>
 			</div>
-		</div>
-	{/each}
+		{/each}
+	</div>
 
 	<!-- Tests WIP. -->
 	<div
@@ -97,5 +99,5 @@
 	>
 	</div>
 
-	<Scene />
+	<!-- <Scene /> -->
 </div>

@@ -85,6 +85,20 @@ H1, h2, h3, h4, h5, h6 {
 
 /* Generic utilities */
 
+.f-grid {
+	--gutter: .5em;
+	--item-width: 5em;
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+  justify-content: center;
+	margin: calc(var(--gutter) * -1);
+}
+.f-grid > * {
+	flex: 1 0 var(--item-width);
+	margin: var(--gutter);
+}
+
 /**
  * Hide elements visually, but keep them available for screen-readers.
  *

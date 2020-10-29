@@ -11,6 +11,16 @@
 		}
 	})
 
+	// Manipulation : weighted criterias impacting a single score, then used to
+	// scale up or down the items.
+	let partial_weight = 0;
+	let informel_weight = 0;
+	let conflictuel_weight = 0;
+	const get_score = (posture) => partial_weight * posture.partial + informel_weight * posture.informel + conflictuel_weight * posture.conflictuel
+	postures.forEach(posture => {
+		posture.score = get_score(posture)
+	});
+
 	// Tests WIP.
 	let coords = spring({ x: 50, y: 50 }, {
 		stiffness: 0.03,
@@ -40,12 +50,14 @@
 	}
 	.hexagon {
 		--width: 7rem;
+		--height: 4.25rem;
 		position: relative;
 		display: inline-block;
 		margin-top: calc(var(--width) / 4);
 		margin-bottom: calc(var(--width) / 4);
+		/* padding: 1.25rem 0; */
 		width: var(--width);
-		padding: 1.25rem 0;
+		height: var(--height);
 		text-align: center;
 		font-size: .75rem;
 		font-weight: bold;
@@ -69,6 +81,17 @@
 		top: 100%;
 		border-top: calc(var(--width) / 4) solid var(--bg-color);
 	}
+	.hexagon-inner-wrap {
+		position: absolute;
+		top: 0;
+		right: 0;
+		bottom: 0;
+		left: 0;
+		display: flex;
+		flex-direction: column;
+		justify-content: center;
+		padding: .25rem;
+	}
 </style>
 
 <h2>Test WIP</h2>
@@ -77,15 +100,20 @@
 <!-- <pre>src/components/content/ExpDocuWorkshop.svelte : $route = {JSON.stringify($route, null, 2)}</pre> -->
 <!-- <pre>src/components/content/ExpDocuWorkshop.svelte : postures = {JSON.stringify(postures, null, 2)}</pre> -->
 
+<input type=range bind:value={ partial_weight }>
+<input type=range bind:value={ informel_weight }>
+<input type=range bind:value={ conflictuel_weight }>
+
 <hr class="full-vw" />
 <div class="wrap full-vw" on:mousemove="{e => coords.set({ x: e.clientX, y: e.clientY })}">
 
 	<div class="f-grid">
 		{#each postures as posture}
-			<div class="item">
-				<div class="hexagon" style="--bg-color:hsla({ Math.round(Math.random() * 360) }, 100%, 30%, 1)">
+			<div>
+				<div class="hexagon" style="--score:{ posture.score }; --bg-color:hsla({ Math.round(Math.random() * 360) }, 100%, 30%, 1)">
 					<div class="hexagon-inner-wrap">
 						<p>{ posture.title }</p>
+						<input type="text" bind:value={ posture.score } />
 					</div>
 				</div>
 			</div>
@@ -93,11 +121,11 @@
 	</div>
 
 	<!-- Tests WIP. -->
-	<div
+	<!-- <div
 		class="mouse-tracker dot"
 		style="--x:calc({ $coords.x }px - .5rem); --y:calc({ $coords.y }px - .5rem);"
 	>
-	</div>
+	</div> -->
 
 	<!-- <Scene /> -->
 </div>

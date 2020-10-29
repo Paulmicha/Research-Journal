@@ -19,7 +19,7 @@
 		{
 			"title": "Expert",
 			"instruments": "Connaissances, rapports, études",
-			"effets": "Prioriser les choses, hierarchiser les choses",
+			"effets": "Prioriser, hierarchiser les choses",
 			"partial": 5,
 			"informel": 2,
 			"conflictuel": 8
@@ -30,12 +30,12 @@
 			"effets": "Déclencher un dialogue, valoriser les personnes interviewées",
 			"partial": 2,
 			"informel": 8,
-			"conflictuel": 3
+			"conflictuel": 5
 		},
 		{
 			"title": "Étudiant, Chercheur",
-			"instruments": "",
-			"effets": "",
+			"instruments": "Documentation",
+			"effets": "Charge, tare",
 			"partial": 5,
 			"informel": 6,
 			"conflictuel": 4
@@ -59,15 +59,7 @@
 		{
 			"title": "Sociologue, Anthropologue, Ethnographe",
 			"instruments": "Dialogue, écoute",
-			"effets": "Dubitatif",
-			"partial": 2,
-			"informel": 3,
-			"conflictuel": 3
-		},
-		{
-			"title": "Sociologue, Anthropologue, Ethnographe",
-			"instruments": "Dialogue, écoute",
-			"effets": "Dubitatif",
+			"effets": "",
 			"partial": 2,
 			"informel": 3,
 			"conflictuel": 3
@@ -79,7 +71,30 @@
 			"partial": 2,
 			"informel": 5,
 			"conflictuel": 3
+		},
+		{
+			"title": "Militant, Lanceur d'alerte",
+			"instruments": "Tractage, community management",
+			"effets": "Quitte ou double - susciter l’envie de se livrer ou évitement, confrontation",
+			"partial": 10,
+			"informel": 5,
+			"conflictuel": 10
+		},
+		{
+			"title": "Vulgarisateur, Accessibilité",
+			"instruments": "Présentations, schématisations",
+			"effets": "Risque de prendre les gens pour des idiots",
+			"partial": 7,
+			"informel": 10,
+			"conflictuel": 4
+		},
+		{
+			"title": "Bouffon, Provocateur",
+			"instruments": "",
+			"effets": "",
+			"partial": 2,
+			"informel": 5,
+			"conflictuel": 3
 		}
-
 	]
 }

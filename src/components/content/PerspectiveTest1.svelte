@@ -84,8 +84,7 @@
 		/* ====================== */
 		function render() {
 			// Clear the scene
-			// Debug test.
-			// ctx.clearRect(0, 0, width, height);
+			ctx.clearRect(0, 0, width, height);
 
 			// Loop through the dots array and draw every dot
 			for (var i = 0; i < dots.length; i++) {

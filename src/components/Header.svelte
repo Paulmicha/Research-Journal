@@ -29,6 +29,7 @@
 	}
 	.SubNav-link {
 		border-bottom: .16rem solid transparent;
+		margin: 0 .25rem;
 		padding: .4rem .16rem;
 		font-size: .66rem;
 		font-weight: bold;

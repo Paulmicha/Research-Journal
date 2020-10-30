@@ -48,6 +48,6 @@ const walk = (dir, extension) => {
 }
 
 module.exports = {
-	"walk": walk,
-	"write_file": write_file
+	walk,
+	write_file
 };

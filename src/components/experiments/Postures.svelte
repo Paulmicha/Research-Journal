@@ -1,35 +1,26 @@
 <script>
+	// import { derived } from 'svelte/store';
+	// import { route } from '../../stores/route.js';
 	import Popover from 'svelte-popover';
-	import { route } from '../../stores/route.js';
 
-	export let partial_weight = 0;
-	export let informel_weight = 0;
-	export let conflictuel_weight = 0;
+	// export let partial_weight = 0;
+	// export let informel_weight = 0;
+	// export let conflictuel_weight = 0;
+	export let postures = [];
+	// const get_score = (posture) => partial_weight * posture.partial + informel_weight * posture.informel + conflictuel_weight * posture.conflictuel;
 
-	const get_score = (posture) => partial_weight * posture.partial + informel_weight * posture.informel + conflictuel_weight * posture.conflictuel;
-
-	// Load custom data.
-	let postures = [];
-	route.subscribe(o => {
-		if (o.data) {
-			postures = o.data.postures.items
-
-			postures.forEach(posture => {
-				posture.score = get_score(posture)
-			});
-		}
-	})
-
-	// $: postures_scores = postures ? postures.forEach(posture => get_score(posture)) : [];
-
-	$: postures_scores = postures ? postures.forEach(posture => partial_weight * posture.partial + informel_weight * posture.informel + conflictuel_weight * posture.conflictuel) : [];
-
+	// const postures = derived(route, $route => $route.data.postures.items.map(posture => get_score(posture)));
+	// const postures = derived(route, $route => console.log($route));
 </script>
 
 <style>
+	.f-grid {
+		--item-width: 2em;
+	}
 	.hexagon {
-		--width: 7rem;
-		--height: 4.25rem;
+		--width: 7em;
+		--height: 4.25em;
+		font-size: calc(var(--score) * 1em + .7rem);
 		position: relative;
 		display: inline-block;
 		margin-top: calc(var(--width) / 4);
@@ -38,7 +29,6 @@
 		width: var(--width);
 		height: var(--height);
 		text-align: center;
-		font-size: .75rem;
 		font-weight: bold;
 		color: white;
 		background: var(--bg-color);
@@ -79,22 +69,21 @@
     background: #fff;
 		color: var(--bg-color);
   }
-	.debug {
+	/* .debug {
 		font-size: .66rem;
 		padding: .33rem 0;
-	}
+	} */
 </style>
 
-<p class="debug">weights : { partial_weight },{ informel_weight },{ conflictuel_weight }</p>
+<!-- <p class="debug">weights : { partial_weight },{ informel_weight },{ conflictuel_weight }</p> -->
 
 <div class="f-grid">
 	{#each postures as posture, i}
 		<div>
-			<!-- <div class="hexagon" style="--score:{ posture.score }; --bg-color:hsla({ Math.round(Math.random() * 360) }, 100%, 30%, 1)"> -->
-			<div class="hexagon" style="--score:{ postures_scores && postures_scores[i] || 0 }; --bg-color:hsla({ Math.round(Math.random() * 360) }, 100%, 30%, 1)">
+			<div class="hexagon" style="--score:{ posture.score }; --bg-color:hsla({ Math.round(Math.random() * 360) }, 100%, 30%, 1)">
 				<div class="hexagon-inner-wrap">
 					<Popover arrowColor="#fff" action="hover">
-						<p slot="target">{ posture.title }</p>
+						<p slot="target">{ posture.score } { posture.title }</p>
 						<dl slot="content" class="pop-content">
 							<dt>instruments&nbsp;:</dt>
 							<dd>{ posture.instruments }</dd>

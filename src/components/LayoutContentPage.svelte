@@ -7,10 +7,15 @@
 	export let model;
 
 	/**
-	 * TODO verify if in some cases it's faster to call this twice - in <script>
-	 * scope directly + in afterUpdate(), see below.
+	 * Implements Svelte afterUpdate "hook".
+	 *
+	 * Update current route page title from page data (model) for all descendant
+	 * components once the DOM is in sync with data.
+	 *
+	 * This prevents out-of-sync state when the routing store is updated from the
+	 * async preloaded data.
 	 */
-	const update_route = model => {
+	afterUpdate(async () => {
 		if ('title' in model && 'slug' in model) {
 			route.update(existing => {
 				existing.title = model.title;
@@ -41,21 +46,6 @@
 				return existing;
 			});
 		}
-	}
-
-	update_route(model);
-
-	/**
-	 * Implements Svelte afterUpdate "hook".
-	 *
-	 * Update current route page title from page data (model) for all descendant
-	 * components once the DOM is in sync with data.
-	 *
-	 * This prevents out-of-sync state when the routing store is updated from the
-	 * async preloaded data.
-	 */
-	afterUpdate(async () => {
-		update_route(model);
 	});
 </script>
 

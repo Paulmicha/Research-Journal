@@ -1,57 +1,90 @@
 <script>
-	import { spring } from 'svelte/motion';
+	// import { spring } from 'svelte/motion';
 	import { route } from '../../stores/route.js';
-	// import { writable } from 'svelte/store';
+	// import { derived } from 'svelte/store';
+	import { writable } from 'svelte/store';
 	import Popover from 'svelte-popover';
 	import Postures from '../experiments/Postures.svelte';
 	// import Scene from '../perspective_2d/Scene.svelte';
 
-	// Load custom data.
-	let postures = [];
-	route.subscribe(o => {
-		if (o.data) {
-			postures = o.data.postures.items
-		}
-	})
-
-	// Manipulation : weighted criterias impacting a single score, then used to
-	// scale up or down the items.
-	// const scores = writable([]);
+	// Tests WIP.
+	// let coords = spring({ x: 50, y: 50 }, {
+	// 	stiffness: 0.03,
+	// 	damping: 0.15
+	// });
 
 	let partial_weight = 0;
 	let informel_weight = 0;
 	let conflictuel_weight = 0;
 
-	// const get_score = (posture) => partial_weight * posture.partial + informel_weight * posture.informel + conflictuel_weight * posture.conflictuel;
+	const get_score = (posture) => partial_weight * posture.partial + informel_weight * posture.informel + conflictuel_weight * posture.conflictuel;
+
+	const posturesStore = writable([]);
+
+	// Init custom data.
+	let postures = [];
+	route.subscribe(o => {
+		if (o.data) {
+			postures = o.data.postures.items;
+			postures.forEach(posture => {
+				posture.score = get_score(posture);
+			});
+			posturesStore.update(() => postures);
+		}
+	});
+
+	// const postures = derived(route, $route => ($route.data && $route.data.postures && $route.data.postures.items) ? $route.data.postures.items.map(posture => get_score(posture)) : []);
+
+	// let postures;
+	// const postures = derived(route, $route => []);
+	// const postures = writable([]);
+
+	// route.subscribe(o => {
+	// 	if (o.data) {
+	// 		// postures = derived(route, $route => $route.data.postures.items.map(posture => get_score(posture)));
+	// 		// postures = derived(route, $route => o.data.postures.items.map(posture => get_score(posture)));
+	// 		// console.log(o.data.postures.items.map(posture => get_score(posture)))
+	// 		postures.update(existing => o.data.postures.items.map(posture => get_score(posture)));
+	// 	}
+	// });
+
+	// console.log($postures);
+
+	// Manipulation : weighted criterias impacting a single score, then used to
+	// scale up or down the items.
+	// const scores = writable([]);
 
 	// $: postures.forEach(posture => {
 	// 	posture.score = get_score(posture)
 	// });
 
-	// const onWeightUpdate = (e) => {
-	// 	// Debug.
-	// 	// console.log(e);
+	const onWeightUpdate = (e) => {
+		const inputRange = e.target;
+		const value = inputRange.value;
 
-	// 	const inputRange = e.target;
-	// 	const value = inputRange.value;
+		switch(inputRange.id) {
+			case 'partial_weight':
+				partial_weight = value;
+				break;
+			case 'informel_weight':
+				informel_weight = value;
+				break;
+			case 'conflictuel_weight':
+				conflictuel_weight = value;
+				break;
+		}
 
-	// 	console.log(inputRange.id);
-	// 	// switch(inputRange.id) {
-	// 	// }
+		postures.forEach(posture => {
+			posture.score = get_score(posture);
+		});
+		posturesStore.update(() => postures);
+		// console.log(`score of 1st posture : ${postures[1].score}`);
+	}
 
-	// 	postures.forEach(posture => {
-	// 		posture.score = get_score(posture)
-	// 	});
-	// }
+	console.log($posturesStore);
 
-	// scores.subscribe(value => {
-	// 	count_value = value;
-	// });
-
-	// Tests WIP.
-	let coords = spring({ x: 50, y: 50 }, {
-		stiffness: 0.03,
-		damping: 0.15
+	posturesStore.subscribe(posturesStoreValues => {
+		posturesStoreValues[1] && console.log(`test 2 - score of 1st posture : ${posturesStoreValues[1].score}`);
 	});
 </script>
 
@@ -75,50 +108,6 @@
 		border-radius: 50%;
 		display: inline-block;
 	} */
-	.hexagon {
-		--width: 7rem;
-		--height: 4.25rem;
-		position: relative;
-		display: inline-block;
-		margin-top: calc(var(--width) / 4);
-		margin-bottom: calc(var(--width) / 4);
-		/* padding: 1.25rem 0; */
-		width: var(--width);
-		height: var(--height);
-		text-align: center;
-		font-size: .75rem;
-		font-weight: bold;
-		color: white;
-		background: var(--bg-color);
-	}
-	.hexagon::before,
-	.hexagon::after {
-		content: "";
-		position: absolute;
-		border-left: calc(var(--width) / 2) solid transparent;
-		border-right: calc(var(--width) / 2) solid transparent;
-	}
-	.hexagon::before {
-		left: 0;
-		bottom: 100%;
-		border-bottom: calc(var(--width) / 4) solid var(--bg-color);
-	}
-	.hexagon::after {
-		left: 0;
-		top: 100%;
-		border-top: calc(var(--width) / 4) solid var(--bg-color);
-	}
-	.hexagon-inner-wrap {
-		position: absolute;
-		top: 0;
-		right: 0;
-		bottom: 0;
-		left: 0;
-		display: flex;
-		flex-direction: column;
-		justify-content: center;
-		padding: .25rem;
-	}
 	.controls {
 		font-size: .75rem;
 		margin: 1rem 0;
@@ -141,14 +130,6 @@
 	.controls input[type="text"] {
 		max-width: 2rem;
 	}
-	[slot="target"] {
-		cursor: pointer;
-	}
-	.pop-content {
-    padding: 10px;
-    background: #fff;
-		color: var(--bg-color);
-  }
 </style>
 
 <h2>Test WIP</h2>
@@ -162,8 +143,8 @@
 		<span>partial</span>
 		<span>
 			<input type="text" bind:value={ partial_weight } />
-			<input type="range" bind:value={ partial_weight } />
-			<!-- <input type="range" bind:value={ partial_weight } on:change={ onWeightUpdate } id="partial_weight" /> -->
+			<!-- <input type="range" bind:value={ partial_weight } /> -->
+			<input type="range" on:input={ onWeightUpdate } id="partial_weight" />
 		</span>
 		<span>impartial</span>
 	</div>
@@ -171,7 +152,8 @@
 		<span>informel</span>
 		<span>
 			<input type="text" bind:value={ informel_weight } />
-			<input type="range" bind:value={ informel_weight } />
+			<!-- <input type="range" bind:value={ informel_weight } /> -->
+			<input type="range" on:input={ onWeightUpdate } id="informel_weight" />
 		</span>
 		<span>formel</span>
 	</div>
@@ -179,16 +161,22 @@
 		<span>conflictuel</span>
 		<span>
 			<input type="text" bind:value={ conflictuel_weight } />
-			<input type="range" bind:value={ conflictuel_weight } />
+			<!-- <input type="range" bind:value={ conflictuel_weight } /> -->
+			<input type="range" on:input={ onWeightUpdate } id="conflictuel_weight" />
 		</span>
 		<span>consensuel</span>
 	</div>
 </div>
 
 <hr class="full-vw" />
-<div class="wrap full-vw" on:mousemove="{e => coords.set({ x: e.clientX, y: e.clientY })}">
+<div class="wrap full-vw">
+<!-- <div class="wrap full-vw" on:mousemove="{ e => coords.set({ x: e.clientX, y: e.clientY }) }"> -->
 
-	<Postures bind:partial_weight={ partial_weight } bind:informel_weight={ informel_weight } bind:conflictuel_weight={ conflictuel_weight } />
+	<!-- <Postures bind:partial_weight={ partial_weight } bind:informel_weight={ informel_weight } bind:conflictuel_weight={ conflictuel_weight } /> -->
+	<!-- <Postures {$postures} /> -->
+	<!-- <Postures { postures } /> -->
+	<!-- <Postures bind:postures={ postures } /> -->
+	<Postures postures={$posturesStore} />
 
 	<!-- Tests WIP. -->
 	<!-- <div

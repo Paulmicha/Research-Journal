@@ -1,6 +1,7 @@
 <script>
 	import { spring } from 'svelte/motion';
 	import { route } from '../../stores/route.js';
+	import Popover from 'svelte-popover';
 	// import Scene from '../perspective_2d/Scene.svelte';
 
 	// Load custom data.
@@ -116,6 +117,14 @@
 	.controls input[type="text"] {
 		max-width: 2rem;
 	}
+	[slot="target"] {
+		cursor: pointer;
+	}
+	.pop-content {
+    padding: 10px;
+    background: #fff;
+		color: var(--bg-color);
+  }
 </style>
 
 <h2>Test WIP</h2>
@@ -159,7 +168,15 @@
 			<div>
 				<div class="hexagon" style="--score:{ posture.score }; --bg-color:hsla({ Math.round(Math.random() * 360) }, 100%, 30%, 1)">
 					<div class="hexagon-inner-wrap">
-						<p>{ posture.title }</p>
+						<Popover arrowColor="#fff" action="hover">
+							<p slot="target">{ posture.title }</p>
+							<dl slot="content" class="pop-content">
+								<dt>instruments&nbsp;:</dt>
+								<dd>{ posture.instruments }</dd>
+								<dt>effets&nbsp;:</dt>
+								<dd>{ posture.effets }</dd>
+							</dl>
+						</Popover>
 					</div>
 				</div>
 			</div>

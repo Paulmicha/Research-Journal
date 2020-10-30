@@ -1,7 +1,9 @@
 <script>
 	import { spring } from 'svelte/motion';
 	import { route } from '../../stores/route.js';
+	// import { writable } from 'svelte/store';
 	import Popover from 'svelte-popover';
+	import Postures from '../experiments/Postures.svelte';
 	// import Scene from '../perspective_2d/Scene.svelte';
 
 	// Load custom data.
@@ -14,15 +16,37 @@
 
 	// Manipulation : weighted criterias impacting a single score, then used to
 	// scale up or down the items.
+	// const scores = writable([]);
+
 	let partial_weight = 0;
 	let informel_weight = 0;
 	let conflictuel_weight = 0;
 
-	const get_score = (posture) => partial_weight * posture.partial + informel_weight * posture.informel + conflictuel_weight * posture.conflictuel;
+	// const get_score = (posture) => partial_weight * posture.partial + informel_weight * posture.informel + conflictuel_weight * posture.conflictuel;
 
-	postures.forEach(posture => {
-		posture.score = get_score(posture)
-	});
+	// $: postures.forEach(posture => {
+	// 	posture.score = get_score(posture)
+	// });
+
+	// const onWeightUpdate = (e) => {
+	// 	// Debug.
+	// 	// console.log(e);
+
+	// 	const inputRange = e.target;
+	// 	const value = inputRange.value;
+
+	// 	console.log(inputRange.id);
+	// 	// switch(inputRange.id) {
+	// 	// }
+
+	// 	postures.forEach(posture => {
+	// 		posture.score = get_score(posture)
+	// 	});
+	// }
+
+	// scores.subscribe(value => {
+	// 	count_value = value;
+	// });
 
 	// Tests WIP.
 	let coords = spring({ x: 50, y: 50 }, {
@@ -139,6 +163,7 @@
 		<span>
 			<input type="text" bind:value={ partial_weight } />
 			<input type="range" bind:value={ partial_weight } />
+			<!-- <input type="range" bind:value={ partial_weight } on:change={ onWeightUpdate } id="partial_weight" /> -->
 		</span>
 		<span>impartial</span>
 	</div>
@@ -163,25 +188,7 @@
 <hr class="full-vw" />
 <div class="wrap full-vw" on:mousemove="{e => coords.set({ x: e.clientX, y: e.clientY })}">
 
-	<div class="f-grid">
-		{#each postures as posture}
-			<div>
-				<div class="hexagon" style="--score:{ posture.score }; --bg-color:hsla({ Math.round(Math.random() * 360) }, 100%, 30%, 1)">
-					<div class="hexagon-inner-wrap">
-						<Popover arrowColor="#fff" action="hover">
-							<p slot="target">{ posture.title }</p>
-							<dl slot="content" class="pop-content">
-								<dt>instruments&nbsp;:</dt>
-								<dd>{ posture.instruments }</dd>
-								<dt>effets&nbsp;:</dt>
-								<dd>{ posture.effets }</dd>
-							</dl>
-						</Popover>
-					</div>
-				</div>
-			</div>
-		{/each}
-	</div>
+	<Postures bind:partial_weight={ partial_weight } bind:informel_weight={ informel_weight } bind:conflictuel_weight={ conflictuel_weight } />
 
 	<!-- Tests WIP. -->
 	<!-- <div

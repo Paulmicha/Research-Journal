@@ -7,9 +7,11 @@
 #   docker pull tyrrrz/discordchatexporter:stable
 #
 # @prereq
-#   .env file :
-#     - DISCORD_TOKEN
-#     - DISCORD_TOKEN_BOT
+#   In the ".env" file to create in project docroot :
+#     - DISCORD_TOKEN=Abc123...
+#     - DISCORD_TOKEN_BOT=true
+#     - DISCORD_SERVER_ID=123
+#     - DISCORD_CHANNEL_IDS=123,456,789
 #
 # @example
 #		# From project docroot :
@@ -22,7 +24,8 @@
 # 	-v $PWD/private/channels:/app/out \
 # 	tyrrrz/discordchatexporter:stable \
 # 	exportall \
-# 	-f Json
+# 	--media --reuse-media \
+# 	--dateformat "yyyy-MM-dd HH:mm:ss"
 
 # Quick'n'dirty env vars load.
 . $PWD/.env
@@ -45,6 +48,7 @@ while read -rd","; do
 		tyrrrz/discordchatexporter:stable \
 		export \
 		-c "$REPLY" \
+		--media --reuse-media \
 		-f Json
 
 done <<< "${DISCORD_CHANNEL_IDS},"

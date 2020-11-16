@@ -1,0 +1,18 @@
+{
+	"lang": "en",
+	"title": "MSc Search index",
+	"description": "Custom search index for public URLs extracted from different channels.",
+	"parent_page": {
+		"path": "experiments",
+		"weight": 3
+	},
+	"data": {
+		"channels_urls": "data/entities/experiment/channels_urls.json"
+	},
+	"content": [
+		{
+			"c": "ExpChannelsIndex",
+			"props": {}
+		}
+	]
+}

@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
 ##
-# Exports all messages from Discord channels.
+# Exports all messages from Discord channels + updates extraction result.
 #
 # @prereq
 #   docker pull tyrrrz/discordchatexporter:stable
@@ -52,3 +52,7 @@ while read -rd","; do
 		-f Json
 
 done <<< "${DISCORD_CHANNEL_IDS},"
+
+echo "Extract results ..."
+node $PWD/scripts/experiments/msc_auto_save_bot.js
+echo "Done."

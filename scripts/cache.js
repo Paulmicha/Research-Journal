@@ -57,19 +57,8 @@ const cache_taxonomy_terms = () => {
 	}
 }
 
-/**
- * Writes the custom URLs data miner cache.
- */
-const cache_channels_urls_data_miner = () => {
-	write_file(
-		'static/data/cache/channels_urls_data_miner.json',
-		JSON.stringify(build_channels_urls_data_miner_cache())
-	);
-}
-
 module.exports = {
 	cache_views_results,
 	cache_page_routing_trails,
-	cache_taxonomy_terms,
-	cache_channels_urls_data_miner
+	cache_taxonomy_terms
 };

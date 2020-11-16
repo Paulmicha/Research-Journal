@@ -31,11 +31,7 @@
 		border-bottom: .16rem solid transparent;
 		margin: 0 .25rem;
 		padding: .4rem .16rem;
-		font-size: .66rem;
-		font-weight: bold;
 		line-height: 1;
-		text-transform: uppercase;
-		letter-spacing: .16ch;
 		text-decoration: none;
 	}
 	.SubNav-link:focus,
@@ -63,7 +59,7 @@
 	{#if menu_subnav_items.length}
 		<div class="SubNav">
 			{#each menu_subnav_items as { path, title, is_active }, i}
-				<a href="/{ path }" class="SubNav-link{ is_active ? ' is-active' : '' }" rel=prefetch>{ title }</a>
+				<a href="/{ path }" class="SubNav-link{ is_active ? ' is-active' : '' } u-faux-small-caps" rel=prefetch>{ title }</a>
 			{/each}
 		</div>
 	{/if}

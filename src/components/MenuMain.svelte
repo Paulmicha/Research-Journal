@@ -17,7 +17,7 @@
 	.logo {
 		display: block;
 		line-height: 1;
-		width: 2rem;
+		width: 1.66rem;
 		text-decoration: none;
 	}
 	.MenuMain {
@@ -26,14 +26,13 @@
 		width: 100%;
 	}
 	.MenuMain-item {
-		padding: 0 .5rem;
+		padding: 0 var(--space-s);
 	}
 	.MenuMain-link {
-		/* font-variant-caps: all-small-caps; */
-		text-transform: uppercase;
-		letter-spacing: .16ch;
+		display: inline-block;
+		vertical-align: middle;
+		line-height: 1;
 		color: var(--color-invert-link-off);
-		font-size: .66rem;
 		font-weight: bold;
 		text-decoration: none;
 	}
@@ -58,7 +57,7 @@
 					{#if is_active}
 						<span class="MenuMain-deco"></span>
 					{/if}
-					<a class="MenuMain-link{ is_active ? ' is-active' : '' }" rel=prefetch href="/{ path }" aria-current={ is_active ? "page" : undefined }>
+					<a class="MenuMain-link{ is_active ? ' is-active' : '' } u-faux-small-caps" rel=prefetch href="/{ path }" aria-current={ is_active ? "page" : undefined }>
 						{ title }
 					</a>
 				</div>

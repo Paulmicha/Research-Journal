@@ -14,15 +14,14 @@
 
 <style>
   footer {
-		padding: .5rem 0;
 		text-align: center;
 	}
 	hr {
-		margin-top: 1.5rem;
-		margin-bottom: .33rem;
+		margin-top: var(--space-l);
 	}
 	.wrap {
-		padding: .5rem;
+		padding: var(--space-s);
+		font-size: .8rem;
 	}
 	a {
 		text-transform: uppercase;

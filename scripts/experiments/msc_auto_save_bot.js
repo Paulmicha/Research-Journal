@@ -10,8 +10,6 @@ const { walk, write_file } = require('../fs');
 
 /**
  * Builds our custom data miner cache.
- *
- * WIP : for now, extract embeds only.
  */
 const build_channels_urls_index = () => {
 	let raw_data;

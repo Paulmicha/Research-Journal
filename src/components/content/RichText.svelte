@@ -2,4 +2,6 @@
 	export let markup = '';
 </script>
 
-{@html markup}
+<div class="rich-text">
+	{@html markup}
+</div>

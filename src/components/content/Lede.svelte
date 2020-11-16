@@ -3,7 +3,12 @@
 	export let text = '';
 </script>
 
-<div class="m-v--xl p-percent-h">
-	<Text {text} dropcap={true} dropcap_variant="u-dropcap--l"
-		attr={{ "class":"c-text-block u-fs-m" }} />
-</div>
+<style>
+	p {
+		margin-bottom: var(--space);
+	}
+</style>
+
+<p>
+	<Text {text} dropcap={true} dropcap_variant="u-dropcap--l" />
+</p>

@@ -104,9 +104,11 @@
 	.controls input[type="text"] {
 		max-width: 2rem;
 	}
+	hr {
+		margin-top: var(--space-l);
+		margin-bottom: var(--space-l);
+	}
 </style>
-
-<h2>Test WIP</h2>
 
 <!-- Debug. -->
 <!-- <pre>src/components/content/ExpDocuWorkshop.svelte : $route = {JSON.stringify($route, null, 2)}</pre> -->

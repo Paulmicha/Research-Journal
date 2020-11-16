@@ -49,8 +49,16 @@
 	});
 </script>
 
+<style>
+	main {
+		flex-grow: 1;
+	}
+</style>
+
 <Header {model}></Header>
 
-<slot></slot>
+<main>
+	<slot></slot>
+</main>
 
 <Footer></Footer>

@@ -61,7 +61,7 @@
   }
 </style>
 
-<div class="f-grid">
+<div class="f-grid f-grid--center">
 	{#each postures as posture, i}
 		<div>
 			<div class="hexagon" style="--score:{ posture.score / 2000 }; --bg-color:hsla({ Math.round(Math.random() * 360) }, 100%, 30%, 1)">

@@ -10,7 +10,6 @@ const { write_file } = require('./fs');
 const { build_page_routing_trails } = require('./routing');
 const { build_views_cache } = require('./views');
 const { build_taxonomy_cache } = require('./taxonomy');
-const { build_channels_urls_data_miner_cache } = require('./experiments/msc_auto_save_bot');
 
 /**
  * Writes the "routing trails" cache to a JSON static file.

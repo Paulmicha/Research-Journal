@@ -15,7 +15,7 @@
 	// Init custom data.
 	let documents = [];
 	route.subscribe(o => {
-		if (o.data) {
+		if (o.data && o.data.channels_urls) {
 			documents = o.data.channels_urls.documents;
 			documentsStore.update(() => documents);
 		}

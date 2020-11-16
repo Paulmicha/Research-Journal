@@ -26,7 +26,7 @@
 	// Init custom data.
 	let postures = [];
 	route.subscribe(o => {
-		if (o.data) {
+		if (o.data && o.data.postures) {
 			postures = o.data.postures.items;
 			postures.forEach(posture => {
 				posture.score = get_score(posture);

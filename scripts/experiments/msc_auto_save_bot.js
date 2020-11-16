@@ -71,7 +71,9 @@ const build_channels_urls_index = () => {
 	return index;
 };
 
-write_file(
-	'static/data/entities/experiment/channels_urls.json',
-	JSON.stringify(build_channels_urls_index())
-);
+try {
+	write_file(
+		'static/data/entities/experiment/channels_urls.json',
+		JSON.stringify(build_channels_urls_index())
+	);
+} catch (error) {}

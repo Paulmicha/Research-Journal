@@ -1,0 +1,13 @@
+{
+	"lang": "en",
+	"title": "Notes",
+	"description": "Organization of my own research notes.",
+	"content": [
+		{
+			"c": "RichText",
+			"props": {
+				"markup": "(TODO)"
+			}
+		}
+	]
+}

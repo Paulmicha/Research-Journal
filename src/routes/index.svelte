@@ -9,6 +9,7 @@
 	import MenuMain from '../components/MenuMain.svelte';
 	import DropCap from '../components/DropCap.svelte';
 	import Footer from '../components/Footer.svelte';
+	import Lede from '../components/content/Lede.svelte';
 
 	// TODO Evaluate using Netflify CMS.
 	import { onMount } from 'svelte';
@@ -48,7 +49,8 @@
 <div>
 	<MenuMain bind:items={menu_main_items} />
 	<h1>{ masthead.title }</h1>
-	<p>WIP</p>
+	<Lede text="This website is created specifically for publishing my ongoing research for the Msc Strategy and Design for the Anthropocene I'm currently doing. It contains interactive experiments and various public notes, bookmarks, and visualizations."></Lede>
+	<p>(<a href="/styleguide">test styles</a>)</p>
 </div>
 
 <Footer></Footer>

@@ -66,7 +66,7 @@
 		<div>
 			<div class="hexagon" style="--score:{ posture.score / 2000 }; --bg-color:hsla({ Math.round(Math.random() * 360) }, 100%, 30%, 1)">
 				<div class="hexagon-inner-wrap">
-					<Popover arrowColor="#fff" action="hover">
+					<Popover arrowColor="#fff">
 						<p slot="target">{ posture.title }</p>
 						<dl slot="content" class="pop-content">
 							<dt>instruments&nbsp;:</dt>

@@ -5,7 +5,13 @@
 
 <style>
 	p {
+		margin-top: var(--space);
 		margin-bottom: var(--space);
+	}
+	p::after {
+		content: "";
+		display: table;
+		clear: both;
 	}
 </style>
 

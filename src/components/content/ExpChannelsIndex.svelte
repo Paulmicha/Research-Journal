@@ -23,6 +23,10 @@
 </script>
 
 <style>
+	table {
+		margin-left: var(--space);
+		margin-right: var(--space);
+	}
 </style>
 
 <!-- DEBUG -->
@@ -37,7 +41,7 @@
 {/if} -->
 
 <div class="full-vw">
-	<div class="f-grid f-grid--p">
+	<!-- <div class="f-grid f-grid--p">
 		{#each $documentsStore as doc, i}
 			<article>
 				<h2><a href="{ doc.url }">{ doc.title }</a></h2>
@@ -45,5 +49,29 @@
 				<p>{ doc.description }</p>
 			</article>
 		{/each}
-	</div>
+	</div> -->
+	<table>
+		<thead>
+			<th>Date</th>
+			<th>Title</th>
+			<th>Type</th>
+			<th>Tags</th>
+			<th>Author</th>
+			<th>Names</th>
+			<th>Description</th>
+		</thead>
+		<tbody>
+		{#each $documentsStore as doc, i}
+			<tr>
+				<td>{ doc.date || '' }</td>
+				<td><a href="{ doc.url }">{ doc.title }</a></td>
+				<td>{ doc.type || '' }</td>
+				<td>{ doc.channel }{ doc.tags ? ', ' + doc.tags : '' }</td>
+				<td>{ doc.author || '' }</td>
+				<td>{ doc.names || '' }</td>
+				<td>{ doc.description || '' }</td>
+			</tr>
+		{/each}
+		</tbody>
+	</table>
 </div>

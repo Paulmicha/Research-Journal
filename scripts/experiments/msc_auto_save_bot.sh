@@ -19,16 +19,17 @@
 #
 
 # Tout exporter :
-# docker run --rm \
-# 	--env-file $PWD/.env \
-# 	-v $PWD/private/channels:/app/out \
-# 	tyrrrz/discordchatexporter:stable \
-# 	exportall \
-# 	--media --reuse-media \
-# 	--dateformat "yyyy-MM-dd HH:mm:ss"
+docker run --rm \
+	--env-file $PWD/.env \
+	-v $PWD/private/channels:/app/out \
+	tyrrrz/discordchatexporter:stable \
+	exportall \
+	-f Json \
+	--media --reuse-media \
+	--dateformat "yyyy-MM-dd HH:mm:ss"
 
 # Quick'n'dirty env vars load.
-. $PWD/.env
+# . $PWD/.env
 
 # Lister les channels :
 # docker run --rm \
@@ -39,19 +40,19 @@
 # 	-g "$DISCORD_SERVER_ID"
 
 # Exporter une liste de channels définie dans .env (DISCORD_CHANNEL_IDS) :
-while read -rd","; do
-	echo "Processing channel_id = $REPLY ..."
+# while read -rd","; do
+# 	echo "Processing channel_id = $REPLY ..."
 
-	docker run --rm \
-		--env-file $PWD/.env \
-		-v $PWD/private/channels:/app/out \
-		tyrrrz/discordchatexporter:stable \
-		export \
-		-c "$REPLY" \
-		--media --reuse-media \
-		-f Json
+# 	docker run --rm \
+# 		--env-file $PWD/.env \
+# 		-v $PWD/private/channels:/app/out \
+# 		tyrrrz/discordchatexporter:stable \
+# 		export \
+# 		-c "$REPLY" \
+# 		--media --reuse-media \
+# 		-f Json
 
-done <<< "${DISCORD_CHANNEL_IDS},"
+# done <<< "${DISCORD_CHANNEL_IDS},"
 
 echo "Extract results ..."
 node $PWD/scripts/experiments/msc_auto_save_bot.js

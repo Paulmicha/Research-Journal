@@ -25,6 +25,7 @@ docker run --rm \
 	tyrrrz/discordchatexporter:stable \
 	exportall \
 	-f Json \
+	-p 50 \
 	--media --reuse-media \
 	--dateformat "yyyy-MM-dd HH:mm:ss"
 
@@ -49,8 +50,9 @@ docker run --rm \
 # 		tyrrrz/discordchatexporter:stable \
 # 		export \
 # 		-c "$REPLY" \
-# 		--media --reuse-media \
-# 		-f Json
+# 		-f Json \
+# 		-p 50 \
+# 		--media --reuse-media
 
 # done <<< "${DISCORD_CHANNEL_IDS},"
 

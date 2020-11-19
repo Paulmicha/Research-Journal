@@ -27,6 +27,14 @@
 		margin-left: var(--space);
 		margin-right: var(--space);
 	}
+	.title {
+		display: inline-block;
+		word-wrap: break-word;
+		max-width: 42ch;
+	}
+	.desc {
+		max-width: 76ch;
+	}
 </style>
 
 <!-- DEBUG -->
@@ -40,6 +48,8 @@
 	<ChannelsIndex />
 {/if} -->
 
+<p><strong>{ $documentsStore.length }</strong> resources</p>
+
 <div class="full-vw">
 	<!-- <div class="f-grid f-grid--p">
 		{#each $documentsStore as doc, i}
@@ -52,7 +62,7 @@
 	</div> -->
 	<table>
 		<thead>
-			<th>Date</th>
+			<th>Date shared</th>
 			<th>Title</th>
 			<th>Type</th>
 			<th>Tags</th>
@@ -63,13 +73,13 @@
 		<tbody>
 		{#each $documentsStore as doc, i}
 			<tr>
-				<td>{ doc.date || '' }</td>
-				<td><a href="{ doc.url }">{ doc.title }</a></td>
+				<td>{ new Date(doc.date_shared).toLocaleDateString({ year: "numeric", month: "2-digit", day: "2-digit" }) }</td>
+				<td><a class="title" href="{ doc.url }">{ doc.title }</a></td>
 				<td>{ doc.type || '' }</td>
 				<td>{ doc.channel }{ doc.tags ? ', ' + doc.tags : '' }</td>
 				<td>{ doc.author || '' }</td>
 				<td>{ doc.names || '' }</td>
-				<td>{ doc.description || '' }</td>
+				<td><div class="desc">{ doc.description || '' }</div></td>
 			</tr>
 		{/each}
 		</tbody>

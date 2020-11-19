@@ -12,7 +12,7 @@ const { walk, write_file } = require('../fs');
 // Excluded domains.
 const blacklisted = [
 	'github.com/Paulmicha/',
-	'docs.google.com',
+	// 'docs.google.com',
 	'drive.google.com',
 	'.zoom.',
 	'.bbcollab.',
@@ -144,15 +144,21 @@ const normalize_token_name = (token) => {
 		"d": "description",
 		"desc": "description",
 		"content": "description",
+		"contenu": "description",
 		"t": "tags",
 		"mots-cles": "tags",
 		"mot-cle": "tags",
-		"a": "authors",
-		"auteur": "authors",
-		"auteurs": "authors",
+		"a": "author",
+		"auteur": "author",
+		"auteurs": "author",
+		"authors": "author",
 		"h": "title",
 		"headline": "title",
-		"titre": "title"
+		"titre": "title",
+		"n": "names",
+		"nom": "names",
+		"noms": "names",
+		"name": "names"
 	};
 
 	token = slugify(token);
@@ -220,17 +226,24 @@ const build_channels_urls_index = () => {
 				if (!('description' in doc)) {
 					doc.description = embed.description;
 				}
-				if ('author' in embed && 'name' in embed.author) {
+				if (!('author' in doc) && 'author' in embed && 'name' in embed.author) {
 					doc.author = embed.author.name;
 				}
-				if ('title' in embed && embed.title.length && !titleForceFallback.includes(embed.title)) {
-					doc.title = embed.title;
-				} else if ('author' in doc) {
-					doc.title = doc.author;
+				if (!('title' in doc)) {
+					if ('title' in embed && embed.title.length && !titleForceFallback.includes(embed.title)) {
+						doc.title = embed.title;
+					} else if ('author' in doc) {
+						doc.title = doc.author;
+					}
 				}
 			});
 
 			if (!('title' in doc)) {
+				// Exception : Google docs to be shared must define their title via
+				// token.
+				if (doc.url.includes('docs.google.com')) {
+					return;
+				}
 				doc.title = doc.url.replace(/https?:\/\//, '');
 			}
 

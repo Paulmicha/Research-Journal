@@ -7,7 +7,7 @@
 		"weight": 3
 	},
 	"data": {
-		"channels_urls": "data/entities/experiment/channels_urls.json"
+		"channels_urls": "data/entities/experiment/search_index.json"
 	},
 	"content": [
 		{

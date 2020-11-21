@@ -2,12 +2,12 @@
  * @file
  * Public URLs data miner based on channels exports.
  *
- * @see scripts/experiments/msc_auto_save_bot.sh
+ * @see scripts/experiments/search_index/fetch.sh
  */
 
 const slugify = require('@sindresorhus/slugify')
 const fs = require('fs');
-const { walk, write_file } = require('../fs');
+const { walk } = require('../../../fs');
 
 // Excluded domains.
 const blacklisted = [
@@ -23,12 +23,13 @@ const blacklisted = [
 ];
 
 const blacklisted_channels = [
+	'774206981191106580',
 	'768541814524870727',
 	'768506184810364939'
 ];
 
 /**
- * Filters out messages without URLs or whose URL is blacklisted.
+ * Returns "clean" URL from message if it contains any and if not blacklisted.
  *
  * See https://gist.github.com/dperini/729294
  *
@@ -36,7 +37,7 @@ const blacklisted_channels = [
  *   False if no URL was found (or if it is blacklisted).
  *   String (the matched URL) otherwise.
  */
-const filter_message = (text) => {
+const get_url = (text) => {
 	const urlRegex = new RegExp(
 		"(?:(?:(?:https?|ftp):)?\\/\\/)" +
 			// user:pass BasicAuth (optional)
@@ -91,7 +92,13 @@ const filter_message = (text) => {
 	// When copy/pasting URLs inside parenthesis (or before a comma), the URL gets
 	// appended with those -> regex to remove from the end those 2 characters.
 	// TODO edge cases to look out for ?
-	return match[0].replace(/([\),\s]+$)/g, '');
+	let url = match[0].replace(/([\),\s]+$)/g, '');
+
+	// Remove Facebook tracking.
+	const urlObj = new URL(url);
+	urlObj.searchParams.delete('fbclid');
+
+	return urlObj.href;
 };
 
 /**
@@ -115,7 +122,7 @@ const tokenize_message = (text) => {
 	let result = {};
 
 	// Start from the end to gradually prune the text up to the first match.
-	Array.from(text.matchAll(/\/([^:/]+):/gmi)).reverse().forEach(match => {
+	Array.from(text.matchAll(/\/([^:/]+)\s?:/gmi)).reverse().forEach(match => {
 		const token = normalize_token_name(match[1]);
 		const to_prune = text.substring(match.index);
 		result[token] = to_prune.replace(match[0], '').trim();
@@ -158,7 +165,13 @@ const normalize_token_name = (token) => {
 		"n": "names",
 		"nom": "names",
 		"noms": "names",
-		"name": "names"
+		"name": "names",
+		"m": "type",
+		"types": "type",
+		"support": "type",
+		"supports": "type",
+		"media": "type",
+		"medias": "type"
 	};
 
 	token = slugify(token);
@@ -192,7 +205,7 @@ const build_channels_urls_index = () => {
 		}
 
 		raw_data.messages.forEach(message => {
-			const url = filter_message(message.content);
+			const url = get_url(message.content);
 			if (!url) {
 				return;
 			}
@@ -257,11 +270,6 @@ const build_channels_urls_index = () => {
 	return index;
 };
 
-try {
-	write_file(
-		'static/data/entities/experiment/channels_urls.json',
-		JSON.stringify(build_channels_urls_index())
-	);
-} catch (error) {
-	console.log(error);
-}
+module.exports = {
+	build_channels_urls_index
+};

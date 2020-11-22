@@ -12,7 +12,7 @@
 	const multiSelectSearchesInKeys = ['tags', 'types', 'names', 'author', 'channel'];
 	let filterOp = 'and';
 	let filterSelect;
-	let selectFilterValues;
+	let selectedFilterItems;
 
 	// Init custom data.
 	route.subscribe(o => {
@@ -34,16 +34,28 @@
 						if (!val.length) {
 							return;
 						}
-						selectItems.push(`${val} (${key})`);
+						selectItems.push({
+							value: val,
+							key: key,
+							label: `${val} <span style="color:grey">(${key})</span>`
+						});
 					});
 				}
 			});
 		});
+
 		// Remove duplicates.
-		const dedup = [...new Set(selectItems)];
+		// const dedup = [...new Set(selectItems)];
+		let seen = {};
+		const dedup = selectItems.filter(item =>
+			seen.hasOwnProperty(item.value) ? false : (seen[item.value] = true)
+		);
+
 		// Sort alphabetically (using translitteration).
-		dedup.sort((a, b) => a.localeCompare(b));
+		dedup.sort((a, b) => a.value.localeCompare(b.value));
+
 		// return dedup.filter(String);
+
 		return dedup;
 	};
 
@@ -51,13 +63,13 @@
 	 * Filters results based on the multi-select field current selection.
 	 */
 	const applySelectFilter = (selectedVal) => {
-		if (!selectFilterValues) {
+		if (!selectedFilterItems) {
 			clearSelectFilter();
 			return;
 		}
 
 		// Debug.
-		console.log(`applySelectFilter() : selectFilterValues (${filterOp}) = ${JSON.stringify(selectFilterValues.map(v => v.value))}`);
+		// console.log(`applySelectFilter() : selectedFilterItems (${filterOp}) = ${JSON.stringify(selectedFilterItems.map(v => v.value))}`);
 
 		// const checkResultHasSufficientKeys = result => {
 		// 	for (let i = 0; i < multiSelectSearchesInKeys.length; i++) {
@@ -71,79 +83,64 @@
 
 		switch (filterOp) {
 			case 'and':
-				documentsStore.update(results => {
-					for (let i = 0; i < results.length; i++) {
-						const result = results[i];
-						let allFilterValuesMatch = true;
-
-						// if (!checkResultHasSufficientKeys(results)) {
-						// 	results.splice(i, 1);
-
-						// 	// Debug.
-						// 	console.log(`  splice result ${i} because !checkResultHasSufficientKeys (${Object.keys(result)})`);
-
-						// 	continue;
-						// }
-
-						selectFilterValues.forEach(filterValue => {
-							let anyKeyMatches = false;
-
-							Object.keys(result).forEach(key => {
-								if (key in result && result[key].includes(filterValue)) {
-									anyKeyMatches = true;
-								}
-							});
-
-							if (!anyKeyMatches) {
-								allFilterValuesMatch = false;
-							}
-						});
-
-						if (!allFilterValuesMatch) {
-							results.splice(i, 1);
-
-							// Debug.
-							// console.log(`  splice result ${i} because !allFilterValuesMatch`);
-						}
-					}
-					return results;
-				});
+				applySelectFilterAnd();
 				break;
-
 			case 'or':
-				documentsStore.update(results => {
-					for (let i = 0; i < results.length; i++) {
-						const result = results[i];
-						let anyFilterValueMatches = false;
-
-						// if (!checkResultHasSufficientKeys(results)) {
-						// 	results.splice(i, 1);
-
-						// 	// Debug.
-						// 	console.log(`  splice result ${i} because !checkResultHasSufficientKeys (${Object.keys(result)})`);
-
-						// 	continue;
-						// }
-
-						selectFilterValues.forEach(filterValue => {
-							Object.keys(result).forEach(key => {
-								if (key in result && result[key].includes(filterValue)) {
-									anyFilterValueMatches = true;
-								}
-							});
-						});
-
-						if (!anyFilterValueMatches) {
-							results.splice(i, 1);
-
-							// Debug.
-							// console.log(`  splice result ${i} because !anyFilterValueMatches`);
-						}
-					}
-					return results;
-				});
+				applySelectFilterOr();
 				break;
 		}
+	};
+
+	/**
+	 * Applies "and" filtering for the multi-select field.
+	 */
+	const applySelectFilterAnd = () => {
+		documentsStore.update(currentResults => {
+			let newResults = [];
+
+			for (let i = 0; i < documents.length; i++) {
+				const result = documents[i];
+				let allFilterValuesMatch = true;
+
+				selectedFilterItems.forEach(selectedFilterItem => {
+					if (!(selectedFilterItem.key in result) || !result[selectedFilterItem.key].includes(selectedFilterItem.value)) {
+						allFilterValuesMatch = false;
+					}
+				});
+
+				if (allFilterValuesMatch) {
+					newResults.push(result);
+				}
+			}
+
+			return newResults;
+		});
+	};
+
+	/**
+	 * Applies "or" filtering for the multi-select field.
+	 */
+	const applySelectFilterOr = () => {
+		documentsStore.update(currentResults => {
+			let newResults = [];
+
+			for (let i = 0; i < documents.length; i++) {
+				const result = documents[i];
+				let anyFilterValueMatches = false;
+
+				selectedFilterItems.forEach(selectedFilterItem => {
+					if (selectedFilterItem.key in result && result[selectedFilterItem.key].includes(selectedFilterItem.value)) {
+						anyFilterValueMatches = true;
+					}
+				});
+
+				if (anyFilterValueMatches) {
+					newResults.push(result);
+				}
+			}
+
+			return newResults;
+		});
 	};
 
 	/**
@@ -151,7 +148,7 @@
 	 */
   const clearSelectFilter = () => {
 		// Debug.
-		console.log(`clearSelectFilter() : (${filterOp}, ${documents.length} results)`);
+		// console.log(`clearSelectFilter() : (${filterOp}, ${documents.length} results)`);
 
 		documentsStore.set(documents);
   };
@@ -169,7 +166,7 @@
 		<Select items={getSelectItems()} isMulti={true}
 			on:select={applySelectFilter}
 			on:clear={clearSelectFilter}
-			bind:selectedValue={selectFilterValues}
+			bind:selectedValue={selectedFilterItems}
 			>
 		</Select>
 	</div>
@@ -240,6 +237,12 @@
 	.radio,
 	.radio > * {
 		cursor: pointer;
+	}
+	.radio {
+		display: flex;
+	}
+	.radio label {
+		padding-left: var(--space-s);
 	}
 	.radio label:hover {
 		text-decoration: underline;

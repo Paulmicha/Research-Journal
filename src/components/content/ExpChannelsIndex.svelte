@@ -9,6 +9,7 @@
 	let documents = [];
 	let selectItems = [];
 
+	const multiSelectSearchesInKeys = ['tags', 'types', 'names', 'author', 'channel'];
 	let filterOp = 'and';
 	let filterSelect;
 	let selectFilterValues;
@@ -26,43 +27,18 @@
 	 */
 	$: getSelectItems = () => {
 		documents.forEach(doc => {
-			doc.tags && doc.tags.split(',').forEach(tag => selectItems.push(tag.trim()));
-			doc.names && doc.names.split(',').forEach(name => selectItems.push(name.trim()));
-			doc.author && doc.author.split(',').forEach(author => selectItems.push(author.trim()));
+			multiSelectSearchesInKeys.forEach(key => {
+				if (key in doc) {
+					doc[key].split(',').forEach(val => selectItems.push(val.trim()));
+				}
+			});
 		});
-		selectItems.sort((a, b) => a.localeCompare(b));
-		return selectItems.filter(String);
+		// Remove duplicates.
+		const dedup = [...new Set(selectItems)];
+		// Sort alphabetically (using translitteration).
+		dedup.sort((a, b) => a.localeCompare(b));
+		return dedup.filter(String);
 	};
-
-	/**
-	 * Changes the operand of the current multi-select field selection.
-	 */
-  const updateFilterOp = () => {
-		if (!selectFilterValues) {
-			clearSelectFilter();
-			return;
-		}
-
-		// Debug.
-		// console.log(`updateFilterOp() : selectFilterValues (${filterOp}) = ${JSON.stringify(selectFilterValues.map(v => v.value))}`);
-
-		switch (filterOp) {
-			case 'and':
-				documentsStore.update(currentResults => {
-					// Debug
-					// return [currentResults.pop()];
-					return [];
-				});
-				break;
-			case 'or':
-				documentsStore.update(currentResults => {
-					// Debug
-					// return [currentResults.pop()];
-					return [];
-				});
-				break;
-		}
-  };
 
 	/**
 	 * Filters results based on the multi-select field current selection.
@@ -74,19 +50,82 @@
 		}
 
 		// Debug.
-		// console.log(`applySelectFilter() : selectFilterValues (${filterOp}) = ${JSON.stringify(selectFilterValues.map(v => v.value))}`);
+		console.log(`applySelectFilter() : selectFilterValues (${filterOp}) = ${JSON.stringify(selectFilterValues.map(v => v.value))}`);
 
-		documentsStore.update(currentResults => {
-			// Debug
-			// return [currentResults.pop()];
-			return [];
-		});
+		const checkResultHasSufficientKeys = result => {
+			for (let i = 0; i < multiSelectSearchesInKeys.length; i++) {
+				const key = multiSelectSearchesInKeys[i];
+				if (key in result && result[key].length) {
+					return true;
+				}
+			}
+			return false;
+		};
+
+		switch (filterOp) {
+			case 'and':
+				documentsStore.update(results => {
+					for (let i = 0; i < results.length; i++) {
+						const result = results[i];
+
+						if (!checkResultHasSufficientKeys(results)) {
+							results.splice(i, 1);
+							continue;
+						}
+
+						selectFilterValues.forEach(filterValue => {
+							let anyKeyMatches = false;
+
+							Object.keys(result).forEach(key => {
+								if (key in result && result[key].includes(filterValue)) {
+									anyKeyMatches = true;
+								}
+							});
+							if (!anyKeyMatches) {
+								results.splice(i, 1);
+							}
+						});
+					}
+					return results;
+				});
+				break;
+
+			case 'or':
+				documentsStore.update(results => {
+					for (let i = 0; i < results.length; i++) {
+						const result = results[i];
+						let anyFilterValueMatches = false;
+
+						if (!checkResultHasSufficientKeys(results)) {
+							results.splice(i, 1);
+							continue;
+						}
+
+						selectFilterValues.forEach(filterValue => {
+							Object.keys(result).forEach(key => {
+								if (key in result && result[key].includes(filterValue)) {
+									anyFilterValueMatches = true;
+								}
+							});
+						});
+
+						if (!anyFilterValueMatches) {
+							results.splice(i, 1);
+						}
+					}
+					return results;
+				});
+				break;
+		}
 	};
 
 	/**
 	 * Resets results to initially loaded documents.
 	 */
   const clearSelectFilter = () => {
+		// Debug.
+		console.log(`clearSelectFilter() : (${filterOp}, ${documents.length} results)`);
+
 		documentsStore.set(documents);
   };
 </script>
@@ -116,14 +155,14 @@
 		<div class="radio">
 			<input type="radio" id="filter-op-or" name="filter-op" value="or"
 				bind:group={filterOp}
-				on:change={updateFilterOp}
+				on:change={applySelectFilter}
 				/>
 			<label for="filter-op-or">Or</label>
 		</div>
 		<div class="radio">
 			<input type="radio" id="filter-op-and" name="filter-op" value="and"
 				bind:group={filterOp}
-				on:change={updateFilterOp}
+				on:change={applySelectFilter}
 				/>
 			<label for="filter-op-and">And</label>
 		</div>
@@ -133,15 +172,6 @@
 <p><strong>{ $documentsStore.length }</strong> results</p>
 
 <div class="full-vw">
-	<!-- <div class="f-grid f-grid--p">
-		{#each $documentsStore as doc, i}
-			<article>
-				<h2><a href="{ doc.url }">{ doc.title }</a></h2>
-				<h3>{ doc.channel }{ doc.author ? ' / ' + doc.author : '' }</h3>
-				<p>{ doc.description }</p>
-			</article>
-		{/each}
-	</div> -->
 	<table>
 		<thead>
 			<th>Date shared</th>
@@ -154,7 +184,6 @@
 		</thead>
 		<tbody>
 		{#each $documentsStore as doc, i}
-		<!-- {#each currentResults as doc, i} -->
 			<tr>
 				<td>{ new Date(doc.date_shared).toLocaleDateString({ year: "numeric", month: "2-digit", day: "2-digit" }) }</td>
 				<td><a class="title" href="{ doc.url }">{ doc.title }</a></td>

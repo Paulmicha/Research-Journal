@@ -18,7 +18,7 @@
 	route.subscribe(o => {
 		if (o.data && o.data.channels_urls) {
 			documents = o.data.channels_urls.documents;
-			documentsStore.set(documents);
+			documentsStore.set([...documents]);
 		}
 	});
 
@@ -29,7 +29,13 @@
 		documents.forEach(doc => {
 			multiSelectSearchesInKeys.forEach(key => {
 				if (key in doc) {
-					doc[key].split(',').forEach(val => selectItems.push(val.trim()));
+					doc[key].split(',').forEach(val => {
+						val = val.trim();
+						if (!val.length) {
+							return;
+						}
+						selectItems.push(`${val} (${key})`);
+					});
 				}
 			});
 		});
@@ -37,7 +43,8 @@
 		const dedup = [...new Set(selectItems)];
 		// Sort alphabetically (using translitteration).
 		dedup.sort((a, b) => a.localeCompare(b));
-		return dedup.filter(String);
+		// return dedup.filter(String);
+		return dedup;
 	};
 
 	/**
@@ -52,26 +59,31 @@
 		// Debug.
 		console.log(`applySelectFilter() : selectFilterValues (${filterOp}) = ${JSON.stringify(selectFilterValues.map(v => v.value))}`);
 
-		const checkResultHasSufficientKeys = result => {
-			for (let i = 0; i < multiSelectSearchesInKeys.length; i++) {
-				const key = multiSelectSearchesInKeys[i];
-				if (key in result && result[key].length) {
-					return true;
-				}
-			}
-			return false;
-		};
+		// const checkResultHasSufficientKeys = result => {
+		// 	for (let i = 0; i < multiSelectSearchesInKeys.length; i++) {
+		// 		const key = multiSelectSearchesInKeys[i];
+		// 		if (key in result && result[key].length) {
+		// 			return true;
+		// 		}
+		// 	}
+		// 	return false;
+		// };
 
 		switch (filterOp) {
 			case 'and':
 				documentsStore.update(results => {
 					for (let i = 0; i < results.length; i++) {
 						const result = results[i];
+						let allFilterValuesMatch = true;
 
-						if (!checkResultHasSufficientKeys(results)) {
-							results.splice(i, 1);
-							continue;
-						}
+						// if (!checkResultHasSufficientKeys(results)) {
+						// 	results.splice(i, 1);
+
+						// 	// Debug.
+						// 	console.log(`  splice result ${i} because !checkResultHasSufficientKeys (${Object.keys(result)})`);
+
+						// 	continue;
+						// }
 
 						selectFilterValues.forEach(filterValue => {
 							let anyKeyMatches = false;
@@ -81,10 +93,18 @@
 									anyKeyMatches = true;
 								}
 							});
+
 							if (!anyKeyMatches) {
-								results.splice(i, 1);
+								allFilterValuesMatch = false;
 							}
 						});
+
+						if (!allFilterValuesMatch) {
+							results.splice(i, 1);
+
+							// Debug.
+							// console.log(`  splice result ${i} because !allFilterValuesMatch`);
+						}
 					}
 					return results;
 				});
@@ -96,10 +116,14 @@
 						const result = results[i];
 						let anyFilterValueMatches = false;
 
-						if (!checkResultHasSufficientKeys(results)) {
-							results.splice(i, 1);
-							continue;
-						}
+						// if (!checkResultHasSufficientKeys(results)) {
+						// 	results.splice(i, 1);
+
+						// 	// Debug.
+						// 	console.log(`  splice result ${i} because !checkResultHasSufficientKeys (${Object.keys(result)})`);
+
+						// 	continue;
+						// }
 
 						selectFilterValues.forEach(filterValue => {
 							Object.keys(result).forEach(key => {
@@ -111,6 +135,9 @@
 
 						if (!anyFilterValueMatches) {
 							results.splice(i, 1);
+
+							// Debug.
+							// console.log(`  splice result ${i} because !anyFilterValueMatches`);
 						}
 					}
 					return results;
@@ -129,11 +156,6 @@
 		documentsStore.set(documents);
   };
 </script>
-
-<!-- DEBUG -->
-<!-- <pre>ExpChannelsIndex.svelte : documents = {JSON.stringify($documentsStore, null, 2)}</pre> -->
-<!-- <pre>ExpChannelsIndex.svelte : filterOp = {JSON.stringify(filterOp, null, 2)}</pre> -->
-<!-- <pre>ExpChannelsIndex.svelte : documents = {JSON.stringify(getDocuments(), null, 2)}</pre> -->
 
 <!-- <ExternalScript url="https://unpkg.com/lunr/lunr.js" on:loaded="{onLoaded}" /> -->
 <!-- {#if loading}
@@ -170,6 +192,11 @@
 </form>
 
 <p><strong>{ $documentsStore.length }</strong> results</p>
+
+<!-- DEBUG -->
+<!-- <pre>ExpChannelsIndex.svelte : documents = {JSON.stringify($documentsStore, null, 2)}</pre> -->
+<!-- <pre>ExpChannelsIndex.svelte : filterOp = {JSON.stringify(filterOp, null, 2)}</pre> -->
+<!-- <pre>ExpChannelsIndex.svelte : documents = {JSON.stringify(getDocuments(), null, 2)}</pre> -->
 
 <div class="full-vw">
 	<table>

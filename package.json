@@ -26,6 +26,8 @@
     "@rollup/plugin-replace": "^2.2.0",
     "@rollup/plugin-url": "^5.0.0",
     "@sindresorhus/slugify": "^1.1.0",
+    "d3-array": "^2.8.0",
+    "d3-scale": "^3.2.3",
     "husky": "^4.3.0",
     "mkdirp": "^1.0.4",
     "rollup": "^2.3.4",
@@ -36,6 +38,7 @@
     "svelte-canvas": "^0.6.1",
     "svelte-popover": "^2.0.8",
     "svelte-preprocess": "^4.5.2",
+    "svelte-select": "^3.14.1",
     "uuid": "^8.3.1"
   },
   "husky": {

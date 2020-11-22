@@ -31,6 +31,7 @@ const preprocess = [
 const onwarn = (warning, onwarn) =>
 	(warning.code === 'MISSING_EXPORT' && /'preload'/.test(warning.message)) ||
 	(warning.code === 'CIRCULAR_DEPENDENCY' && /[/\\]@sapper[/\\]/.test(warning.message)) ||
+	(warning.code === 'CIRCULAR_DEPENDENCY' && /Circular dependency.*d3-interpolate/.test(warning.message)) ||
 	onwarn(warning);
 
 export default {

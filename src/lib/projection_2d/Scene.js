@@ -1,4 +1,4 @@
-import SceneItemsIterator from './SceneItemsIterator.js';
+import SceneItemsIterator from './SceneItemsIterator.js'
 
 /**
  * Composite collection representing a scene.
@@ -16,8 +16,8 @@ export default class Scene {
   }
 
 	init(w, h, p) {
-		this.width = w
-		this.height = h
+		this.width = w || 100
+		this.height = h || 100
 		this.perspectiveWidthRatio = p || 0.8
 		this.perspective = this.width * this.perspectiveWidthRatio
 		this.projectionCenterX = this.width / 2

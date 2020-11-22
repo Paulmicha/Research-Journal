@@ -5,6 +5,8 @@
 	import { Canvas, Layer, t } from "svelte-canvas";
 	import Popover from 'svelte-popover';
 	import Postures from '../experiments/Postures.svelte';
+	import Scene from '../perspective_2d/Scene.svelte';
+	import Point from '../perspective_2d/Point.svelte';
 
 	// Tests WIP.
 	// let coords = spring({ x: 50, y: 50 }, {
@@ -15,6 +17,9 @@
 	let partial_weight = 25;
 	let informel_weight = 25;
 	let conflictuel_weight = 25;
+
+	let vizWidth
+	let vizHeight
 
 	/**
 	 * Utility to get a single "score" from all the weights.
@@ -153,10 +158,21 @@
 </div>
 
 <hr class="full-vw" />
-<div class="wrap full-vw">
+<div class="wrap full-vw" bind:clientWidth={vizWidth} bind:clientHeight={vizHeight}>
 <!-- <div class="wrap full-vw" on:mousemove="{ e => coords.set({ x: e.clientX, y: e.clientY }) }"> -->
 
 	<Postures postures={$posturesStore} />
+
+	<Scene>
+		{#each $posturesStore as posture, i}
+			<Point
+				x={ Math.random() * vizWidth }
+				y={ Math.random() * vizHeight }
+				fill="hsla({ Math.round(Math.random() * 360) }, 100%, 30%, 1)"
+				z={ 20 + posture.score / 20 }
+			/>
+		{/each}
+	</Scene>
 
 	<!-- Tests WIP. -->
 	<!-- <div
@@ -169,8 +185,3 @@
 </div>
 
 <!-- TODO (wip) -->
-
-<h2>Debug</h2>
-<Canvas width={640} height={640}>
-  <Layer {render} />
-</Canvas>

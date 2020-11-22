@@ -26,7 +26,7 @@ docker run --rm \
 	tyrrrz/discordchatexporter:stable \
 	exportall \
 	-f Json \
-	-p 50 \
+	-p 300 \
 	--media --reuse-media \
 	--dateformat "yyyy-MM-dd HH:mm:ss"
 

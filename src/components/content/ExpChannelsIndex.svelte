@@ -48,7 +48,7 @@
 		// const dedup = [...new Set(selectItems)];
 		let seen = {};
 		const dedup = selectItems.filter(item =>
-			seen.hasOwnProperty(item.value) ? false : (seen[item.value] = true)
+			seen.hasOwnProperty(item.label) ? false : (seen[item.label] = true)
 		);
 
 		// Sort alphabetically (using translitteration).

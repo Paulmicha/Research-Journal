@@ -123,7 +123,7 @@ const tokenize_message = (text) => {
 	let result = {};
 
 	// Start from the end to gradually prune the text up to the first match.
-	Array.from(text.matchAll(/\/([^:/]+)\s?:/gmi)).reverse().forEach(match => {
+	Array.from(text.matchAll(/\/([^:/]+)\h?:/gmi)).reverse().forEach(match => {
 		const token = normalize_token_name(match[1]);
 		const to_prune = text.substring(match.index);
 		result[token] = to_prune.replace(match[0], '').trim();
@@ -154,6 +154,7 @@ const normalize_token_name = (token) => {
 		"content": "description",
 		"contenu": "description",
 		"t": "tags",
+		"tag": "tags",
 		"mots-cles": "tags",
 		"mot-cle": "tags",
 		"a": "author",

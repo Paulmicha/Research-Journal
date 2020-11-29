@@ -26,7 +26,21 @@ const blacklisted_channels = [
 	'778322366161485897',
 	'774206981191106580',
 	'768541814524870727',
+	'781585449646817293',
+	'781550948236525598',
+	'781475209537388565',
+	'781427207662075905',
+	'781425172003160074',
+	'781222072335859732',
+	'781498326435627038',
+	'781496743870464000',
+	'775704469924347944',
+	'777907883488575499',
 	'768506184810364939'
+];
+
+const irrelevant_channel_names = [
+	'partages-ressources'
 ];
 
 /**
@@ -126,7 +140,10 @@ const tokenize_message = (text) => {
 	Array.from(text.matchAll(/\/([^:/]+)\h?:/gmi)).reverse().forEach(match => {
 		const token = normalize_token_name(match[1]);
 		const to_prune = text.substring(match.index);
-		result[token] = to_prune.replace(match[0], '').trim();
+		result[token] = to_prune.replace(match[0], '').trim().replace(/(^,)|(,$)/g, "");
+		if (!result[token].length) {
+			delete result[token];
+		}
 		text = text.substring(0, match.index);
 	});
 
@@ -224,7 +241,15 @@ const build_channels_urls_index = () => {
 			// values, see below).
 			const doc = tokenize_message(message.content);
 			doc.url = url;
-			doc.channel = raw_data.channel.name;
+
+			// Unify channel name and tags. Excludes irrelevant channel names.
+			if (!irrelevant_channel_names.includes(raw_data.channel.name)) {
+				if (!('tags' in doc)) {
+					doc.channel = raw_data.channel.name;
+				} else if (!doc.tags.includes(raw_data.channel.name)) {
+					doc.tags = `${raw_data.channel.name}, ${doc.tags}`;
+				}
+			}
 
 			// Format date shared. TODO publication date ?
 			// const d = new Date(message.timestamp);

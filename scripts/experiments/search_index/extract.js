@@ -3,6 +3,10 @@
  * Public URLs data miner based on channels exports.
  *
  * @see scripts/experiments/search_index/fetch.sh
+ *
+ * @example
+ *   # From project docroot :
+ *   node scripts/experiments/search_index/extract.js
  */
 
 const { write_file } = require('../../fs');

@@ -34,6 +34,10 @@
 						if (!val.length) {
 							return;
 						}
+
+						// Unify channel name and tags.
+						key = key.replace('channel', 'tags');
+
 						selectItems.push({
 							value: val,
 							key: key,
@@ -212,7 +216,7 @@
 				<td>{ new Date(doc.date_shared).toLocaleDateString({ year: "numeric", month: "2-digit", day: "2-digit" }) }</td>
 				<td><a class="title" href="{ doc.url }">{ doc.title }</a></td>
 				<td>{ doc.type || '' }</td>
-				<td>{ doc.channel }{ doc.tags ? ', ' + doc.tags : '' }</td>
+				<td>{ doc.tags || '' }</td>
 				<td>{ doc.author || '' }</td>
 				<td>{ doc.names || '' }</td>
 				<td><div class="desc">{ doc.description || '' }</div></td>

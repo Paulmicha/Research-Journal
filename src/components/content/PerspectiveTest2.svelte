@@ -76,11 +76,13 @@
 
 </script>
 
+
 <!-- Debug. -->
 <!-- <pre>PerspectiveTest2.svelte : sceneW = {JSON.stringify(sceneW, null, 2)}</pre> -->
 <!-- <pre>PerspectiveTest2.svelte : sceneH = {JSON.stringify(sceneH, null, 2)}</pre> -->
 <!-- <pre>scene width : { sceneW }, scene height : { sceneH }</pre> -->
 <!-- <pre>itemTest.position = {JSON.stringify(itemTest.position({x, y, z}), null, 2)}</pre> -->
+
 
 <div class="controls f-grid">
 	<div>
@@ -115,21 +117,25 @@
 	</div>
 </div>
 
-<Canvas width={sceneW} height={sceneH}>
-	<Point
-		x={ projectedX }
-		y={ projectedY }
-		scale={ projectedScale }
-	/>
-</Canvas>
 
 <div class="scene" bind:clientWidth={sceneW} bind:clientHeight={sceneH} style="--z_index:-1; --sceneMargin:{sceneMargin}px">
+
+	<Canvas width={sceneW} height={sceneH}>
+		<Point
+			x={ projectedX }
+			y={ projectedY }
+			radius={ projectedScale * 50 }
+		/>
+	</Canvas>
+
 	<div class="itemTest" style="--x:{projectedX}px; --y:{projectedY}px; --scale:{projectedScale}em">
-		<pre>3D coords : { x },{ y },{ z }</pre>
+		<pre>3D coords : { x }, { y }, { z }</pre>
 		<pre>2D coords : { projectedX },{ projectedY }</pre>
 		<pre>2D scale : { projectedScale }</pre>
 	</div>
+
 </div>
+
 
 <style>
 	.controls {
@@ -161,7 +167,7 @@
 		bottom: var(--sceneMargin);
 		left: var(--sceneMargin);
 		z-index: var(--z_index);
-		border: 1px solid gray;
+		border: 5px dashed gray;
 		/* width: calc(100- var(--sceneMargin));
 		height: calc(100% - var(--sceneMargin)); */
 	}
@@ -170,6 +176,7 @@
 		position: absolute;
 		top: var(--y);
 		left: var(--x);
+		padding: 1em;
 		font-size: var(--scale);
 		background: rgba(0,0,0,.2);
 	}

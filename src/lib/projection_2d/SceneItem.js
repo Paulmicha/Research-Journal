@@ -58,8 +58,10 @@ export default class SceneItem {
 		// console.log(this);
 
 		return {
-			x: (this.xProjected - this.w / 2).toFixed(3),
-			y: (this.yProjected - this.h / 2).toFixed(3),
+			// x: (this.xProjected - this.w / 2).toFixed(3),
+			// y: (this.yProjected - this.h / 2).toFixed(3),
+			x: this.xProjected.toFixed(3),
+			y: this.yProjected.toFixed(3),
 			scale: this.scaleProjected.toFixed(3)
 		};
 	}

@@ -162,7 +162,7 @@
 				x={ Math.random() * vizWidth }
 				y={ Math.random() * vizHeight }
 				fill="hsla({ Math.round(Math.random() * 360) }, 100%, 30%, 1)"
-				z={ 20 + posture.score / 20 }
+				radius={ 1 + posture.score / 200 }
 			/>
 		{/each}
 	</Scene>

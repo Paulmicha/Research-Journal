@@ -1,0 +1,13 @@
+{
+	"lang": "en",
+	"title": "Perspective Test 1",
+	"description": "Custom experiment for displaying items in a 2D perspective based on https://www.basedesign.com/blog/how-to-render-3d-in-2d-canvas",
+	"image": "media/2020/10/perspective-test-1.png",
+	"published": "2020-10-27T08:54:12.735Z",
+	"content": [
+		{
+			"c": "PerspectiveTest1",
+			"props": {}
+		}
+	]
+}

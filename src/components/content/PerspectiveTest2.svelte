@@ -1,10 +1,11 @@
 <script>
-	import { onMount } from 'svelte';
 	import { Canvas } from 'svelte-canvas';
+	import { onMount } from 'svelte';
+	import { toPixels } from '../../lib/conversions.js';
 
 	import Scene from '../../lib/projection_2d/Scene.js';
 	import SceneItem from '../../lib/projection_2d/SceneItem.js';
-	import Point from '../perspective_2d/Point.svelte';
+	import Point from '../canvas_items/Point.svelte';
 
 	const scene = new Scene();
 	// const sceneIterator = scene.createIterator();
@@ -18,15 +19,25 @@
 	let z = 0;
 	// let w = 260;
 	// let h = 75;
-	let r = 260;
+	// let r = 260;
 
 	let projectedX;
 	let projectedY;
 	let projectedScale;
 
-	// const itemTest = new SceneItem({scene, x, y, z, w, h});
-	const itemTest = new SceneItem({scene, x, y, z, r});
+	// const itemTest = new SceneItem({ scene, x, y, z, w, h });
+	// const itemTest = new SceneItem({ scene, x, y, z, r });
+	const itemTest = new SceneItem({ scene, x, y, z });
+
 	scene.add(itemTest);
+
+	/**
+	 * Scene resize.
+	 */
+	const updateScene = () => {
+		scene.init(sceneW, sceneH, (sceneW + sceneH) / 2);
+		updatePos({ x, y, z });
+	}
 
 	/**
 	 * Computes projected coordinates on every change in position.
@@ -67,21 +78,51 @@
 	}
 
 	/**
+	 * Initializes resize observer.
+	 */
+	const resizer = el => {
+		const margin = toPixels(sceneMargin + 'rem', el);
+
+		const ro = new ResizeObserver((entries) => {
+			entries.forEach((watched) => {
+				const contentRect = watched.contentRect;
+
+				sceneW = contentRect.width;
+				sceneH = contentRect.height;
+
+				// Prevents items to be displayed outside of the scene.
+				// TODO implement reverse computing of positions (projected -> 3D).
+				if (projectedX > sceneW + 1) {
+					x = 0;
+				}
+				if (projectedY > sceneH + 1) {
+					y = 0;
+				}
+
+				updateScene();
+			});
+		});
+
+		ro.observe(el);
+
+		return {
+			destroy() {
+				ro.unobserve(el);
+			}
+		};
+	};
+
+	/**
 	 * Start at the 3D center when component is mounted into the DOM.
 	 */
 	onMount(() => {
-		scene.init(sceneW, sceneH, (sceneW + sceneH) / 2);
-		updatePos({ x, y, z });
-  });
-
+		updateScene();
+	});
 </script>
 
 
 <!-- Debug. -->
-<!-- <pre>PerspectiveTest2.svelte : sceneW = {JSON.stringify(sceneW, null, 2)}</pre> -->
-<!-- <pre>PerspectiveTest2.svelte : sceneH = {JSON.stringify(sceneH, null, 2)}</pre> -->
-<!-- <pre>scene width : { sceneW }, scene height : { sceneH }</pre> -->
-<!-- <pre>itemTest.position = {JSON.stringify(itemTest.position({x, y, z}), null, 2)}</pre> -->
+<!-- <pre>PerspectiveTest2.svelte : scene width : { sceneW }, scene height : { sceneH }</pre> -->
 
 
 <div class="controls f-grid">
@@ -118,7 +159,7 @@
 </div>
 
 
-<div class="scene" bind:clientWidth={sceneW} bind:clientHeight={sceneH} style="--z_index:-1; --sceneMargin:{sceneMargin}rem">
+<div class="scene" bind:clientWidth={sceneW} bind:clientHeight={sceneH} style="--z_index:-1; --sceneMargin:{sceneMargin}rem" use:resizer>
 
 	<Canvas width={sceneW} height={sceneH}>
 		<Point
@@ -168,8 +209,6 @@
 		left: var(--sceneMargin);
 		z-index: var(--z_index);
 		border: 5px dashed gray;
-		/* width: calc(100- var(--sceneMargin));
-		height: calc(100% - var(--sceneMargin)); */
 	}
 
 	.itemTest {

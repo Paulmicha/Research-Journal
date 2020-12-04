@@ -11,7 +11,7 @@
 
 	let sceneW = 200;
 	let sceneH = 200;
-	let sceneMargin = 25;
+	let sceneMargin = 5; // <- in CSS "rem" unit.
 
 	let x = 0;
 	let y = 0;
@@ -118,7 +118,7 @@
 </div>
 
 
-<div class="scene" bind:clientWidth={sceneW} bind:clientHeight={sceneH} style="--z_index:-1; --sceneMargin:{sceneMargin}px">
+<div class="scene" bind:clientWidth={sceneW} bind:clientHeight={sceneH} style="--z_index:-1; --sceneMargin:{sceneMargin}rem">
 
 	<Canvas width={sceneW} height={sceneH}>
 		<Point

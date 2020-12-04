@@ -1,13 +1,17 @@
 <script>
 	import { onMount } from 'svelte';
+	import { Canvas } from 'svelte-canvas';
+
 	import Scene from '../../lib/projection_2d/Scene.js';
 	import SceneItem from '../../lib/projection_2d/SceneItem.js';
+	import Point from '../perspective_2d/Point.svelte';
 
 	const scene = new Scene();
 	// const sceneIterator = scene.createIterator();
 
 	let sceneW = 200;
 	let sceneH = 200;
+	let sceneMargin = 25;
 
 	let x = 0;
 	let y = 0;
@@ -67,9 +71,6 @@
 	 */
 	onMount(() => {
 		scene.init(sceneW, sceneH, (sceneW + sceneH) / 2);
-		// x = scene.projectionCenterX;
-		// y = scene.projectionCenterY;
-		// z = scene.projectionCenterZ;
 		updatePos({ x, y, z });
   });
 
@@ -85,52 +86,50 @@
 	<div>
 		<span>X</span>
 		<span>
-			<input type="text" bind:value={x} />
+			3D : <input type="text" bind:value={x} />
 			<br/>
-			<!-- <input type="range" max="{sceneW}" id="input-x" on:input={onInputPos} bind:this={inputX} /> -->
-			<!-- <input type="range" max="{sceneW}" id="input-x" on:input={onInputPos} bind:value={x} /> -->
+			2D : <input type="text" bind:value={projectedX} />
+			<br/>
 			<input type="range" min="{-sceneW / 2}" max="{sceneW / 2}" id="input-x" on:input={onInputPos} bind:value={x} />
 		</span>
 	</div>
 	<div>
 		<span>Y</span>
 		<span>
-			<input type="text" bind:value={y} />
+			3D : <input type="text" bind:value={y} />
 			<br/>
-			<!-- <input type="range" max="{sceneH}" id="input-y" on:input={onInputPos} bind:this={inputY} /> -->
-			<!-- <input type="range" max="{sceneH}" id="input-y" on:input={onInputPos} bind:value={y} /> -->
+			2D : <input type="text" bind:value={projectedY} />
+			<br/>
 			<input type="range" min="{-sceneH / 2}" max="{sceneH / 2}" id="input-y" on:input={onInputPos} bind:value={y} />
 		</span>
 	</div>
 	<div>
 		<span>Z</span>
 		<span>
-			<input type="text" bind:value={z} />
+			3D : <input type="text" bind:value={z} />
 			<br/>
-			<!-- <input type="range" max="{sceneW}" id="input-z" on:input={onInputPos} bind:this={inputZ} /> -->
+			Scale : <input type="text" bind:value={projectedScale} />
+			<br/>
 			<input type="range" max="{(sceneW + sceneH) / 2}" id="input-z" on:input={onInputPos} bind:value={z} />
-			<!-- <input type="range" min="{-(sceneW + sceneH) / 4}" max="{(sceneW + sceneH) / 4}" id="input-z" on:input={onInputPos} bind:value={z} /> -->
 		</span>
 	</div>
 </div>
 
-<div class="scene" bind:clientWidth={sceneW} bind:clientHeight={sceneH} style="--z_index:-1">
-	<!-- <div class="itemTest" style="left:{projectedX}px; top:{projectedY}px; z-index:-{projectedScale}; width:${w}px; height:${h}px;"> -->
-	<!-- <div class="itemTest" style="left:{projectedX}px; top:{projectedY}px; z-index:-{projectedScale}"> -->
+<Canvas width={sceneW} height={sceneH}>
+	<Point
+		x={ projectedX }
+		y={ projectedY }
+		scale={ projectedScale }
+	/>
+</Canvas>
+
+<div class="scene" bind:clientWidth={sceneW} bind:clientHeight={sceneH} style="--z_index:-1; --sceneMargin:{sceneMargin}px">
 	<div class="itemTest" style="--x:{projectedX}px; --y:{projectedY}px; --scale:{projectedScale}em">
-		<pre>x (proj) = { x } ({ projectedX })</pre>
-		<pre>y (proj) = { y } ({ projectedY })</pre>
-		<pre>z (proj) = { z } ({ projectedScale })</pre>
+		<pre>3D coords : { x },{ y },{ z }</pre>
+		<pre>2D coords : { projectedX },{ projectedY }</pre>
+		<pre>2D scale : { projectedScale }</pre>
 	</div>
 </div>
-
-<!-- <Scene bind:width={sceneW} bind:height={sceneH}>
-	<Point
-		x={ x * sceneW / 100 }
-		y={ y * sceneH / 100 }
-		z={ z }
-	/>
-</Scene> -->
 
 <style>
 	.controls {
@@ -157,13 +156,14 @@
 
 	.scene {
 		position: absolute;
-		top: 0;
-		right: 0;
-		bottom: 0;
-		left: 0;
+		top: var(--sceneMargin);
+		right: var(--sceneMargin);
+		bottom: var(--sceneMargin);
+		left: var(--sceneMargin);
 		z-index: var(--z_index);
-		width: 100%;
-		height: 100%;
+		border: 1px solid gray;
+		/* width: calc(100- var(--sceneMargin));
+		height: calc(100% - var(--sceneMargin)); */
 	}
 
 	.itemTest {

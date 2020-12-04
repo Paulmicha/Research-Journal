@@ -5,37 +5,61 @@
  */
 export default class SceneItem {
 	constructor(o) {
-		const { x, y, z, w, h, r, scene, render } = o;
+		const { x, y, z, w, h, r, type, scene } = o;
+		this.type = type;
 		this.scene = scene;
-		this.render = render;
 
 		// Provide random coordinates as fallback defaults.
-		this.x = x || (Math.random() - 0.5) * scene.offsetWidth;
-		this.y = y || (Math.random() - 0.5) * scene.offsetHeight;
-		this.z = z || Math.random() * scene.offsetWidth;
-		this.radius = r || 10;
-		this.width = w || this.radius * 2;
-		this.height = h || this.radius * 2;
+		this.x = x || (Math.random() - 0.5) * this.scene.width;
+		this.y = y || (Math.random() - 0.5) * this.scene.height;
+		this.z = z || Math.random() * this.scene.width;
 
+		this.r = r || 10;
+		this.w = w || this.r * 2;
+		this.h = h || this.r * 2;
+
+		this.scaleProjected = 0;
 		this.xProjected = 0;
 		this.yProjected = 0;
-		this.scaleProjected = 0;
 
+		// TODO (wip) bounding rect or circle to facilitate collision detection ?
 		// this.boundingRect = []
 	}
 
 	project() {
-		this.scaleProjected = scene.perspective / (scene.perspective + this.z);
-		this.xProjected = (this.x * this.scaleProjected) + scene.projectionCenterX;
-		this.yProjected = (this.y * this.scaleProjected) + scene.projectionCenterY;
+		this.scaleProjected = this.scene.perspective / (this.scene.perspective + this.z);
+		this.xProjected = (this.x * this.scaleProjected) + this.scene.projectionCenterX;
+		this.yProjected = (this.y * this.scaleProjected) + this.scene.projectionCenterY;
 	}
 
-	draw() {
+	position(o) {
+		const keysToUpdate = Object.keys(o);
+
+		keysToUpdate.forEach(key => {
+			// this[key] = o[key];
+			switch (key) {
+				case 'x':
+					this.x = o.x;
+					break;
+				case 'y':
+					this.y = o.y;
+					break;
+				case 'z':
+					this.z = o.z;
+					break;
+			}
+		});
+
+		// if (['x', 'y', 'z', 'w', 'h', 'r'].some(item => keysToUpdate.includes(item))) {
 		this.project();
+		// }
 
-		// ctx.globalAlpha = Math.abs(1 - this.z / width);
-		// ctx.fillRect(this.xProjected - this.radius, this.yProjected - this.radius, this.radius * 2 * this.scaleProjected, this.radius * 2 * this.scaleProjected);
-
-		this.render(this);
+		return {
+			// x: this.xProjected - this.scene.width / 2,
+			// y: this.yProjected - this.scene.height / 2,
+			x: (this.xProjected - this.w / 2).toFixed(3),
+			y: (this.yProjected - this.h / 2).toFixed(3),
+			z: this.z.toFixed(3)
+		};
 	}
 }

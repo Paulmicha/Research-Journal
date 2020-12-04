@@ -1,57 +1,136 @@
 <script>
-	import Scene from '../perspective_2d/Scene.svelte';
-	import Point from '../perspective_2d/Point.svelte';
+	import { onMount } from 'svelte';
+	// import Scene from '../perspective_2d/Scene.svelte';
+	// import Point from '../perspective_2d/Point.svelte';
+
+	import Scene from '../../lib/projection_2d/Scene.js';
+	import SceneItem from '../../lib/projection_2d/SceneItem.js';
+
+	const scene = new Scene();
+	const sceneIterator = scene.createIterator();
 
 	let sceneW = 200;
 	let sceneH = 200;
 
-	let posX = 50;
-	let posY = 50;
-	let posZ = 20;
+	// $: scene.init(sceneW, sceneH);
+
+	let x = 50;
+	let y = 50;
+	let z = 0;
+
+	let projectedX;
+	let projectedY;
+	let projectedZ;
+
+	let inputX;
+	let inputY;
+	let inputZ;
+
+	const itemTest = new SceneItem({scene, x, y, z});
+
+	const updatePos = (newPos) => {
+		const newProjectedPos = itemTest.position(newPos);
+		projectedX = newProjectedPos.x;
+		projectedY = newProjectedPos.y;
+		projectedZ = newProjectedPos.z;
+	}
+
+	scene.add(itemTest);
+
+	onMount(() => {
+		// scene.init(sceneW, sceneH);
+		x = sceneW / 2;
+		y = sceneH / 2;
+		z = 0;
+
+		updatePos({ x, y, z });
+
+		inputX.value = x;
+		inputY.value = y;
+		inputZ.value = z;
+  });
+
+	const onInputPos = (e) => {
+		const inputRange = e.target;
+		const value = inputRange.value;
+
+		// scene.init(sceneW, sceneH);
+
+		const newPos = {};
+
+		switch(inputRange.id) {
+			case 'input-x':
+				x = value;
+				newPos.x = x;
+				break;
+			case 'input-y':
+				y = value;
+				newPos.y = y;
+				break;
+			case 'input-z':
+				z = value;
+				newPos.z = z;
+				break;
+		}
+
+		updatePos(newPos);
+	}
+
 </script>
 
 <!-- Debug. -->
 <!-- <pre>PerspectiveTest2.svelte : sceneW = {JSON.stringify(sceneW, null, 2)}</pre> -->
 <!-- <pre>PerspectiveTest2.svelte : sceneH = {JSON.stringify(sceneH, null, 2)}</pre> -->
+<!-- <pre>scene width : { sceneW }, scene height : { sceneH }</pre> -->
+<!-- <pre>itemTest.position = {JSON.stringify(itemTest.position({x, y, z}), null, 2)}</pre> -->
 
 <div class="controls f-grid">
 	<div>
 		<span>X</span>
 		<span>
-			<input type="text" bind:value={ posX } />
+			<input type="text" bind:value={x} />
 			<br/>
-			<input type="range" bind:value={ posX } />
+			<input type="range" max="{sceneW}" id="input-x" on:input={onInputPos} bind:this={inputX} />
 		</span>
 	</div>
 	<div>
 		<span>Y</span>
 		<span>
-			<input type="text" bind:value={ posY } />
+			<input type="text" bind:value={y} />
 			<br/>
-			<input type="range" bind:value={ posY } />
+			<input type="range" max="{sceneH}" id="input-y" on:input={onInputPos} bind:this={inputY} />
 		</span>
 	</div>
 	<div>
 		<span>Z</span>
 		<span>
-			<input type="text" bind:value={ posZ } />
+			<input type="text" bind:value={z} />
 			<br/>
-			<input type="range" bind:value={ posZ } />
+			<input type="range" max="{sceneW}" id="input-z" on:input={onInputPos} bind:this={inputZ} />
 		</span>
 	</div>
 </div>
 
-<Scene bind:width={sceneW} bind:height={sceneH}>
+<div class="scene" bind:clientWidth={sceneW} bind:clientHeight={sceneH} style="--z_index:-1">
+	<div class="itemTest" style="position:absolute;left:{projectedX}px;top:{projectedY}px;z-index:-{projectedZ}">
+		<pre>x (proj) = { x } ({ projectedX })</pre>
+		<pre>y (proj) = { y } ({ projectedY })</pre>
+		<pre>z (proj) = { z } ({ projectedZ })</pre>
+	</div>
+</div>
+
+<!-- <Scene bind:width={sceneW} bind:height={sceneH}>
 	<Point
-		x={ posX * sceneW / 100 }
-		y={ posY * sceneH / 100 }
-		z={ posZ }
+		x={ x * sceneW / 100 }
+		y={ y * sceneH / 100 }
+		z={ z }
 	/>
-</Scene>
+</Scene> -->
 
 <style>
 	.controls {
 		font-size: .75rem;
+		margin: var(--space) 0;
 	}
 	.controls.f-grid {
 		flex-wrap: nowrap;
@@ -69,5 +148,21 @@
 	}
 	.controls input[type="text"] {
 		max-width: 2rem;
+	}
+
+	.scene {
+		position: absolute;
+		top: 0;
+		right: 0;
+		bottom: 0;
+		left: 0;
+		z-index: var(--z_index);
+		width: 100%;
+		height: 100%;
+	}
+
+	.itemTest {
+		position: absolute;
+		background: rgba(0,0,0,.2);
 	}
 </style>

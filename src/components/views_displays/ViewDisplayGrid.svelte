@@ -12,10 +12,18 @@
 <!-- DEBUG -->
 <!-- <pre>ViewDisplayGrid.svelte : results = {JSON.stringify(results, null, 2)}</pre> -->
 
-<div class="o-ibgrid { align === 'center' ? 'o-ibgrid--center' : '' } { space === 'large' ? 'o-ibgrid--gutter-l o-ibgrid--vgutter-l' : '' }">
-	{#each results as props}
-		<div class="o-ibgrid__item u-maxw-typo-s">
-			<!-- placeholder://src/preprocess.js#entity_view_modes -->
-		</div>
-	{/each}
+<div class="full-vw">
+	<div class="f-grid { align === 'center' ? 'f-grid--center' : '' } { space === 'large' ? 'f-grid--gutter-l f-grid--vgutter-l' : '' }">
+		{#each results as props}
+			<div class="item">
+				<!-- placeholder://src/preprocess.js#entity_view_modes -->
+			</div>
+		{/each}
+	</div>
 </div>
+
+<style>
+	.item {
+		max-width: 30ch;
+	}
+</style>

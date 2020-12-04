@@ -14,9 +14,11 @@
 
 	// const margin = { top: 20, right: 20, bottom: 20, left: 40 };
 
-	let width;
-	let height;
+	export let width;
+	export let height;
+
 	$: depth = (width + height) / 2;
+	// $: width, height;
 
 	// $: x = scaleLinear()
 	// 	// .domain(extent(points, d => d.mpg))

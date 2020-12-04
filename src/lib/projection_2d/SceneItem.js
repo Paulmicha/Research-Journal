@@ -5,32 +5,37 @@
  */
 export default class SceneItem {
 	constructor(o) {
-		const { x, y, z, radius, scene } = o;
-
-		let PROJECTION_CENTER_X = width / 2;
-		let PROJECTION_CENTER_Y = height / 2;
-		let PERSPECTIVE = width * 0.8;
+		const { x, y, z, w, h, r, scene, render } = o;
+		this.scene = scene;
+		this.render = render;
 
 		// Provide random coordinates as fallback defaults.
 		this.x = x || (Math.random() - 0.5) * scene.offsetWidth;
 		this.y = y || (Math.random() - 0.5) * scene.offsetHeight;
 		this.z = z || Math.random() * scene.offsetWidth;
-		this.radius = radius || 10;
+		this.radius = r || 10;
+		this.width = w || this.radius * 2;
+		this.height = h || this.radius * 2;
 
 		this.xProjected = 0;
 		this.yProjected = 0;
 		this.scaleProjected = 0;
+
+		// this.boundingRect = []
 	}
 
 	project() {
-		this.scaleProjected = PERSPECTIVE / (PERSPECTIVE + this.z);
-		this.xProjected = (this.x * this.scaleProjected) + PROJECTION_CENTER_X;
-		this.yProjected = (this.y * this.scaleProjected) + PROJECTION_CENTER_Y;
+		this.scaleProjected = scene.perspective / (scene.perspective + this.z);
+		this.xProjected = (this.x * this.scaleProjected) + scene.projectionCenterX;
+		this.yProjected = (this.y * this.scaleProjected) + scene.projectionCenterY;
 	}
 
 	draw() {
 		this.project();
-		ctx.globalAlpha = Math.abs(1 - this.z / width);
-		ctx.fillRect(this.xProjected - this.radius, this.yProjected - this.radius, this.radius * 2 * this.scaleProjected, this.radius * 2 * this.scaleProjected);
+
+		// ctx.globalAlpha = Math.abs(1 - this.z / width);
+		// ctx.fillRect(this.xProjected - this.radius, this.yProjected - this.radius, this.radius * 2 * this.scaleProjected, this.radius * 2 * this.scaleProjected);
+
+		this.render(this);
 	}
 }

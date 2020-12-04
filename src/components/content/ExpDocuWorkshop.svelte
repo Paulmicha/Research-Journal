@@ -2,7 +2,7 @@
 	// import { spring } from 'svelte/motion';
 	import { route } from '../../stores/route.js';
 	import { writable } from 'svelte/store';
-	import { Canvas, Layer, t } from "svelte-canvas";
+	import { Canvas } from "svelte-canvas";
 	import Popover from 'svelte-popover';
 	import Postures from '../experiments/Postures.svelte';
 	import Scene from '../perspective_2d/Scene.svelte';
@@ -66,13 +66,6 @@
 
 		posturesStore.update(() => postures);
 	}
-
-	$: render = ({ context, width, height }) => {
-    context.fillStyle = `hsl(${$t / 40}, 100%, 50%)`;
-    context.beginPath();
-    context.arc(($t / 4) % width, ($t / 4) % height, 100, 0, Math.PI * 2);
-    context.fill();
-  };
 </script>
 
 <style>

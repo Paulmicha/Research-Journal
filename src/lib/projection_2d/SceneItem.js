@@ -10,10 +10,8 @@ export default class SceneItem {
 		this.scene = scene;
 
 		// Provide random coordinates as fallback defaults.
-		// this.x = x || (Math.random() - 0.5) * this.scene.width;
-		// this.y = y || (Math.random() - 0.5) * this.scene.height;
-		this.x = x || Math.random() * this.scene.width;
-		this.y = y || Math.random() * this.scene.height;
+		this.x = x || (Math.random() - 0.5) * this.scene.width;
+		this.y = y || (Math.random() - 0.5) * this.scene.height;
 		this.z = z || Math.random() * this.scene.width;
 
 		this.r = r || 10;
@@ -56,15 +54,18 @@ export default class SceneItem {
 		this.project();
 		// }
 
+		// Debug.
+		// console.log(this);
+
 		return {
 			// x: this.xProjected - this.scene.width / 2,
 			// y: this.yProjected - this.scene.height / 2,
-			// x: (this.xProjected - this.w / 2).toFixed(3),
-			// y: (this.yProjected - this.h / 2).toFixed(3),
+			x: (this.xProjected - this.w / 2).toFixed(3),
+			y: (this.yProjected - this.h / 2).toFixed(3),
 			// z: this.z.toFixed(3)
-			x: (this.xProjected - this.w / 2),
-			y: (this.yProjected - this.h / 2),
-			z: this.z
+			// x: this.xProjected,
+			// y: this.yProjected,
+			scale: this.scaleProjected.toFixed(3)
 		};
 	}
 }

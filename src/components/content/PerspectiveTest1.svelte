@@ -45,13 +45,13 @@
 				this.yProjected = 0;
 				this.scaleProjected = 0;
 
-				TweenMax.to(this, (Math.random() * 10 + 15), {
+				TweenMax.to(this, (Math.random() * 3 + 1), {
 					z: width,
 					repeat: -1,
 					yoyo: true,
-					ease: Power2.easeOut,
+					ease: Power2.easeInOut,
 					yoyoEase: true,
-					delay: Math.random() * -25
+					delay: Math.random()
 				});
 			}
 			// Do some math to project the 3D position into the 2D canvas

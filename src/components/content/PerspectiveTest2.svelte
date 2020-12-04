@@ -22,9 +22,9 @@
 	let projectedY;
 	let projectedZ;
 
-	let inputX;
-	let inputY;
-	let inputZ;
+	// let inputX;
+	// let inputY;
+	// let inputZ;
 
 	const itemTest = new SceneItem({scene, x, y, z});
 
@@ -37,18 +37,22 @@
 
 	scene.add(itemTest);
 
-	onMount(() => {
-		// scene.init(sceneW, sceneH);
-		x = sceneW / 2;
-		y = sceneH / 2;
-		z = 0;
-
-		updatePos({ x, y, z });
-
-		inputX.value = x;
-		inputY.value = y;
-		inputZ.value = z;
-  });
+	// const updateInputs = (from) => {
+	// 	switch(from) {
+	// 		case 'input-x':
+	// 			inputY.value = y;
+	// 			inputZ.value = z;
+	// 			break;
+	// 		case 'input-y':
+	// 			inputX.value = x;
+	// 			inputZ.value = z;
+	// 			break;
+	// 		case 'input-z':
+	// 			inputX.value = x;
+	// 			inputY.value = y;
+	// 			break;
+	// 	}
+	// }
 
 	const onInputPos = (e) => {
 		const inputRange = e.target;
@@ -74,7 +78,34 @@
 		}
 
 		updatePos(newPos);
+		// updateInputs(inputRange.id);
 	}
+
+	/**
+	 * TODO seems too soon to try to sync input range positions depending on
+	 * bind:clientWidth={sceneW} and bind:clientHeight={sceneH}
+	 * -> find workaround (delay ?)
+	 */
+	onMount(() => {
+		// Debug.
+		// console.log(`onMount() : sceneW = ${sceneW}, sceneH = ${sceneH}`);
+		// console.log(inputX.value);
+
+		// scene.init(sceneW, sceneH);
+
+		x = sceneW / 2;
+		y = sceneH / 2;
+		z = 0;
+
+		updatePos({ x, y, z });
+
+		// inputX.value = x;
+		// inputY.value = y;
+		// inputZ.value = z;
+
+		// console.log(sceneW / 2);
+		// console.log(inputX.value);
+  });
 
 </script>
 
@@ -90,7 +121,8 @@
 		<span>
 			<input type="text" bind:value={x} />
 			<br/>
-			<input type="range" max="{sceneW}" id="input-x" on:input={onInputPos} bind:this={inputX} />
+			<!-- <input type="range" max="{sceneW}" id="input-x" on:input={onInputPos} bind:this={inputX} /> -->
+			<input type="range" max="{sceneW}" id="input-x" on:input={onInputPos} bind:value={x} />
 		</span>
 	</div>
 	<div>
@@ -98,7 +130,8 @@
 		<span>
 			<input type="text" bind:value={y} />
 			<br/>
-			<input type="range" max="{sceneH}" id="input-y" on:input={onInputPos} bind:this={inputY} />
+			<!-- <input type="range" max="{sceneH}" id="input-y" on:input={onInputPos} bind:this={inputY} /> -->
+			<input type="range" max="{sceneH}" id="input-y" on:input={onInputPos} bind:value={y} />
 		</span>
 	</div>
 	<div>
@@ -106,7 +139,8 @@
 		<span>
 			<input type="text" bind:value={z} />
 			<br/>
-			<input type="range" max="{sceneW}" id="input-z" on:input={onInputPos} bind:this={inputZ} />
+			<!-- <input type="range" max="{sceneW}" id="input-z" on:input={onInputPos} bind:this={inputZ} /> -->
+			<input type="range" max="{sceneW}" id="input-z" on:input={onInputPos} bind:value={z} />
 		</span>
 	</div>
 </div>

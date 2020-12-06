@@ -245,7 +245,7 @@ const build_channels_urls_index = () => {
 			// Unify channel name and tags. Excludes irrelevant channel names.
 			if (!irrelevant_channel_names.includes(raw_data.channel.name)) {
 				if (!('tags' in doc)) {
-					doc.channel = raw_data.channel.name;
+					doc.tags = raw_data.channel.name;
 				} else if (!doc.tags.includes(raw_data.channel.name)) {
 					doc.tags = `${raw_data.channel.name}, ${doc.tags}`;
 				}

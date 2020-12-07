@@ -4,10 +4,21 @@
 </script>
 
 <style>
-	.f-grid {
+	/* .f-grid {
 		--item-width: 2em;
+	} */
+	.posture {
+		position: absolute;
+		/* top: var(--y);
+		left: var(--x); */
+		top: calc(var(--y) + 75px);
+		/* left: calc(var(--x) - 150px); */
+		left: var(--x);
+		/* padding: 1em; */
+		font-size: var(--scale);
+		width: 300px;
 	}
-	.hexagon {
+	/* .hexagon {
 		--width: 7em;
 		--height: 4.25em;
 		font-size: calc(var(--score) * 1em + .7rem);
@@ -15,7 +26,6 @@
 		display: inline-block;
 		margin-top: calc(var(--width) / 4);
 		margin-bottom: calc(var(--width) / 4);
-		/* padding: 1.25rem 0; */
 		width: var(--width);
 		height: var(--height);
 		text-align: center;
@@ -50,33 +60,37 @@
 		flex-direction: column;
 		justify-content: center;
 		padding: .25rem;
-	}
+	} */
 	[slot="target"] {
 		cursor: pointer;
 	}
 	.pop-content {
     padding: 10px;
+		width: 33ch;
     background: #fff;
 		color: var(--bg-color);
   }
 </style>
 
-<div class="f-grid f-grid--center">
+<!-- <div class="f-grid f-grid--center"> -->
 	{#each postures as posture, i}
-		<div>
-			<div class="hexagon" style="--score:{ posture.score / 2000 }; --bg-color:hsla({ Math.round(Math.random() * 360) }, 100%, 30%, 1)">
-				<div class="hexagon-inner-wrap">
-					<Popover arrowColor="#fff">
-						<p slot="target">{ posture.title }</p>
-						<dl slot="content" class="pop-content">
-							<dt>instruments&nbsp;:</dt>
-							<dd>{ posture.instruments }</dd>
-							<dt>effets&nbsp;:</dt>
-							<dd>{ posture.effets }</dd>
-						</dl>
-					</Popover>
-				</div>
+		<!-- <div> -->
+			<!-- <div class="hexagon" style="--score:{ posture.score / 2000 }; --bg-color:hsla({ Math.round(Math.random() * 360) }, 100%, 30%, 1)"> -->
+			<div class="posture" style="--x:{posture.projectedX}px; --y:{posture.projectedY}px; --scale:{posture.projectedScale}em; --bg-color:hsla({ posture.hslaAngle }, 100%, 30%, 1)">
+				<!-- <div class="hexagon"> -->
+					<!-- <div class="hexagon-inner-wrap"> -->
+						<Popover arrowColor="#fff">
+							<p slot="target">{ posture.title }</p>
+							<dl slot="content" class="pop-content">
+								<dt>instruments&nbsp;:</dt>
+								<dd>{ posture.instruments }</dd>
+								<dt>effets&nbsp;:</dt>
+								<dd>{ posture.effets }</dd>
+							</dl>
+						</Popover>
+					<!-- </div> -->
+				<!-- </div> -->
 			</div>
-		</div>
+		<!-- </div> -->
 	{/each}
-</div>
+<!-- </div> -->

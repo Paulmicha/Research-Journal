@@ -33,22 +33,23 @@ export default class SceneItem {
 	}
 
 	position(o) {
-		const keysToUpdate = Object.keys(o);
-
-		keysToUpdate.forEach(key => {
-			// this[key] = o[key];
-			switch (key) {
-				case 'x':
-					this.x = o.x;
-					break;
-				case 'y':
-					this.y = o.y;
-					break;
-				case 'z':
-					this.z = o.z;
-					break;
-			}
-		});
+		if (o) {
+			const keysToUpdate = Object.keys(o);
+			keysToUpdate.forEach(key => {
+				// this[key] = o[key];
+				switch (key) {
+					case 'x':
+						this.x = o.x;
+						break;
+					case 'y':
+						this.y = o.y;
+						break;
+					case 'z':
+						this.z = o.z;
+						break;
+				}
+			});
+		}
 
 		// if (['x', 'y', 'z', 'w', 'h', 'r'].some(item => keysToUpdate.includes(item))) {
 		this.project();

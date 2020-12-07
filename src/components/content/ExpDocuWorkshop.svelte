@@ -1,8 +1,13 @@
 <script>
-	// import { spring } from 'svelte/motion';
-	import { route } from '../../stores/route.js';
-	import { writable } from 'svelte/store';
 	import { Canvas } from "svelte-canvas";
+	import { onMount } from 'svelte';
+	import { route } from '../../stores/route.js';
+	// import { spring } from 'svelte/motion';
+	import { writable } from 'svelte/store';
+
+	import Scene from '../../lib/projection_2d/Scene.js';
+	import SceneItem from '../../lib/projection_2d/SceneItem.js';
+
 	import Popover from 'svelte-popover';
 	import Postures from '../experiments/Postures.svelte';
 	import Point from '../canvas_items/Point.svelte';
@@ -13,17 +18,40 @@
 	// 	damping: 0.15
 	// });
 
+	const scene = new Scene();
+
+	const maxScore = 3000; // <- 10 (individual criteria max value in source data) x 100 (input range max value) x 3 criterias
 	let partial_weight = 25;
 	let informel_weight = 25;
 	let conflictuel_weight = 25;
 
-	let vizWidth;
-	let vizHeight;
+	let sceneW = 200;
+	let sceneH = 200;
+	let sceneMargin = 5; // <- in CSS "rem" unit.
+
+	// Bg circles.
+	const radius = 150;
 
 	/**
 	 * Utility to get a single "score" from all the weights.
 	 */
-	const get_score = (posture) => partial_weight * posture.partial + informel_weight * posture.informel + conflictuel_weight * posture.conflictuel;
+	// const get_score = (posture) => maxScore;
+	const get_score = (posture) => partial_weight * posture.partial
+		+ informel_weight * posture.informel
+		+ conflictuel_weight * posture.conflictuel;
+
+	/**
+	 * Computes projected coordinates on every change in position.
+	 *
+	 * @see src/lib/projection_2d/SceneItem.js
+	 */
+	const updatePos = (posture, newPos) => {
+		const newProjectedPos = posture.si.position(newPos);
+		posture.projectedX = newProjectedPos.x;
+		posture.projectedY = newProjectedPos.y;
+		// posture.projectedScale = newProjectedPos.scale;
+		posture.projectedScale = newProjectedPos.scale * 5; // <- Artificially multiply for better readability.
+	}
 
 	// This will allow the list of items to be updated using Svelte compiler "$".
 	const posturesStore = writable([]);
@@ -33,10 +61,33 @@
 	route.subscribe(o => {
 		if (o.data && o.data.postures) {
 			postures = o.data.postures.items;
-			postures.forEach(posture => {
-				posture.score = get_score(posture);
+
+			// For now, distribute in a grid of 5 columuns.
+			const nbPerLine = 4;
+			const linesNb = postures.length / nbPerLine;
+			let currentLine = 0;
+			const stepX = sceneW / nbPerLine;
+			const stepY = sceneH / linesNb; // <- "line height", in px.
+
+			postures.forEach((posture, i) => {
+				const currentCol = i % nbPerLine;
+				if (i > 0 && i % nbPerLine === 0) {
+					currentLine++;
+				}
+				const x = -sceneW / 2 + currentCol * stepX - radius / 2 + stepX / 2;
+				const y = -sceneH / 2 + currentLine * stepY - radius / 2 + stepY / 2;
+				const z = maxScore - get_score(posture);
+
+				// Debug.
+				// console.log({ x, y, z });
+
+				posture.si = new SceneItem({ scene, x, y, z });
+				updatePos(posture);
+
+				posture.hslaAngle = Math.round(Math.random() * 360);
 			});
-			posturesStore.update(() => postures);
+
+			posturesStore.set(postures);
 		}
 	});
 
@@ -60,11 +111,18 @@
 		}
 
 		postures.forEach(posture => {
-			posture.score = get_score(posture);
+			updatePos(posture, { z: maxScore - get_score(posture) });
 		});
 
-		posturesStore.update(() => postures);
+		posturesStore.set(postures);
 	}
+
+	/**
+	 * Component is mounted into the DOM.
+	 */
+	onMount(() => {
+		scene.init(sceneW, sceneH, (sceneW + sceneH) / 2);
+	});
 </script>
 
 
@@ -87,7 +145,6 @@
 		<span>formel</span>
 		<span>
 			<input type="text" bind:value={ informel_weight } />
-			<!-- <input type="range" bind:value={ informel_weight } /> -->
 			<input type="range" on:input={ onWeightUpdate } value={ informel_weight } id="informel_weight" />
 		</span>
 		<span>informel</span>
@@ -96,32 +153,25 @@
 		<span>consensuel</span>
 		<span>
 			<input type="text" bind:value={ conflictuel_weight } />
-			<!-- <input type="range" bind:value={ conflictuel_weight } /> -->
 			<input type="range" on:input={ onWeightUpdate } value={ conflictuel_weight } id="conflictuel_weight" />
 		</span>
 		<span>conflictuel</span>
 	</div>
 </div>
 
-
-<hr class="full-vw" />
-<div class="wrap full-vw" bind:clientWidth={vizWidth} bind:clientHeight={vizHeight}>
+<div class="scene" bind:clientWidth={sceneW} bind:clientHeight={sceneH} style="--z_index:-1; --sceneMargin:{sceneMargin}rem">
 <!-- <div class="wrap full-vw" on:mousemove="{ e => coords.set({ x: e.clientX, y: e.clientY }) }"> -->
 
-	<div class="bg-canvas">
-		<Canvas width={vizWidth} height={vizHeight}>
-			{#each $posturesStore as posture, i}
-				<Point
-					x={ Math.random() * vizWidth }
-					y={ Math.random() * vizHeight }
-					fill="hsla({ Math.round(Math.random() * 360) }, 100%, 30%, 1)"
-					radius={ 1 + posture.score / 200 }
-				/>
-			{/each}
-		</Canvas>
-	</div>
-
-	<Postures postures={$posturesStore} />
+	<Canvas width={sceneW} height={sceneH}>
+		{#each $posturesStore as posture, i}
+			<Point
+				x={ posture.projectedX }
+				y={ posture.projectedY }
+				radius={ posture.projectedScale }
+				fill="hsla({ posture.hslaAngle }, 100%, 30%, 1)"
+			/>
+		{/each}
+	</Canvas>
 
 	<!-- Tests WIP. -->
 	<!-- <div
@@ -129,18 +179,19 @@
 		style="--x:calc({ $coords.x }px - .5rem); --y:calc({ $coords.y }px - .5rem);"
 	>
 	</div> -->
-
-	<!-- <Scene /> -->
 </div>
 
+<Postures postures={$posturesStore} />
 
 <style>
-	.wrap {
-		flex-grow: 1;
-		text-align: center;
-		display: flex;
-		flex-direction: column;
-		justify-content: center;
+	.scene {
+		position: absolute;
+		top: var(--sceneMargin);
+		right: var(--sceneMargin);
+		bottom: var(--sceneMargin);
+		left: var(--sceneMargin);
+		z-index: var(--z_index);
+		border: 5px dashed gray;
 	}
 	/* .mouse-tracker {
 		position: absolute;
@@ -175,19 +226,5 @@
 	}
 	.controls input[type="text"] {
 		max-width: 2rem;
-	}
-	.bg-canvas {
-		position: absolute;
-		top: 0;
-		right: 0;
-		bottom: 0;
-		left: 0;
-		z-index: -1;
-		width: 100%;
-		height: 100%;
-	}
-	hr {
-		margin-top: var(--space-l);
-		margin-bottom: var(--space-l);
 	}
 </style>

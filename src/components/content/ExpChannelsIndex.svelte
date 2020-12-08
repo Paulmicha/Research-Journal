@@ -203,6 +203,7 @@
 	<table>
 		<thead>
 			<th>Date shared</th>
+			<th>Reactions</th>
 			<th>Title</th>
 			<th>Type</th>
 			<th>Tags</th>
@@ -214,6 +215,16 @@
 		{#each $documentsStore as doc, i}
 			<tr>
 				<td>{ new Date(doc.date_shared).toLocaleDateString({ year: "numeric", month: "2-digit", day: "2-digit" }) }</td>
+				<td>
+					{#if doc.reactions}
+						{#each doc.reactions as reaction}
+							{#each Array(reaction.count) as _, row}
+								<span class="emoji">{ reaction.name }</span>
+								<!-- <img src="{ reaction.imgPath }" alt="Emoji : { reaction.name }" /> -->
+							{/each}
+						{/each}
+					{/if}
+				</td>
 				<td><a class="title" href="{ doc.url }">{ doc.title }</a></td>
 				<td>{ doc.type || '' }</td>
 				<td>{ doc.tags || '' }</td>

@@ -131,67 +131,72 @@
 <!-- <pre>src/components/content/ExpDocuWorkshop.svelte : postures = {JSON.stringify(postures, null, 2)}</pre> -->
 
 
-<div class="controls f-grid">
-	<div>
-		<span>impartial</span>
-		<span>
-			<input type="text" bind:value={ partial_weight } />
-			<!-- <input type="range" bind:value={ partial_weight } /> -->
-			<input type="range" on:input={ onWeightUpdate } value={ partial_weight } id="partial_weight" />
-		</span>
-		<span>partial</span>
+<div class="full-vw">
+	<div class="controls">
+		<div>
+			<span>impartial</span>
+			<span>
+				<input type="text" bind:value={ partial_weight } />
+				<br/>
+				<input type="range" on:input={ onWeightUpdate } value={ partial_weight } id="partial_weight" />
+			</span>
+			<span>partial</span>
+		</div>
+		<div>
+			<span>formel</span>
+			<span>
+				<input type="text" bind:value={ informel_weight } />
+				<br/>
+				<input type="range" on:input={ onWeightUpdate } value={ informel_weight } id="informel_weight" />
+			</span>
+			<span>informel</span>
+		</div>
+		<div>
+			<span>consensuel</span>
+			<span>
+				<input type="text" bind:value={ conflictuel_weight } />
+				<br/>
+				<input type="range" on:input={ onWeightUpdate } value={ conflictuel_weight } id="conflictuel_weight" />
+			</span>
+			<span>conflictuel</span>
+		</div>
 	</div>
-	<div>
-		<span>formel</span>
-		<span>
-			<input type="text" bind:value={ informel_weight } />
-			<input type="range" on:input={ onWeightUpdate } value={ informel_weight } id="informel_weight" />
-		</span>
-		<span>informel</span>
+
+	<div class="scene" bind:clientWidth={sceneW} bind:clientHeight={sceneH} style="--z_index:-1; --sceneMargin:{sceneMargin}rem">
+	<!-- <div class="wrap full-vw" on:mousemove="{ e => coords.set({ x: e.clientX, y: e.clientY }) }"> -->
+
+		<Canvas width={sceneW} height={sceneH}>
+			{#each $posturesStore as posture, i}
+				<Point
+					x={ posture.projectedX }
+					y={ posture.projectedY }
+					radius={ posture.projectedScale }
+					fill="hsla({ posture.hslaAngle }, 100%, 30%, 1)"
+				/>
+			{/each}
+		</Canvas>
+
+		<!-- Tests WIP. -->
+		<!-- <div
+			class="mouse-tracker dot"
+			style="--x:calc({ $coords.x }px - .5rem); --y:calc({ $coords.y }px - .5rem);"
+		>
+		</div> -->
 	</div>
-	<div>
-		<span>consensuel</span>
-		<span>
-			<input type="text" bind:value={ conflictuel_weight } />
-			<input type="range" on:input={ onWeightUpdate } value={ conflictuel_weight } id="conflictuel_weight" />
-		</span>
-		<span>conflictuel</span>
-	</div>
+
+	<Postures postures={$posturesStore} />
+
 </div>
 
-<div class="scene" bind:clientWidth={sceneW} bind:clientHeight={sceneH} style="--z_index:-1; --sceneMargin:{sceneMargin}rem">
-<!-- <div class="wrap full-vw" on:mousemove="{ e => coords.set({ x: e.clientX, y: e.clientY }) }"> -->
-
-	<Canvas width={sceneW} height={sceneH}>
-		{#each $posturesStore as posture, i}
-			<Point
-				x={ posture.projectedX }
-				y={ posture.projectedY }
-				radius={ posture.projectedScale }
-				fill="hsla({ posture.hslaAngle }, 100%, 30%, 1)"
-			/>
-		{/each}
-	</Canvas>
-
-	<!-- Tests WIP. -->
-	<!-- <div
-		class="mouse-tracker dot"
-		style="--x:calc({ $coords.x }px - .5rem); --y:calc({ $coords.y }px - .5rem);"
-	>
-	</div> -->
-</div>
-
-<Postures postures={$posturesStore} />
 
 <style>
 	.scene {
 		position: absolute;
-		top: var(--sceneMargin);
-		right: var(--sceneMargin);
-		bottom: var(--sceneMargin);
-		left: var(--sceneMargin);
+		top: 0;
+		right: 0;
+		bottom: 0;
+		left: 0;
 		z-index: var(--z_index);
-		border: 5px dashed gray;
 	}
 	/* .mouse-tracker {
 		position: absolute;
@@ -208,12 +213,10 @@
 	.controls {
 		font-size: .75rem;
 		margin: 1rem 0;
-	}
-	.controls.f-grid {
-		flex-wrap: nowrap;
+		text-align: center;
 	}
 	.controls > * {
-		display: flex;
+		display: inline-flex;
 		align-items: center;
 		justify-content: space-between;
 	}

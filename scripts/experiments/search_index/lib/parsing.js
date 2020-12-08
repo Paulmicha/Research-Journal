@@ -7,6 +7,7 @@
 
 const slugify = require('@sindresorhus/slugify')
 const fs = require('fs');
+const path = require('path');
 const { walk } = require('../../../fs');
 
 // Excluded domains.
@@ -205,6 +206,29 @@ const normalize_token_name = (token) => {
 }
 
 /**
+ * Extracts relations.
+ */
+const parseReactions = reactions => {
+	const result = [];
+
+	reactions.forEach(reaction => {
+		if (!reaction.emoji || !reaction.emoji.imageUrl) {
+			return;
+		}
+		const fileName = path.basename(reaction.emoji.imageUrl);
+		const imgPath = `static/media/emojis/${fileName}`;
+		fs.copyFile(`private/channels/${reaction.emoji.imageUrl}`, imgPath, err => err && console.log(err));
+		result.push({
+			name: reaction.emoji.name,
+			count: reaction.count,
+			imgPath
+		});
+	});
+
+	return result;
+};
+
+/**
  * Builds our custom data miner cache.
  */
 const build_channels_urls_index = () => {
@@ -285,6 +309,13 @@ const build_channels_urls_index = () => {
 					return;
 				}
 				doc.title = doc.url.replace(/https?:\/\//, '');
+			}
+
+			// Parses reactions.
+			doc.reactions = [];
+			if ('reactions' in message) {
+				doc.reactions = parseReactions(message.reactions);
+				console.log(doc);
 			}
 
 			index.documents.push(doc);

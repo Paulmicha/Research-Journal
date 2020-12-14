@@ -317,11 +317,6 @@ const build_channels_urls_index = () => {
 				doc.reactions = parseReactions(message.reactions);
 			}
 
-			// Debug.
-			if ('author' in doc && doc.author.includes('Lordon')) {
-				console.log(doc.names);
-			}
-
 			index.documents.push(doc);
 		});
 	});

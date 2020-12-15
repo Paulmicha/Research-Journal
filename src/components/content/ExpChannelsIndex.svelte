@@ -116,12 +116,18 @@
 				let allFilterValuesMatch = true;
 
 				selectedFilterItems.forEach(selectedFilterItem => {
-					// Emojis.
-					// if (!('reactions' in result) || !result.reactions.includes(selectedFilterItem.value)) {
-					// 	allFilterValuesMatch = false;
-					// }
-
-					if (!(selectedFilterItem.key in result) || !result[selectedFilterItem.key].includes(selectedFilterItem.value)) {
+					// Emojis are arrays of objects.
+					if (selectedFilterItem.key === 'reactions' && 'reactions' in result && result.reactions.length) {
+						let noneMatches = true;
+						result.reactions.forEach(reaction => {
+							if (reaction.name === selectedFilterItem.value) {
+								noneMatches = false;
+							}
+						});
+						if (noneMatches) {
+							allFilterValuesMatch = false;
+						}
+					} else if (!(selectedFilterItem.key in result) || !result[selectedFilterItem.key].includes(selectedFilterItem.value)) {
 						allFilterValuesMatch = false;
 					}
 				});
@@ -147,12 +153,14 @@
 				let anyFilterValueMatches = false;
 
 				selectedFilterItems.forEach(selectedFilterItem => {
-					// Emojis.
-					// if ('reactions' in result && result.reactions.includes(selectedFilterItem.value)) {
-					// 	anyFilterValueMatches = true;
-					// }
-
-					if (selectedFilterItem.key in result && result[selectedFilterItem.key].includes(selectedFilterItem.value)) {
+					// Emojis are arrays of objects.
+					if (selectedFilterItem.key === 'reactions' && 'reactions' in result && result.reactions.length) {
+						result.reactions.forEach(reaction => {
+							if (reaction.name === selectedFilterItem.value) {
+								anyFilterValueMatches = true;
+							}
+						});
+					} else if (selectedFilterItem.key in result && result[selectedFilterItem.key].includes(selectedFilterItem.value)) {
 						anyFilterValueMatches = true;
 					}
 				});
@@ -249,6 +257,18 @@
 
 		// Update docs in their new order.
 		documentsStore.set(documents);
+
+		// Re-apply active filters (if any).
+		if (selectedFilterItems) {
+			switch (filterOp) {
+				case 'and':
+					applySelectFilterAnd();
+					break;
+				case 'or':
+					applySelectFilterOr();
+					break;
+			}
+		}
 
 		// Sync sort links state.
 		const allSortLinks = Array.from(e.target.closest('thead').querySelectorAll('.sort'));

@@ -37,12 +37,62 @@ const blacklisted_channels = [
 	'781496743870464000',
 	'775704469924347944',
 	'777907883488575499',
+	'789044194521251841',
+	'798136146969362462',
+	'787773785586532393',
+	'796756277790900234',
+	'797110410419241002',
+	'797820258345811979',
+	'798950616801607690',
+	'781475209537388565',
+	'781427207662075905',
+	'781222072335859732',
+	'789526835854966805',
+	'793515214095122502',
+	'789146484645822496',
+	'789149506666233886',
+	'789146964523876382',
+	'789150232931860500',
+	'789150924877594664',
+	'768497580740837413',
 	'768506184810364939'
+];
+
+const blacklisted_titles = [
+	'Google Docs - create and edit documents online, for free.'
 ];
 
 const irrelevant_channel_names = [
 	'partages-ressources'
 ];
+
+const token_aliases = {
+	"d": "description",
+	"desc": "description",
+	"content": "description",
+	"contenu": "description",
+	"t": "tags",
+	"tag": "tags",
+	"mots-cles": "tags",
+	"mot-cle": "tags",
+	"a": "author",
+	"auteur": "author",
+	"auteurs": "author",
+	"authors": "author",
+	"h": "title",
+	"headline": "title",
+	"titre": "title",
+	"n": "names",
+	"nom": "names",
+	"noms": "names",
+	"name": "names",
+	"m": "type",
+	"types": "type",
+	"support": "type",
+	"supports": "type",
+	"media": "type",
+	"medias": "type"
+};
 
 /**
  * Returns "clean" URL from message if it contains any and if not blacklisted.
@@ -166,42 +216,12 @@ const tokenize_message = (text) => {
  *   // -> "tags"
  */
 const normalize_token_name = (token) => {
-	const aliases = {
-		"d": "description",
-		"desc": "description",
-		"content": "description",
-		"contenu": "description",
-		"t": "tags",
-		"tag": "tags",
-		"mots-cles": "tags",
-		"mot-cle": "tags",
-		"a": "author",
-		"auteur": "author",
-		"auteurs": "author",
-		"authors": "author",
-		"h": "title",
-		"headline": "title",
-		"titre": "title",
-		"n": "names",
-		"nom": "names",
-		"noms": "names",
-		"name": "names",
-		"m": "type",
-		"types": "type",
-		"support": "type",
-		"supports": "type",
-		"media": "type",
-		"medias": "type"
-	};
-
 	token = slugify(token);
-
-	Object.keys(aliases).forEach(alias => {
+	Object.keys(token_aliases).forEach(alias => {
 		if (token === alias) {
-			token = aliases[alias];
+			token = token_aliases[alias];
 		}
 	});
-
 	return token;
 }
 
@@ -309,6 +329,11 @@ const build_channels_urls_index = () => {
 					return;
 				}
 				doc.title = doc.url.replace(/https?:\/\//, '');
+			}
+
+			// Blacklist by title values.
+			if (blacklisted_titles.includes(doc.title)) {
+				return;
 			}
 
 			// Parses reactions.

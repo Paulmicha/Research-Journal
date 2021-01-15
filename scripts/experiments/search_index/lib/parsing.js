@@ -15,6 +15,7 @@ const blacklisted = [
 	'github.com/Paulmicha/',
 	// 'docs.google.com',
 	'drive.google.com',
+	'discord.com/channels',
 	'.zoom.',
 	'.bbcollab.',
 	'.webex.',
@@ -59,11 +60,22 @@ const blacklisted_channels = [
 ];
 
 const blacklisted_titles = [
-	'Google Docs - create and edit documents online, for free.'
+	'Google Docs - create and edit documents online, for free.',
+	'Meet Google Drive – One place for all your files',
+	'Google Slides - create and edit presentations online, for free.',
+	'Google Sheets - create and edit spreadsheets online, for free.'
 ];
 
 const irrelevant_channel_names = [
 	'partages-ressources'
+];
+
+// Titles that are not descriptive are replaced by their fallback (URL).
+const titleForceFallback = [
+	'Accueil',
+	'Log into Facebook',
+	'Log into Facebook | Facebook',
+	'binge.audio'
 ];
 
 const token_aliases = {
@@ -158,7 +170,7 @@ const get_url = (text) => {
 	// When copy/pasting URLs inside parenthesis (or before a comma), the URL gets
 	// appended with those -> regex to remove from the end those 2 characters.
 	// TODO edge cases to look out for ?
-	let url = match[0].replace(/([\),\s]+$)/g, '');
+	let url = match[0].replace(/([\)\.,\s]+$)/g, '');
 
 	// Remove Facebook tracking.
 	const urlObj = new URL(url);
@@ -255,10 +267,6 @@ const build_channels_urls_index = () => {
 	let raw_data;
 	const alreadyExtracted = []
 	const index = { documents:[] };
-	const titleForceFallback = [
-		'Accueil',
-		'binge.audio'
-	];
 
 	walk('private/channels', '.json').map(file_path => {
 		raw_data = JSON.parse(fs.readFileSync(file_path).toString());

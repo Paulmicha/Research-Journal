@@ -219,9 +219,14 @@
 	 * Inverts order if already active.
 	 */
 	const sortBy = (e, key) => {
-		const isOff = e.target.classList.contains('is-off');
-		const isAsc = e.target.classList.contains('is-asc');
-		const isDesc = e.target.classList.contains('is-desc');
+		let btn = e.target;
+		if (e.target.tagName !== 'BUTTON') {
+			btn = e.target.closest('button');
+		}
+
+		const isOff = btn.classList.contains('is-off');
+		const isAsc = btn.classList.contains('is-asc');
+		const isDesc = btn.classList.contains('is-desc');
 
 		let newState;
 
@@ -270,14 +275,18 @@
 			}
 		}
 
-		// Sync sort links state.
-		const allSortLinks = Array.from(e.target.closest('thead').querySelectorAll('.sort'));
+		// Sync sort links state classes.
+		const allSortLinks = Array.from(btn.closest('thead').querySelectorAll('.sort'));
+
 		allSortLinks.forEach(sortLink => {
 			sortLink.classList.remove('is-asc', 'is-desc');
 			sortLink.classList.add('is-off');
+			sortLink.closest('th').classList.remove('is-active');
 		});
-		e.target.classList.remove('is-off');
-		e.target.classList.add(newState);
+
+		btn.classList.remove('is-off');
+		btn.classList.add(newState);
+		btn.closest('th').classList.add('is-active');
 	};
 </script>
 
@@ -325,48 +334,48 @@
 <div class="full-vw">
 	<table>
 		<thead>
-			<th>
-				<a class="sort is-desc" on:click={e => sortBy(e, 'date_shared')} title="Trier par date de partage">
+			<th class="is-active">
+				<button class="sort is-desc" on:click={e => sortBy(e, 'date_shared')} title="Trier par date de partage">
 					<span class="is-asc">↑</span>
 					<span class="is-desc">↓</span>
 					Date shared
-				</a>
+				</button>
 			</th>
 			<th>
-				<a class="sort is-off" on:click={e => sortBy(e, 'reactions')} title="Trier par nombre de réactions">
+				<button class="sort is-off" on:click={e => sortBy(e, 'reactions')} title="Trier par nombre de réactions">
 					<span class="is-asc">↑</span>
 					<span class="is-desc">↓</span>
 					Reactions
-				</a>
+				</button>
 			</th>
 			<th>
-				<a class="sort is-off" on:click={e => sortBy(e, 'title')} title="Trier par titre">
+				<button class="sort is-off" on:click={e => sortBy(e, 'title')} title="Trier par titre">
 					<span class="is-asc">↑</span>
 					<span class="is-desc">↓</span>
 					Title
-				</a>
+				</button>
 			</th>
 			<th>
-				<a class="sort is-off" on:click={e => sortBy(e, 'type')} title="Trier par titre">
+				<button class="sort is-off" on:click={e => sortBy(e, 'type')} title="Trier par titre">
 					<span class="is-asc">↑</span>
 					<span class="is-desc">↓</span>
 					Type
-				</a>
+				</button>
 			</th>
 			<th>Tags</th>
 			<th>
-				<a class="sort is-off" on:click={e => sortBy(e, 'author')} title="Trier par auteur">
+				<button class="sort is-off" on:click={e => sortBy(e, 'author')} title="Trier par auteur">
 					<span class="is-asc">↑</span>
 					<span class="is-desc">↓</span>
 					Author
-				</a>
+				</button>
 			</th>
 			<th>
-				<a class="sort is-off" on:click={e => sortBy(e, 'names')} title="Trier par noms">
+				<button class="sort is-off" on:click={e => sortBy(e, 'names')} title="Trier par noms">
 					<span class="is-asc">↑</span>
 					<span class="is-desc">↓</span>
 					Names
-				</a>
+				</button>
 			</th>
 			<th>Description</th>
 		</thead>
@@ -443,14 +452,24 @@
 	.sort > span{
 		padding-right: var(--space-s);
 	}
-	.sort.is-off .is-asc,
-	.sort.is-off .is-desc {
+	:global(
+		table .sort.is-off .is-asc,
+		table .sort.is-off .is-desc
+	) {
 		display: none;
 	}
-	:global(.sort.is-asc .is-desc) {
+	:global(table .sort.is-asc .is-desc) {
 		display: none;
 	}
-	.sort.is-desc .is-asc {
+	:global(table .sort.is-desc .is-asc) {
 		display: none;
+	}
+	:global(th.is-active) {
+		background-color: cornflowerblue;
+		color: white;
+		font-weight: bold;
+	}
+	:global(th.is-active button) {
+		color: inherit;
 	}
 </style>

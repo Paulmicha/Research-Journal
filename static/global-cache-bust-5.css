@@ -6,9 +6,10 @@
 /* Brutal reset */
 
 * {
-	padding: 0;
-	margin: 0;
 	box-sizing: border-box;
+	border: 0 none;
+	margin: 0;
+	padding: 0;
 }
 
 
@@ -35,7 +36,7 @@ html {
 @media (min-width: 30rem) and (max-width: 100rem) {
 	:root,
 	html {
-		font-size: calc(.95rem + .4 * ((100vw - 30rem) / 70));
+		font-size: calc(.95rem + .4 * ((100vmin - 30rem) / 70));
 	}
 }
 @media (min-width: 100rem) {
@@ -92,6 +93,18 @@ a.is-active {
 	color: cornflowerblue;
 }
 
+button {
+	font-size: inherit;
+	font-weight: inherit;
+	background: none;
+	cursor: pointer;
+}
+button:focus,
+button:hover,
+button.is-active {
+	color: cornflowerblue;
+}
+
 hr {
 	border: 0;
 	height: 1px;
@@ -120,6 +133,7 @@ th {
 	position: sticky;
 	top: 0;
 	background-color: white;
+	font-weight: normal;
 }
 
 blockquote {

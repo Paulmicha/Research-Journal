@@ -344,6 +344,11 @@ const build_channels_urls_index = () => {
 				return;
 			}
 
+			// Blacklist "bit.ly" URLs with no other data.
+			if (doc.title.includes('bit.ly/') && !('tags' in doc) && !('author' in doc) && !('description' in doc)) {
+				return;
+			}
+
 			// Parses reactions.
 			doc.reactions = [];
 			if ('reactions' in message) {

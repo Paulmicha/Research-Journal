@@ -106,6 +106,32 @@ const token_aliases = {
 	"medias": "type"
 };
 
+const recognized_types = [
+	'article',
+	'video',
+	'interview',
+	'note',
+	'extraits',
+	'conference',
+	'ebook',
+	'publication',
+	'film',
+	'podcast',
+	'site-web',
+	'debat',
+	'revue',
+	'tribune',
+	'tweet',
+	'thread',
+	'webinar',
+	'replay',
+	'paper',
+	'pdf',
+	'magazine',
+	'graph',
+	'documentaire'
+];
+
 /**
  * Returns "clean" URL from message if it contains any and if not blacklisted.
  *
@@ -261,6 +287,28 @@ const parseReactions = reactions => {
 };
 
 /**
+ * Normalizes types.
+ */
+const normalizeTypes = doc => {
+	const normalized_types = slugify(doc.type);
+
+	doc.type_raw = doc.type;
+	doc.type = [];
+
+	recognized_types.forEach(t => {
+		if (normalized_types.includes(t)) {
+			doc.type.push(t);
+		}
+	});
+
+	if (!doc.type.length) {
+		doc.type.push(normalized_types);
+	}
+
+	doc.type = doc.type.join(', ');
+};
+
+/**
  * Builds our custom data miner cache.
  */
 const build_channels_urls_index = () => {
@@ -353,6 +401,11 @@ const build_channels_urls_index = () => {
 			doc.reactions = [];
 			if ('reactions' in message) {
 				doc.reactions = parseReactions(message.reactions);
+			}
+
+			// Normalize types.
+			if ('type' in doc) {
+				normalizeTypes(doc);
 			}
 
 			index.documents.push(doc);

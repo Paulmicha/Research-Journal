@@ -9,7 +9,7 @@
 	let documents = [];
 	let selectItems = [];
 
-	const multiSelectSearchesInKeys = ['tags', 'types', 'names', 'author', 'channel'];
+	const multiSelectSearchesInKeys = ['tags', 'type', 'names', 'author', 'channel'];
 	let filterOp = 'and';
 	let filterSelect;
 	let selectedFilterItems;
@@ -394,7 +394,7 @@
 					{/if}
 				</td>
 				<td><a class="title" href="{ doc.url }">{ doc.title }</a></td>
-				<td>{ doc.type || '' }</td>
+				<td>{ doc.type_raw || '' }</td>
 				<td>{ doc.tags || '' }</td>
 				<td>{ doc.author || '' }</td>
 				<td>{ doc.names || '' }</td>

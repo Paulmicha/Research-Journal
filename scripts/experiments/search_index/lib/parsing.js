@@ -13,6 +13,8 @@ const { walk } = require('../../../fs');
 // Excluded domains.
 const blacklisted = [
 	'github.com/Paulmicha/',
+	'msc.paulmichalet.com/experiments/msc-search-index',
+	'meet.jit.si',
 	// 'docs.google.com',
 	'drive.google.com',
 	'discord.com/channels',
@@ -40,7 +42,6 @@ const blacklisted_channels = [
 	'777907883488575499',
 	'789044194521251841',
 	'798136146969362462',
-	'787773785586532393',
 	'796756277790900234',
 	'797110410419241002',
 	'797820258345811979',

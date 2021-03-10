@@ -23,7 +23,8 @@ const blacklisted = [
 	'.webex.',
 	'miro.com',
 	'plateau.',
-	'-weever.'
+	'-weever.',
+	'www.google.com/url?'
 ];
 
 const blacklisted_channels = [
@@ -276,7 +277,11 @@ const parseReactions = reactions => {
 		}
 		const fileName = path.basename(reaction.emoji.imageUrl);
 		const imgPath = `static/media/emojis/${fileName}`;
-		fs.copyFile(`private/channels/${reaction.emoji.imageUrl}`, imgPath, err => err && console.log(err));
+
+		// Update : remove emoji files copy due to Error: ENOENT: no such file or
+		// directory, copyfile 'private/channels/https://twemoji.maxcdn.com/2/72x72/1f9d9-200d-2640.png' -> 'static/media/emojis/1f9d9-200d-2640.png'
+		// fs.copyFile(`private/channels/${reaction.emoji.imageUrl}`, imgPath, err => err && console.log(err));
+
 		result.push({
 			name: reaction.emoji.name,
 			count: reaction.count,

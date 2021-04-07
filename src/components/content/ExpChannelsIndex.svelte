@@ -382,23 +382,25 @@
 		<tbody>
 		{#each $documentsStore as doc, i}
 			<tr>
-				<td>{ new Date(doc.date_shared).toLocaleDateString({ year: "numeric", month: "2-digit", day: "2-digit" }) }</td>
+				<td><div class="narrow">{ new Date(doc.date_shared).toLocaleDateString('fr', { year: "numeric", month: "2-digit", day: "2-digit" }) }</div></td>
 				<td>
 					{#if doc.reactions}
-						{#each doc.reactions as reaction}
-							{#each Array(reaction.count) as _, row}
-								<span class="emoji">{ reaction.name }</span>
-								<!-- <img src="{ reaction.imgPath }" alt="Emoji : { reaction.name }" /> -->
+						<div class="narrow">
+							{#each doc.reactions as reaction}
+								{#each Array(reaction.count) as _, row}
+									<span class="emoji">{ reaction.name }</span>
+									<!-- <img src="{ reaction.imgPath }" alt="Emoji : { reaction.name }" /> -->
+								{/each}
 							{/each}
-						{/each}
+						</div>
 					{/if}
 				</td>
-				<td><a class="title" href="{ doc.url }">{ doc.title }</a></td>
-				<td>{ doc.type_raw || '' }</td>
+				<td class="wide"><a class="title" href="{ doc.url }">{ doc.title }</a></td>
+				<td><div class="narrow">{ doc.type_raw || '' }</div></td>
 				<td>{ doc.tags || '' }</td>
 				<td>{ doc.author || '' }</td>
 				<td>{ doc.names || '' }</td>
-				<td><div class="desc">{ doc.description || '' }</div></td>
+				<td class="wide"><div class="desc">{ doc.description || '' }</div></td>
 			</tr>
 		{/each}
 		</tbody>
@@ -436,14 +438,31 @@
 	table {
 		margin-left: var(--space);
 		margin-right: var(--space);
+		table-layout: fixed;
+		width: 100%;
+		word-wrap: break-word;
 	}
+	td {
+		width: 1%;
+	}
+	.wide {
+		width: 33.33%;
+	}
+	/* th,
+	td,
+	.desc,
+	.title {
+		word-wrap: break-word;
+	} */
 	.title {
 		display: inline-block;
-		word-wrap: break-word;
 		max-width: 42ch;
 	}
 	.desc {
 		max-width: 76ch;
+	}
+	.narrow {
+		max-width: 10ch;
 	}
 	.sort {
 		display: flex;

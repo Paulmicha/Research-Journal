@@ -58,6 +58,11 @@ const blacklisted_channels = [
 	'789150232931860500',
 	'789150924877594664',
 	'768497580740837413',
+	'812243385716179015',
+	'812243423729156106',
+	'812243455748866069',
+	'812243478439526410',
+	'812243502246526976',
 	'768506184810364939'
 ];
 
@@ -198,13 +203,7 @@ const get_url = (text) => {
 	// When copy/pasting URLs inside parenthesis (or before a comma), the URL gets
 	// appended with those -> regex to remove from the end those 2 characters.
 	// TODO edge cases to look out for ?
-	let url = match[0].replace(/([\)\.,\s]+$)/g, '');
-
-	// Remove Facebook tracking.
-	const urlObj = new URL(url);
-	urlObj.searchParams.delete('fbclid');
-
-	return urlObj.href;
+	return match[0].replace(/([\)\.,\s]+$)/g, '');
 };
 
 /**
@@ -346,7 +345,17 @@ const build_channels_urls_index = () => {
 			// First, look for custom tokens (embeds will only provide "fallback"
 			// values, see below).
 			const doc = tokenize_message(message.content);
-			doc.url = url;
+
+			// Remove usual tracking params from URL.
+			const urlObj = new URL(url);
+			urlObj.searchParams.delete('fbclid');
+			urlObj.searchParams.delete('utm_campaign');
+			urlObj.searchParams.delete('utm_medium');
+			urlObj.searchParams.delete('utm_source');
+			if (urlObj.hash.startsWith('#nlref=')) {
+				urlObj.hash = '';
+			}
+			doc.url = urlObj.href;
 
 			// Unify channel name and tags. Excludes irrelevant channel names.
 			if (!irrelevant_channel_names.includes(raw_data.channel.name)) {

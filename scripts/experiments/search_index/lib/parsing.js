@@ -24,6 +24,7 @@ const blacklisted = [
 	'miro.com',
 	'plateau.',
 	'-weever.',
+	'teams.microsoft.com',
 	'www.google.com/url?'
 ];
 

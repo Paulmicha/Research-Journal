@@ -355,13 +355,13 @@
 					Title
 				</button>
 			</th>
-			<th>
+			<!-- <th>
 				<button class="sort is-off" on:click={e => sortBy(e, 'type')} title="Trier par titre">
 					<span class="is-asc">↑</span>
 					<span class="is-desc">↓</span>
 					Type
 				</button>
-			</th>
+			</th> -->
 			<th>Tags</th>
 			<th>
 				<button class="sort is-off" on:click={e => sortBy(e, 'author')} title="Trier par auteur">
@@ -385,18 +385,18 @@
 				<td><div class="narrow">{ new Date(doc.date_shared).toLocaleDateString('fr', { year: "numeric", month: "2-digit", day: "2-digit" }) }</div></td>
 				<td>
 					{#if doc.reactions}
-						<div class="narrow">
+						<!-- <div class="narrow"> -->
 							{#each doc.reactions as reaction}
 								{#each Array(reaction.count) as _, row}
 									<span class="emoji">{ reaction.name }</span>
 									<!-- <img src="{ reaction.imgPath }" alt="Emoji : { reaction.name }" /> -->
 								{/each}
 							{/each}
-						</div>
+						<!-- </div> -->
 					{/if}
 				</td>
-				<td class="wide"><a class="title" href="{ doc.url }">{ doc.title }</a></td>
-				<td><div class="narrow">{ doc.type_raw || '' }</div></td>
+				<td><a class="title" href="{ doc.url }">{ doc.title }</a></td>
+				<!-- <td><div class="narrow">{ doc.type_raw || '' }</div></td> -->
 				<td>{ doc.tags || '' }</td>
 				<td>{ doc.author || '' }</td>
 				<td>{ doc.names || '' }</td>
@@ -438,22 +438,8 @@
 	table {
 		margin-left: var(--space);
 		margin-right: var(--space);
-		table-layout: fixed;
 		width: 100%;
-		word-wrap: break-word;
 	}
-	td {
-		width: 1%;
-	}
-	.wide {
-		width: 33.33%;
-	}
-	/* th,
-	td,
-	.desc,
-	.title {
-		word-wrap: break-word;
-	} */
 	.title {
 		display: inline-block;
 		max-width: 42ch;

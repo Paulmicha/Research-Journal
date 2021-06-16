@@ -15,7 +15,7 @@ const blacklisted = [
 	'github.com/Paulmicha/',
 	'msc.paulmichalet.com/experiments/msc-search-index',
 	'meet.jit.si',
-	// 'docs.google.com',
+	'docs.google.com',
 	'drive.google.com',
 	'discord.com/channels',
 	'.zoom.',

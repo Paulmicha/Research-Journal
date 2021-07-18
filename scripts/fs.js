@@ -15,7 +15,7 @@ const mkdirp = require('mkdirp');
  * See https://stackoverflow.com/a/50927704/2592338
  *
  * @param {String} file_path
- * @param {String} content
+ * @param {String|NodeJS.ArrayBufferView} content
  */
 const write_file = async (file_path, content) => {
 	const dirname = path.dirname(file_path);

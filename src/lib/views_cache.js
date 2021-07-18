@@ -4,7 +4,7 @@
  */
 export function views_get_cache_file_path(stringified_props, args_arr = []) {
 	let tail = '';
-	while(args_arr.length) {
+	while (args_arr.length) {
 		tail += "/" + args_arr.shift();
 	}
 	if (!tail.length) {

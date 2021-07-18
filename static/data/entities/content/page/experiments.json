@@ -6,7 +6,7 @@
 		{
 			"c": "RichText",
 			"props": {
-				"markup": "<ul><li><a href='/experiments/documentation-workshop'>Documentation Workshop</a></li><li><a href='/experiments/msc-search-index'>MSc Search index</a></li></ul>."
+				"markup": "<ul><li><a href='/experiments/documentation-workshop'>Documentation Workshop</a></li><li><a href='/experiments/msc-search-index'>MSc Search index</a></li><li><a href='/experiments/ecometrics'>Ecometrics for the web</a></li></ul>."
 			}
 		}
 	]

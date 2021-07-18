@@ -457,10 +457,8 @@
 	.sort > span{
 		padding-right: var(--space-s);
 	}
-	:global(
-		table .sort.is-off .is-asc,
-		table .sort.is-off .is-desc
-	) {
+	:global(table .sort.is-off .is-asc),
+	:global(table .sort.is-off .is-desc) {
 		display: none;
 	}
 	:global(table .sort.is-asc .is-desc) {

@@ -43,7 +43,7 @@
 		const cached_views_data = [];
 		const views_on_this_page = [
 			{
-				"stringified_props": "f.0.referencing=term/tag:$1&f.0.in=content/article",
+				"stringified_props": "f.0.referencing=term/tag:$1&f.0.in=content/doodle",
 				"args": [uuid]
 			}
 		];
@@ -93,17 +93,17 @@
 	// Specific nav state for tags pages.
 	// @see src/components/LayoutContentPage.svelte
 	// @see src/lib/nav.js
-	model.parent_page = 'articles';
+	model.parent_page = 'doodles';
 </script>
 
 <LayoutContentPage {model}>
 
-	<!-- placeholder://src/lib/views.js?f.0.referencing=term/tag:$1&f.0.in=content/article -->
+	<!-- placeholder://src/lib/views.js?f.0.referencing=term/tag:$1&f.0.in=content/doodle -->
 	<View cache={cached_views_data[0]} />
 
 	<!--
 		<View filters={[
-			{ "in": "content/article" },
+			{ "in": "content/doodle" },
 			{ "referencing": "term/tag:" + model.uuid }
 		]} />
 	-->

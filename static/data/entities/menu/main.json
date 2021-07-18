@@ -1,16 +1,16 @@
 {
 	"en": [
 		{
-			"title": "Notes",
-			"path": "notes"
+			"title": "MSc Search index",
+			"path": "msc-search-index"
 		},
 		{
-			"title": "Experiments",
-			"path": "experiments"
+			"title": "Ecometrics",
+			"path": "ecometrics"
 		},
 		{
-			"title": "Articles",
-			"path": "articles"
+			"title": "Doodles",
+			"path": "doodles"
 		}
 	]
 }

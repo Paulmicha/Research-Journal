@@ -158,7 +158,7 @@ const views_process_filters = (filters) => {
  *  - in
  * @param {String} filter_value : Examples :
  *  - 'term/tag:$1'
- *  - 'content/article'
+ *  - 'content/doodle'
  *
  * @return {Object} {entity_type, bundle, arg}
  */
@@ -284,7 +284,7 @@ const views_hash_props = (str, seed = 0) => {
  * Converts "stringified" views props into object.
  *
  * Example of stringified_props :
- *  f.0.referencing=term/tag:$1&f.0.in=content/article
+ *  f.0.referencing=term/tag:$1&f.0.in=content/doodle
  *
  * Rules :
  * - filters & sorts keys are grouped by numerical counter (starting from 0)

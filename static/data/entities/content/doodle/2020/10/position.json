@@ -1,11 +1,9 @@
 {
 	"lang": "en",
-	"title": "Documentation Workshop",
+	"title": "Position",
 	"description": "Custom experiment for the documentation workshop.",
-	"parent_page": {
-		"path": "experiments",
-		"weight": 0
-	},
+	"image": "media/2020/10/positions.jpg",
+	"published": "2020-10-30T11:01:22.915Z",
 	"data": {
 		"postures": "data/entities/experiment/postures.json"
 	},

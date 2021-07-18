@@ -2,10 +2,6 @@
 	"lang": "en",
 	"title": "Ecometrics for the web",
 	"description": "Visualization tool for representing the impacts of the web.",
-	"parent_page": {
-		"path": "experiments",
-		"weight": 3
-	},
 	"content": [
 		{
 			"c": "DigitalEcoMetrics",

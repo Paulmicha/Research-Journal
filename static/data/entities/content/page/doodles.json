@@ -1,14 +1,14 @@
 {
 	"lang": "en",
-	"title": "Articles",
-	"description": "Latest articles.",
+	"title": "Doodles",
+	"description": "Latest doodles.",
 	"content": [
 		{
 			"c": "View",
 			"props": {
 				"filters": [
 					{
-						"in": "content/article"
+						"in": "content/doodle"
 					}
 				],
 				"cache": {
@@ -25,7 +25,7 @@
 							"op": "AND",
 							"items": [
 								{
-									"in": "content/article"
+									"in": "content/doodle"
 								}
 							]
 						},
@@ -47,6 +47,17 @@
 							"image": "media/2020/10/perspective-test-1.png",
 							"published": "2020-10-27T08:54:12.735Z",
 							"path": "2020/10/perspective-test-1"
+						},
+						{
+							"lang": "en",
+							"title": "Position",
+							"description": "Custom experiment for the documentation workshop.",
+							"image": "media/2020/10/positions.jpg",
+							"published": "2020-10-30T11:01:22.915Z",
+							"data": {
+								"postures": "data/entities/experiment/postures.json"
+							},
+							"path": "2020/10/position"
 						},
 						{
 							"lang": "en",

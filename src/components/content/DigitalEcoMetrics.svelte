@@ -1,39 +1,80 @@
-<script>
-	// TODO (wip)
-	const selection = {};
-</script>
+<!-- <script context="module">
+</script> -->
 
-<!-- <svelte:head>
-	<script src='/sql-wasm.js'></script>
-	<script type="module">
-		// Load sqj.js module and database
+<script>
+	import ExternalScript from '../ExternalScript.svelte';
+	import { writable } from 'svelte/store';
+
+	const dataStore = writable({
+		"rows": [],
+		"colNames": []
+	});
+
+	let db;
+	let colNames;
+	const rows = [];
+
+	const onLoaded = async () => {
 		const sqlPromise = initSqlJs({
 			locateFile: file => `./${file}`
 		});
-		const dataPromise = fetch("filename.sqlite").then(res => res.arrayBuffer());
+		const dataPromise = fetch('/data/ecometrics.sqlite').then(res => res.arrayBuffer());
 		const [SQL, buf] = await Promise.all([sqlPromise, dataPromise])
-		const db = new SQL.Database(new Uint8Array(buf));
+		db = new SQL.Database(new Uint8Array(buf));
 
-		// Grab the table element
-		const table = document.querySelector( "table" );
-		table.innerHTML = '<tr><th>Col1</th><th>Col2</th></tr>';
+		const stmt = db.prepare("SELECT * FROM test WHERE col1 BETWEEN $start AND $end");
+		stmt.bind({ $start:1, $end:2 });
 
-		// Prepare a statement
-		var stmt = db.prepare("SELECT * FROM test WHERE col1 BETWEEN $start AND $end");
-		stmt.getAsObject({$start:1, $end:1}); // {col1:1, col2:111}
-
-		// Bind new values
-		stmt.bind({$start:1, $end:2});
-		while(stmt.step()) { //
-		var row = stmt.getAsObject();
-			table.innerHTML += `<tr><td>${row['col1']}</td><td>${row['col2']}</td></tr>`;
+		let i = 0;
+		while (stmt.step()) {
+			rows[i] = [];
+			const row = stmt.getAsObject();
+			stmt.getColumnNames().forEach(colName => {
+				rows[i].push({
+					key: colName,
+					val: row[colName]
+					// html: `<strong>${colName}</strong> : ${row[colName]}`
+				});
+			});
+			i++;
 		}
-		console.log( "Done" );
-	</script>
-</svelte:head> -->
+
+		colNames = rows[0].map(row => row.colName);
+
+		dataStore.set({
+			rows,
+			colNames
+		});
+	}
+
+	// const selection = {};
+</script>
+
+<ExternalScript url="/sql-wasm.js" on:loaded="{onLoaded}" />
 
 <!-- Debug. -->
-<pre>DigitalEcoMetrics.svelte : selection : { JSON.stringify(selection, null, 2) } </pre>
+<!-- <pre>DigitalEcoMetrics.svelte : colNames : { JSON.stringify(colNames, null, 2) } </pre> -->
+<pre>DigitalEcoMetrics.svelte : rows : { JSON.stringify($dataStore.rows, null, 2) } </pre>
+
+<table>
+	{#if $dataStore.colNames}
+		<tr>
+			{#each $dataStore.colNames as colName}
+				<th>{ colName }</th>
+			{/each}
+		</tr>
+	{/if}
+	{#if $dataStore.rows}
+		{#each $dataStore.rows as cols}
+			<tr>
+				{#each cols as cell}
+					<td>{ cell.val }</td>
+					<!-- <td>{ !cell.html }</td> -->
+				{/each}
+			</tr>
+		{/each}
+	{/if}
+</table>
 
 <style>
 	/* TODO (wip) */

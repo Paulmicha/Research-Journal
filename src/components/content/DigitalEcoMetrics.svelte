@@ -4,6 +4,7 @@
 <script>
 	import ExternalScript from '../ExternalScript.svelte';
 	import { writable } from 'svelte/store';
+	import { onMount } from 'svelte';
 
 	const dataStore = writable({
 		"rows": [],
@@ -14,7 +15,15 @@
 	let colNames;
 	const rows = [];
 
+	/**
+	 * Wait for the external sql.js module to be loaded.
+	 */
 	const onLoaded = async () => {
+		// @see onMount()
+		if (rows.length > 0) {
+			return
+		}
+
 		const sqlPromise = initSqlJs({
 			locateFile: file => `./${file}`
 		});
@@ -22,8 +31,10 @@
 		const [SQL, buf] = await Promise.all([sqlPromise, dataPromise])
 		db = new SQL.Database(new Uint8Array(buf));
 
-		const stmt = db.prepare("SELECT * FROM test WHERE col1 BETWEEN $start AND $end");
-		stmt.bind({ $start:1, $end:2 });
+		// const stmt = db.prepare("SELECT * FROM test WHERE col1 BETWEEN $start AND $end");
+		// stmt.bind({ $start:0, $end:2 });
+		const stmt = db.prepare("SELECT * FROM test");
+		stmt.bind();
 
 		let i = 0;
 		while (stmt.step()) {
@@ -39,13 +50,21 @@
 			i++;
 		}
 
-		colNames = rows[0].map(row => row.colName);
+		colNames = rows[0].map(row => row.key);
 
 		dataStore.set({
 			rows,
 			colNames
 		});
 	}
+
+	/**
+	 * Workaround : when navigating to page, it works, but not when loading the
+	 * URL directly.
+	 */
+	onMount(() => {
+		onLoaded();
+	});
 
 	// const selection = {};
 </script>

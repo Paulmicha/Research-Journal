@@ -5,7 +5,7 @@
  * @see scripts/experiments/search_index/fetch.sh
  */
 
-const slugify = require('@sindresorhus/slugify')
+const slugify = require('@sindresorhus/slugify');
 const fs = require('fs');
 const path = require('path');
 const { walk } = require('../../../fs');

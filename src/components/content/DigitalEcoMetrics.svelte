@@ -5,6 +5,8 @@
 	import ExternalScript from '../ExternalScript.svelte';
 	import { writable } from 'svelte/store';
 	import { onMount } from 'svelte';
+	// import initSqlJs from '../../lib/sql-wasm.js';
+	// import { initSqlJs } from 'sql.js';
 
 	const dataStore = writable({
 		"rows": [],
@@ -33,7 +35,7 @@
 
 		// const stmt = db.prepare("SELECT * FROM test WHERE col1 BETWEEN $start AND $end");
 		// stmt.bind({ $start:0, $end:2 });
-		const stmt = db.prepare("SELECT * FROM test");
+		const stmt = db.prepare("SELECT * FROM devices");
 		stmt.bind();
 
 		let i = 0;
@@ -50,7 +52,11 @@
 			i++;
 		}
 
-		colNames = rows[0].map(row => row.key);
+		stmt.free();
+
+		// colNames = rows[0].map(row => row.key);
+		const res = db.exec("SELECT * FROM devicesCols");
+		colNames = res[0].values.map(v => v[0]);
 
 		dataStore.set({
 			rows,
@@ -73,27 +79,29 @@
 
 <!-- Debug. -->
 <!-- <pre>DigitalEcoMetrics.svelte : colNames : { JSON.stringify(colNames, null, 2) } </pre> -->
-<pre>DigitalEcoMetrics.svelte : rows : { JSON.stringify($dataStore.rows, null, 2) } </pre>
+<!-- <pre>DigitalEcoMetrics.svelte : rows : { JSON.stringify($dataStore.rows, null, 2) } </pre> -->
 
-<table>
-	{#if $dataStore.colNames}
-		<tr>
-			{#each $dataStore.colNames as colName}
-				<th>{ colName }</th>
-			{/each}
-		</tr>
-	{/if}
-	{#if $dataStore.rows}
-		{#each $dataStore.rows as cols}
+<div class="full-vw">
+	<table>
+		{#if $dataStore.colNames}
 			<tr>
-				{#each cols as cell}
-					<td>{ cell.val }</td>
-					<!-- <td>{ !cell.html }</td> -->
+				{#each $dataStore.colNames as colName}
+					<th>{ colName }</th>
 				{/each}
 			</tr>
-		{/each}
-	{/if}
-</table>
+		{/if}
+		{#if $dataStore.rows}
+			{#each $dataStore.rows as cols}
+				<tr>
+					{#each cols as cell}
+						<td>{ cell.val }</td>
+						<!-- <td>{ !cell.html }</td> -->
+					{/each}
+				</tr>
+			{/each}
+		{/if}
+	</table>
+</div>
 
 <style>
 	/* TODO (wip) */

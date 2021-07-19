@@ -34,7 +34,6 @@ fi
 
 if [[ -f 'static/data/ecometrics.sqlite' ]]; then
 	echo "Updating 'static/data/ecometrics.sqlite'..."
-	rm 'static/data/ecometrics.sqlite'
 else
 	echo "Generating 'static/data/ecometrics.sqlite'..."
 fi

@@ -77,6 +77,9 @@ initSqlJs().then(SQL => {
 
 // Write as json file.
 try {
+	if (fs.existsSync('static/data/ecometrics.json')) {
+		fs.unlinkSync('static/data/ecometrics.json');
+	}
 	write_file(
 		'static/data/ecometrics.json',
 		JSON.stringify(data)

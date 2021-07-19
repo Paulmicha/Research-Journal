@@ -36,7 +36,7 @@
 			<thead>
 				<tr>
 					{#each $dataStore.colNames as colName}
-					<th>{ colName }</th>
+						<th>{ colName }</th>
 					{/each}
 				</tr>
 			</thead>

@@ -22,8 +22,11 @@
 	 */
 	const onLoaded = async () => {
 		// @see onMount()
-		if (initSqlJs && rows.length > 0) {
-			return
+		if (rows.length > 0) {
+			return;
+		}
+		if (!initSqlJs) {
+			return;
 		}
 
 		const sqlPromise = initSqlJs({
@@ -46,7 +49,6 @@
 				rows[i].push({
 					key: colName,
 					val: row[colName]
-					// html: `<strong>${colName}</strong> : ${row[colName]}`
 				});
 			});
 			i++;
@@ -84,28 +86,37 @@
 <div class="full-vw">
 	<table>
 		{#if $dataStore.colNames}
-			<tr>
-				{#each $dataStore.colNames as colName}
-					<th>{ colName }</th>
-				{/each}
-			</tr>
-		{/if}
-		{#if $dataStore.rows}
-			{#each $dataStore.rows as cols}
+			<thead>
 				<tr>
-					{#each cols as cell}
-						{#if cell.key === 'sources'}
-							<td><a href="{ cell.val }" target="_blank">source</a></td>
-						{:else}
-							<td>{ cell.val }</td>
-						{/if}
+					{#each $dataStore.colNames as colName}
+						<th>{ colName }</th>
 					{/each}
 				</tr>
-			{/each}
+			</thead>
+		{/if}
+		{#if $dataStore.rows}
+			<tbody>
+				{#each $dataStore.rows as cols}
+					<tr>
+						{#each cols as cell}
+							{#if cell.key === 'sources'}
+								<td><a href="{ cell.val }" target="_blank">source</a></td>
+							{:else}
+								<td>{ cell.val }</td>
+							{/if}
+						{/each}
+					</tr>
+				{/each}
+			</tbody>
 		{/if}
 	</table>
 </div>
 
 <style>
-	/* TODO (wip) */
+	table {
+		width: 100%;
+	}
+	tbody {
+		font-size: .9rem;
+	}
 </style>

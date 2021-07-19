@@ -66,6 +66,14 @@
 							"image": "media/2020/12/perspective-test-2.png",
 							"published": "2020-10-27T08:54:12.735Z",
 							"path": "2020/12/perspective-test-2"
+						},
+						{
+							"lang": "en",
+							"title": "Ecometrics SQLite",
+							"description": "Testing the SQLite WASM technique. See https://willschenk.com/articles/2021/sq_lite_in_the_browser/",
+							"image": "media/2021/07/sqlite-test.jpg",
+							"published": "2021-07-19T02:53:18.876Z",
+							"path": "2021/07/ecometrics-sqlite"
 						}
 					]
 				}

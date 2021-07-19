@@ -4,14 +4,17 @@
 	import { route } from '../../stores/route.js';
 	import { writable } from 'svelte/store';
 	import Select from 'svelte-select';
+	import slugify from '@sindresorhus/slugify';
 
 	const documentsStore = writable([]);
 	let documents = [];
 	let selectItems = [];
 
-	const multiSelectSearchesInKeys = ['tags', 'type', 'names', 'author', 'channel'];
-	let filterOp = 'and';
-	let filterSelect;
+	// Update : keep less filters.
+	// const multiSelectSearchesInKeys = ['tags', 'type', 'names', 'author', 'channel'];
+	const multiSelectSearchesInKeys = ['tags', 'names', 'author'];
+
+	let filterOp = 'or';
 	let selectedFilterItems;
 
 	// Init custom data.
@@ -29,6 +32,8 @@
 		docs.forEach(doc => {
 
 			// Special case : Emojis.
+			// TODO implement custom replacements for filtering by emojis using
+			// natural language ?
 			if ('reactions' in doc && doc.reactions.length) {
 				doc.reactions.forEach(reaction => {
 					selectItems.push({
@@ -41,19 +46,33 @@
 
 			multiSelectSearchesInKeys.forEach(key => {
 				if (key in doc) {
-					doc[key].split(',').forEach(val => {
+					doc[key].replaceAll(';', ',').split(',').forEach(val => {
 						val = val.trim();
 						if (!val.length) {
 							return;
 						}
 
+						// Manual cleanup of input human errors.
+						if (val.startsWith(':')) {
+							return;
+						}
+						if (val.indexOf("ai beaucoup appris dans") > 0) {
+							val = val.split(' ')[0];
+						}
+
 						// Unify channel name and tags.
 						key = key.replace('channel', 'tags');
+
+						// Remove special characters.
+						const valDisplay = slugify(val, { lowercase: false, separator: ' ' });
+
+						// TODO figure out simplest way to make this case insensitive.
+						// const valCaseInsensitive = slugify(val, { separator: ' ' });
 
 						selectItems.push({
 							key,
 							value: val,
-							label: `${val} <span style="color:grey">(${key})</span>`
+							label: `${valDisplay} <span style="color:grey">(${key})</span>`
 						});
 					});
 				}

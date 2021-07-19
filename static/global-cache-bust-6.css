@@ -76,6 +76,9 @@ body {
 	}
 }
 
+.fill-h {
+	flex-grow: 1;
+}
 
 /* Default tags */
 

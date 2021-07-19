@@ -86,7 +86,7 @@
 		);
 
 		// Sort alphabetically (using translitteration).
-		dedup.sort((a, b) => a.value.localeCompare(b.value));
+		dedup.sort((a, b) => a.label.localeCompare(b.label));
 
 		return dedup;
 	};
@@ -455,7 +455,7 @@
 		margin-top: var(--space-s);
 	}
 	table {
-		width: 100%;
+		width: calc(100% - var(--space) * 2);
 	}
 	tbody {
 		font-size: .9rem;

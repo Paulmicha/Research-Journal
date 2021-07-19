@@ -1,16 +1,16 @@
 /**
  * @file
- * Converts the data sources into a single sqlite file.
+ * Converts the raw data sources for the "Ecometrics" experiment.
  *
  * @see scripts/experiments/ecometrics/fetch.sh
  *
  * @example
- *   # From project docroot :
+ *   # (re)Process the fetched data (run from project docroot) :
  *   node scripts/experiments/ecometrics/extract.js
  */
 
 const fs = require('fs');
-const slugify = require('@sindresorhus/slugify')
+const slugify = require('@sindresorhus/slugify');
 const { write_file } = require('../../fs');
 const initSqlJs = require('../../../static/sql-wasm.js');
 
@@ -37,6 +37,7 @@ data.colNames = colNames;
 data.colIds = colNames.map(colName => slugify(colName, { separator: '_' }));
 data.rows = rawData;
 
+// Write as sqlite file.
 initSqlJs().then(SQL => {
 	var db = new SQL.Database();
 
@@ -50,11 +51,14 @@ initSqlJs().then(SQL => {
 	data.colNames.forEach(colName => db.run(`INSERT INTO devicesCols VALUES (?)`, [ colName ]));
 
 	// Debug.
+	// console.log(data.colIds);
+	// console.log(data.colNames);
 	// const stmt = db.prepare("SELECT * FROM devices");
 	// stmt.bind();
 	// while (stmt.step()) {
 	// 	console.log(stmt.getAsObject())
 	// }
+	// stmt.free();
 	// const res = db.exec("SELECT * FROM devicesCols");
 	// console.log(res[0].values.map(v => v[0]));
 
@@ -70,3 +74,13 @@ initSqlJs().then(SQL => {
 		console.log(error);
 	}
 });
+
+// Write as json file.
+try {
+	write_file(
+		'static/data/ecometrics.json',
+		JSON.stringify(data)
+	);
+} catch (error) {
+	console.log(error);
+}

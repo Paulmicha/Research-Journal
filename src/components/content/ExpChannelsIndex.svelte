@@ -436,9 +436,10 @@
 		margin-top: var(--space-s);
 	}
 	table {
-		margin-left: var(--space);
-		margin-right: var(--space);
 		width: 100%;
+	}
+	tbody {
+		font-size: .9rem;
 	}
 	.title {
 		display: inline-block;
@@ -449,30 +450,5 @@
 	}
 	.narrow {
 		max-width: 10ch;
-	}
-	.sort {
-		display: flex;
-		cursor: pointer;
-	}
-	.sort > span{
-		padding-right: var(--space-s);
-	}
-	:global(table .sort.is-off .is-asc),
-	:global(table .sort.is-off .is-desc) {
-		display: none;
-	}
-	:global(table .sort.is-asc .is-desc) {
-		display: none;
-	}
-	:global(table .sort.is-desc .is-asc) {
-		display: none;
-	}
-	:global(th.is-active) {
-		background-color: cornflowerblue;
-		color: white;
-		font-weight: bold;
-	}
-	:global(th.is-active button) {
-		color: inherit;
 	}
 </style>

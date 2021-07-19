@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
 ##
-# Fetches data sources for the Ecometrics experiment.
+# Fetches and prepares data sources for the "Ecometrics" experiment.
 #
 # @example
 #		# From project docroot :

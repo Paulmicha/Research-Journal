@@ -22,7 +22,7 @@
 	 */
 	const onLoaded = async () => {
 		// @see onMount()
-		if (rows.length > 0) {
+		if (initSqlJs && rows.length > 0) {
 			return
 		}
 
@@ -94,8 +94,11 @@
 			{#each $dataStore.rows as cols}
 				<tr>
 					{#each cols as cell}
-						<td>{ cell.val }</td>
-						<!-- <td>{ !cell.html }</td> -->
+						{#if cell.key === 'sources'}
+							<td><a href="{ cell.val }" target="_blank">source</a></td>
+						{:else}
+							<td>{ cell.val }</td>
+						{/if}
 					{/each}
 				</tr>
 			{/each}

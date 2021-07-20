@@ -1,6 +1,7 @@
 <script>
 	import Select from 'svelte-select';
 	import { deviceStore, deviceHashTableStore, selectedDeviceStore } from '../../stores/ecometrics.js';
+	import LoadingSpinner from '../LoadingSpinner.svelte';
 
 	// TODO rework data model to accomodate other sources.
 	// @see scripts/experiments/ecometrics/fetch.sh
@@ -114,9 +115,14 @@
 		selectedDeviceStore.update(selectedDevices => {
 			selectedDevices.forEach((device, i) => {
 				if (device.id === deviceToRemove.id) {
-					// TODO splice()
-					// selectedDevices
+					selectedDevices.splice(i, 1);
 				}
+			});
+			// Update positions to maintain correct numbering of items in list.
+			selectedDevices = [...selectedDevices];
+			selectedDevices.forEach((device, i) => {
+				selectedDevices[i].pos = i;
+				selectedDevices[i].id = `${device.value}.${i}`;
 			});
 			return selectedDevices;
 		});
@@ -126,7 +132,7 @@
 
 {#if $deviceStore.rows.length}
 	<p>Please select one or more devices :</p>
-	<form>
+	<form class="selector">
 		<div class="select">
 			<Select items={getSelectOptions($deviceHashTableStore)}
 				bind:selectedValue={selectedDevice}
@@ -143,31 +149,49 @@
 			<button class="btn" on:click={addSelectedDevice}>Add</button>
 		</div>
 	</form>
+{:else}
+	<LoadingSpinner />
 {/if}
 
 {#if $selectedDeviceStore.length}
-	<table class="selection">
-		{#each $selectedDeviceStore as device}
-			<tr>
-				<td>&bull;</td>
-				<td>{ device.value }</td>
-				<td>{ device.qty }</td>
-				<td>
-					<button class="btn btn--s" on:click={e => removeSelectedDevice(e, device)}>Remove</button>
-				</td>
-			</tr>
-		{/each}
-	</table>
+	<form class="full-w fill-h">
+		<table class="selection">
+			<thead>
+				<tr>
+					<!-- <th>#</th> -->
+					<th>Device</th>
+					<th>Quantity</th>
+					<th>Actions</th>
+				</tr>
+			</thead>
+			<tbody>
+				{#each $selectedDeviceStore as device}
+					<tr>
+						<!-- <td>{ device.pos }</td> -->
+						<td>{ device.value }</td>
+						<td>{ device.qty }</td>
+						<td>
+							<button class="btn btn--s" on:click={e => removeSelectedDevice(e, device)}>Remove</button>
+						</td>
+					</tr>
+				{/each}
+			</tbody>
+		</table>
+	</form>
+{:else}
+	<div class="full-vw fill-h">
+		<LoadingSpinner size="10vmin" border="1vmin" />
+	</div>
 {/if}
 
 <style>
-	form {
+	.selector {
 		display: flex;
 		justify-items: center;
 		align-items: center;
 		margin-top: calc(var(--space) / 2);
 	}
-	form > * + * {
+	.selector > * + * {
 		padding-left: var(--space-s);
 	}
 	.select {
@@ -181,5 +205,9 @@
 	}
 	.selection {
 		margin: var(--space-l) auto;
+	}
+	.selection td,
+	.selection th {
+		padding: calc(var(--space-s) / 2) var(--space-s);
 	}
 </style>

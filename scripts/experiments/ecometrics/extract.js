@@ -47,7 +47,7 @@ const devicesRaw = fs.readFileSync(boaviztaCsvFile)
 const data = {};
 const devicesColNames = devicesRaw.shift();
 
-data.co2Eq = co2Eq;
+data.co2Eq = co2Eq; // TODO normalize keys between SQL version and Json ?
 data.co2EqKeys = Object.keys(co2Eq[0])
 	.map(key => key.replace('default', 'def')); // 'default' is reserved in SQL.
 data.devices = devicesRaw;

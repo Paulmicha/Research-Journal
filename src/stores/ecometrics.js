@@ -28,5 +28,7 @@ export const deviceStore = writable({
 // 		return { options };
 // 	}
 // );
-export const filteredDeviceStore = writable([]);
+// Update : only use the select to add devices to list (not for filtering rows).
+// export const filteredDeviceStore = writable([]);
+export const deviceHashTableStore = writable([]);
 export const selectedDeviceStore = writable([]);

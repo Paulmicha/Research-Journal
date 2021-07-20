@@ -25,6 +25,10 @@
 	let selectOptions = [];
 	const searchKeys = ['name'];
 
+	// Contains the current quantity value once the selection is made when adding
+	// to the list of selected devices.
+	let quantity = 1;
+
 	/**
 	 * Populates the multi-select field items.
 	 */
@@ -77,20 +81,45 @@
 	};
 
 	/**
-	 * Adds selected device.
-	 *
-	 * TODO remove the results we don't use.
+	 * Resets the "device add" selector.
+	 */
+	const resetDeviceSelector = () => {
+		quantity = 1;
+		selectedDevice = null;
+	};
+
+	/**
+	 * Adds selected device (with quantity) to the list.
 	 */
 	const addSelectedDevice = e => {
+		e.preventDefault();
 		if (!selectedDevice) {
-			e.preventDefault();
 			return;
 		}
 		selectedDeviceStore.update(selectedDevices => {
+			selectedDevice.pos = selectedDevices.length;
+			selectedDevice.qty = quantity;
+			selectedDevice.id = `${selectedDevice.value}.${selectedDevice.pos}`;
 			selectedDevices.push(selectedDevice);
 			return selectedDevices;
 		});
+		resetDeviceSelector();
+	};
+
+	/**
+	 * Removes selected device from the list.
+	 */
+	const removeSelectedDevice = (e, deviceToRemove) => {
 		e.preventDefault();
+		selectedDeviceStore.update(selectedDevices => {
+			selectedDevices.forEach((device, i) => {
+				if (device.id === deviceToRemove.id) {
+					// TODO splice()
+					// selectedDevices
+				}
+			});
+			return selectedDevices;
+		});
 	};
 
 </script>
@@ -108,7 +137,7 @@
 			&times;
 		</div>
 		<div class="nb">
-			<input type="number" value="1" />
+			<input type="number" bind:value={quantity} />
 		</div>
 		<div>
 			<button class="btn" on:click={addSelectedDevice}>Add</button>
@@ -117,9 +146,18 @@
 {/if}
 
 {#if $selectedDeviceStore.length}
-	{#each $selectedDeviceStore as selectedDevice}
-		<p>{ JSON.stringify(selectedDevice, ' ', 2) }</p>
-	{/each}
+	<table class="selection">
+		{#each $selectedDeviceStore as device}
+			<tr>
+				<td>&bull;</td>
+				<td>{ device.value }</td>
+				<td>{ device.qty }</td>
+				<td>
+					<button class="btn btn--s" on:click={e => removeSelectedDevice(e, device)}>Remove</button>
+				</td>
+			</tr>
+		{/each}
+	</table>
 {/if}
 
 <style>
@@ -140,5 +178,8 @@
 	}
 	.nb > input {
 		min-width: 4rem;
+	}
+	.selection {
+		margin: var(--space-l) auto;
 	}
 </style>

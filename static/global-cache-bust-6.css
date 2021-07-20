@@ -77,9 +77,17 @@ body {
 	}
 }
 
-.fill-h {
+
+/*
+	The <slot> in main layout wrapper may contain a direct child that needs to
+	expand the full height of the "content zone".
+	@see src/components/LayoutContentPage.svelte
+*/
+
+main > .fill-h {
 	flex-grow: 1;
 }
+
 
 /* Default tags */
 
@@ -279,6 +287,10 @@ input[type='submit'].is-active {
 	border-color: cornflowerblue;
 	color: white;
 	outline: 0;
+}
+
+.btn.btn--s {
+	padding: var(--space-xs) var(--space-s);
 }
 
 input[type='color'],

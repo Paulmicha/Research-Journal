@@ -28,7 +28,26 @@ export const deviceStore = writable({
 // 		return { options };
 // 	}
 // );
+
 // Update : only use the select to add devices to list (not for filtering rows).
 // export const filteredDeviceStore = writable([]);
 export const deviceHashTableStore = writable([]);
-export const selectedDeviceStore = writable([]);
+
+// Anytime the store changes, update the local storage value.
+// See https://dev.to/danawoodman/svelte-quick-tip-connect-a-store-to-local-storage-4idi
+const createBrowserSelectedDeviceStore = () => {
+	let defaultVal = [];
+	const storedVal = localStorage.getItem('ecometricsSelection');
+	if (storedVal && storedVal.length) {
+		defaultVal = JSON.parse(storedVal);
+	}
+	const selectedDeviceStore = writable(defaultVal);
+	selectedDeviceStore.subscribe(deviceList => localStorage.setItem(
+		'ecometricsSelection',
+		JSON.stringify(deviceList)
+	));
+	return selectedDeviceStore;
+};
+export const selectedDeviceStore = typeof localStorage === 'undefined'
+  ? writable([])
+  : createBrowserSelectedDeviceStore();

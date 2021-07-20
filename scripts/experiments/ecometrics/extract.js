@@ -4,6 +4,12 @@
  *
  * @see scripts/experiments/ecometrics/fetch.sh
  *
+ * Currently outputs 2 different formats : Json + Sqlite for comparing
+ * performance (WIP).
+ *
+ * @see src/components/content/DigitalEcoMetrics.svelte
+ * @see src/components/content/DigitalEcoMetricsJson.svelte
+ *
  * @example
  *   # (re)Process the fetched data (run from project docroot) :
  *   node scripts/experiments/ecometrics/extract.js
@@ -14,45 +20,83 @@ const slugify = require('@sindresorhus/slugify');
 const { write_file } = require('../../fs');
 const initSqlJs = require('../../../static/sql-wasm.js');
 
+const datagirJsonFile = 'private/co2-eq/equivalents.json';
+
 // For now, we're only using the "FR" list.
 const boaviztaCsvFile = 'private/footprint-data/boavizta-data-fr.csv';
 const boaviztaCsvSeparator = ';';
 
-if (!fs.existsSync(boaviztaCsvFile)) {
+// Can't carry on without having downloaded the source files.
+if (!fs.existsSync(boaviztaCsvFile) || !fs.existsSync(datagirJsonFile)) {
 	console.log('Please run : scripts/experiments/ecometrics/fetch.sh');
 	return;
 }
 
-const rawData = fs.readFileSync(boaviztaCsvFile)
+// Load the CO2 equivalences Json file as array.
+const co2Eq = JSON.parse(fs.readFileSync(datagirJsonFile).toString());
+
+// Load the devices footprint CSV file as array.
+const devicesRaw = fs.readFileSync(boaviztaCsvFile)
 	.toString() // convert Buffer to string
 	.split('\n') // split string to lines
 	.map(e => e.trim()) // remove white spaces for each line
 	.map(e => e.split(boaviztaCsvSeparator) // split each line to array
-	.map(e => e.trim())); // remove white spaces for each column
+	.map(e => e.trim())) // remove white spaces for each column
+	.filter(e => e != null && e != ''); // remove empty lines
 
 const data = {};
-const colNames = rawData.shift();
+const devicesColNames = devicesRaw.shift();
 
-data.colNames = colNames;
-data.colIds = colNames.map(colName => slugify(colName, { separator: '_' }));
-data.rows = rawData;
+data.co2Eq = co2Eq;
+data.co2EqKeys = Object.keys(co2Eq[0])
+	.map(key => key.replace('default', 'def')); // 'default' is reserved in SQL.
+data.devices = devicesRaw;
+data.devicesKeys = devicesColNames.map(colName => slugify(colName, { separator: '_' }));
+data.devicesColNames = devicesColNames;
+
+/**
+ * Sqlite INSERT format helper.
+ */
+const props2Arr = eqObj => {
+	const flattenedValues = [];
+	Object.keys(eqObj).forEach(prop => {
+		if (prop in eqObj) {
+			if (Array.isArray(eqObj[prop]) || typeof(eqObj[prop]) === 'object') {
+				flattenedValues.push(JSON.stringify(eqObj[prop]));
+			} else {
+				flattenedValues.push(eqObj[prop]);
+			}
+		} else {
+			flattenedValues.push('');
+		}
+	});
+	return flattenedValues;
+};
 
 // Write as sqlite file.
 initSqlJs().then(SQL => {
 	var db = new SQL.Database();
 
-	db.run(`CREATE TABLE devices (${ data.colIds.join(', ') });`);
-	data.rows.forEach(row => db.run(
-		`INSERT INTO devices VALUES (${ colNames.map(c => '?').join(',') })`,
+	db.run(`CREATE TABLE co2Eq (${ data.co2EqKeys.join(', ') });`);
+	data.co2Eq.forEach(eqObj => db.run(
+		`INSERT INTO co2Eq VALUES (${ data.co2EqKeys.map(c => '?').join(',') })`,
+		props2Arr(eqObj)
+	));
+
+	db.run(`CREATE TABLE devices (${ data.devicesKeys.join(', ') });`);
+	data.devices.forEach(row => db.run(
+		`INSERT INTO devices VALUES (${ devicesColNames.map(c => '?').join(',') })`,
 		row
 	));
 
 	db.run(`CREATE TABLE devicesCols (title);`);
-	data.colNames.forEach(colName => db.run(`INSERT INTO devicesCols VALUES (?)`, [ colName ]));
+	data.devicesColNames.forEach(colName => db.run(`INSERT INTO devicesCols VALUES (?)`, [ colName ]));
 
 	// Debug.
-	// console.log(data.colIds);
-	// console.log(data.colNames);
+	// console.log(data.co2EqKeys);
+	// console.log(data.devicesKeys);
+	// console.log(data.devicesColNames);
+	// const stmt = db.prepare("SELECT * FROM co2Eq");
 	// const stmt = db.prepare("SELECT * FROM devices");
 	// stmt.bind();
 	// while (stmt.step()) {

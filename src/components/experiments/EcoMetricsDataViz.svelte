@@ -1,12 +1,18 @@
 <script>
-	import { selectedDeviceStore } from '../../stores/ecometrics.js';
+	import { selectedDeviceStore, co2EqStore } from '../../stores/ecometrics.js';
 </script>
 
-{#if $selectedDeviceStore.length}
+{#if $selectedDeviceStore.length && $co2EqStore.length}
+	{#each $co2EqStore as co2Eq}
+
+		<!-- Debug. -->
+		<pre>co2Eq = {JSON.stringify(co2Eq, null, 2)}</pre>
+
+	{/each}
 	{#each $selectedDeviceStore as device}
 
 		<!-- Debug. -->
-		<pre>EcoMetricsDataViz.svelte : device = {JSON.stringify(device, null, 2)}</pre>
+		<pre>device = {JSON.stringify(device, null, 2)}</pre>
 
 	{/each}
 {/if}

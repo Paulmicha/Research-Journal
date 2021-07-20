@@ -10,11 +10,11 @@
 
 	const dataStore = writable({
 		"rows": [],
-		"colNames": []
+		"devicesColNames": []
 	});
 
 	let db;
-	let colNames;
+	let devicesColNames;
 	const rows = [];
 
 	/**
@@ -56,13 +56,13 @@
 
 		stmt.free();
 
-		// colNames = rows[0].map(row => row.key);
+		// devicesColNames = rows[0].map(row => row.key);
 		const res = db.exec("SELECT * FROM devicesCols");
-		colNames = res[0].values.map(v => v[0]);
+		devicesColNames = res[0].values.map(v => v[0]);
 
 		dataStore.set({
 			rows,
-			colNames
+			devicesColNames
 		});
 	}
 
@@ -80,15 +80,15 @@
 <ExternalScript url="/sql-wasm.js" on:loaded="{onLoaded}" />
 
 <!-- Debug. -->
-<!-- <pre>DigitalEcoMetrics.svelte : colNames : { JSON.stringify(colNames, null, 2) } </pre> -->
+<!-- <pre>DigitalEcoMetrics.svelte : devicesColNames : { JSON.stringify(devicesColNames, null, 2) } </pre> -->
 <!-- <pre>DigitalEcoMetrics.svelte : rows : { JSON.stringify($dataStore.rows, null, 2) } </pre> -->
 
 <div class="full-vw">
 	<table>
-		{#if $dataStore.colNames}
+		{#if $dataStore.devicesColNames}
 			<thead>
 				<tr>
-					{#each $dataStore.colNames as colName}
+					{#each $dataStore.devicesColNames as colName}
 						<th>{ colName }</th>
 					{/each}
 				</tr>

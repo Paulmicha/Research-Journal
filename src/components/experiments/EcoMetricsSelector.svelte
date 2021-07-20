@@ -103,6 +103,7 @@
 		if (!selectedDevice) {
 			return;
 		}
+
 		selectedDeviceStore.update(selectedDevices => {
 			selectedDevice.pos = selectedDevices.length;
 			selectedDevice.qty = quantity;
@@ -110,7 +111,14 @@
 			selectedDevices.push(selectedDevice);
 			return selectedDevices;
 		});
+
+		// TODO if this is called on:select on the <Select /> instance, the reset
+		// will not work : delay or trigger a manual "reset" event dispatch ?
+		// See https://stackoverflow.com/questions/66982839/is-it-possible-to-dispatch-a-svelte-custom-event-with-a-target-object
+		// -> Meanwhile, just leave the "Add" button.
 		resetDeviceSelector();
+
+		e.target.blur();
 	};
 
 	/**
@@ -202,7 +210,7 @@
 						<td>{ device.value }</td>
 						<td>
 							<div class="nb">
-								<input type="number" min="1" name="qty"
+								<input class="input--s" type="number" min="1" name="qty"
 									value={device.qty}
 									on:change={e => updateSelectedDevice(e, device)}
 									/>
@@ -210,7 +218,7 @@
 						</td>
 						<td>
 							<div class="nb">
-								<input type="number" min="0" name="age"
+								<input class="input--s" type="number" min="0" name="age"
 									value={device.age || device.device.manufacturedAge}
 									on:change={e => updateSelectedDevice(e, device)}
 									/>

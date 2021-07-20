@@ -16,28 +16,38 @@ if [[ ! -d 'private/footprint-data' ]]; then
 	mkdir -p 'private/footprint-data'
 fi
 
-csvUrlFr='https://raw.githubusercontent.com/Boavizta/environmental-footprint-data/main/boavizta-data-fr.csv'
-csvUrlUs='https://raw.githubusercontent.com/Boavizta/environmental-footprint-data/main/boavizta-data-us.csv'
+deviceCsvUrlFr='https://raw.githubusercontent.com/Boavizta/environmental-footprint-data/main/boavizta-data-fr.csv'
+deviceCsvUrlUs='https://raw.githubusercontent.com/Boavizta/environmental-footprint-data/main/boavizta-data-us.csv'
 
-csvFileFr="${csvUrlFr##*/}"
-csvFileUs="${csvUrlUs##*/}"
+csvFileFr="${deviceCsvUrlFr##*/}"
+csvFileUs="${deviceCsvUrlUs##*/}"
 
 if [[ ! -f "$PWD/private/footprint-data/$csvFileFr" ]]; then
 	echo "Downloading $csvFileFr ..."
-	wget "$csvUrlFr" -P "$PWD/private/footprint-data/"
+	wget "$deviceCsvUrlFr" -P "$PWD/private/footprint-data/"
 fi
 
 if [[ ! -f "$PWD/private/footprint-data/$csvFileUs" ]]; then
 	echo "Downloading $csvFileUs ..."
-	wget "$csvUrlUs" -P "$PWD/private/footprint-data/"
+	wget "$deviceCsvUrlUs" -P "$PWD/private/footprint-data/"
 fi
 
-if [[ -f 'static/data/ecometrics.sqlite' ]]; then
-	echo "Updating 'static/data/ecometrics.sqlite'..."
-else
-	echo "Generating 'static/data/ecometrics.sqlite'..."
+# Download the CO2 equivalences from datagir.
+# See https://github.com/datagir/monconvertisseurco2
+if [[ ! -d 'private/co2-eq' ]]; then
+	echo "Creating local dir 'private/co2-eq'..."
+	mkdir -p 'private/co2-eq'
 fi
 
+eqJsonUrl='https://github.com/datagir/monconvertisseurco2/raw/master/public/data/equivalents.json'
+eqJsonFile="${eqJsonUrl##*/}"
+
+if [[ ! -f "$PWD/private/co2-eq/$eqJsonFile" ]]; then
+	echo "Downloading $eqJsonFile ..."
+	wget "$eqJsonUrl" -P "$PWD/private/co2-eq/"
+fi
+
+## Transform sources into a single static asset.
 node "$PWD/scripts/experiments/ecometrics/extract.js"
 
 echo "Done."

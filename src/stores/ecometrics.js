@@ -8,7 +8,7 @@ import { writable } from 'svelte/store';
 
 export const deviceStore = writable({
 	"rows": [],
-	"colNames": []
+	"devicesColNames": []
 });
 
 // Make the selection options initially the same as the whole dataset. The
@@ -51,3 +51,5 @@ const createBrowserSelectedDeviceStore = () => {
 export const selectedDeviceStore = typeof localStorage === 'undefined'
   ? writable([])
   : createBrowserSelectedDeviceStore();
+
+export const co2EqStore = writable([]);

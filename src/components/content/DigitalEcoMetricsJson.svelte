@@ -4,7 +4,7 @@
 
 	const dataStore = writable({
 		"rows": [],
-		"colNames": []
+		"devicesColNames": []
 	});
 
 	// Init custom data.
@@ -12,9 +12,9 @@
 		if (o.data && o.data.ecometrics) {
 			const rows = [];
 
-			o.data.ecometrics.rows.forEach((row, i) => {
+			o.data.ecometrics.devices.forEach((row, i) => {
 				rows[i] = [];
-				o.data.ecometrics.colIds.forEach((colName, j) => {
+				o.data.ecometrics.devicesKeys.forEach((colName, j) => {
 					rows[i].push({
 						key: colName,
 						val: row[j]
@@ -24,7 +24,7 @@
 
 			dataStore.set({
 				rows,
-				colNames: [...o.data.ecometrics.colNames]
+				devicesColNames: [...o.data.ecometrics.devicesColNames]
 			});
 		}
 	});
@@ -32,10 +32,10 @@
 
 <div class="full-vw">
 	<table>
-		{#if $dataStore.colNames}
+		{#if $dataStore.devicesColNames}
 			<thead>
 				<tr>
-					{#each $dataStore.colNames as colName}
+					{#each $dataStore.devicesColNames as colName}
 						<th>{ colName }</th>
 					{/each}
 				</tr>

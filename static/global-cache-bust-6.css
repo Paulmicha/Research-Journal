@@ -29,6 +29,9 @@ html {
 	--space: .75rem;
 	--space-s: .5rem;
 	--space-xs: .25rem;
+
+	--b-radius: .33rem;
+	--b-radius-s: .2rem;
 }
 
 
@@ -253,8 +256,8 @@ input[type='button'],
 input[type='reset'],
 input[type='submit'] {
   background-color: var(--color-invert-bg);
-  border: .1rem solid var(--color-invert-bg);
-  border-radius: .4rem;
+  border: 1px solid var(--color-invert-bg);
+  border-radius: var(--b-radius);
   color: white;
   cursor: pointer;
   display: inline-block;
@@ -291,7 +294,9 @@ input[type='submit'].is-active {
 	outline: 0;
 }
 
+.input--s.input--s,
 .btn.btn--s {
+	border-radius: var(--b-radius-s);
 	padding: var(--space-xs) var(--space-s);
 }
 
@@ -313,9 +318,10 @@ textarea,
 select {
 	-webkit-appearance: none;
   background-color: transparent;
-  border: .1rem solid cornflowerblue;
-  border-radius: .4rem;
+  border: 1px solid cornflowerblue;
+  border-radius: var(--b-radius);
   box-shadow: none;
+	font-family: inherit;
   /* height: 3.8rem; */
   /* padding: .6rem 1.0rem .7rem; */
   padding: var(--space) var(--space-l);

@@ -1,57 +1,73 @@
 <script>
-	import { deviceStore, selectionStore } from '../../stores/ecometrics.js';
 	import Select from 'svelte-select';
+	import { deviceStore, filteredDeviceStore, selectedDeviceStore } from '../../stores/ecometrics.js';
 
-	// Make the selection options initially the same as the whole dataset. The
-	// available options will be reduced when users apply filters to select their
-	// list of devices.
-	let initialOptions = [];
-	selectionStore.subscribe(data => {
-		if ('options' in data && data.options.length) {
-			initialOptions = data.options;
+	// TODO rework data model to accomodate other sources.
+	// @see scripts/experiments/ecometrics/fetch.sh
+	// @see scripts/experiments/ecometrics/extract.js
+	let initialDevices = [];
+	deviceStore.subscribe(storedDevices => {
+		if ('rows' in storedDevices && storedDevices.rows.length) {
+			storedDevices.rows.forEach(row => {
+				const device = {};
+				row.forEach(kv => device[kv.key] = kv.val || '');
+				initialDevices.push(device);
+			});
+			filteredDeviceStore.set(initialDevices);
 		}
 	});
 
+	// Define the search filters by "keys" (the rows' columns).
+	// @see static/data/ecometrics.json
+	// @see static/data/ecometrics.sqlite (alternative impl. to compare later on)
 	// ["manufacturer","name","category","subcategory","kg_co_2eq_total","use","yearly_tec_k_wh","lifetime","use_location","date","sources","error","manufacturing","weight","assembly_location","screen_size","server_type","hdd_ssd","ram","cpu","u"]
-	let selectItems = [];
-	const searchKeys = ['manufacturer', 'name', 'screen_size', 'cpu', 'ram'];
+	let activeFilters;
+	let selectOptions = [];
+	const searchKeys = ['name'];
 	let filterOp = 'or';
-	let selectedFilterItems;
 
 	/**
 	 * Populates the multi-select field items.
 	 */
-	const getSelectOptions = (selection) => {
-		console.log(selection);
-		selection.options.forEach(option => {
+	const getSelectOptions = devices => {
+		devices.forEach(device => {
 			searchKeys.forEach(key => {
-				if (key in option) {
-					let val = option[key];
+				if (key in device) {
+					let value = device[key];
 
-					val = val.trim();
-					if (!val.length) {
+					value = value.trim();
+					if (!value.length) {
 						return;
 					}
 
+					// Special : manufacturer will be concatenated with the device name.
+					if (key === 'name') {
+						if ('manufacturer' in device && device.manufacturer.trim().length) {
+							value = `${device.manufacturer.trim()} ${value}`;
+						}
+						// if ('category' in device && device.category.trim().length) {
+						// 	value = `${value} (${device.category.trim()})`;
+						// }
+					}
+
 					// Remove special characters.
-					// const valDisplay = slugify(val, { lowercase: false, separator: ' ' });
+					// value = slugify(value, { lowercase: false, separator: ' ' });
 
 					// TODO figure out simplest way to make this case insensitive.
-					// const valCaseInsensitive = slugify(val, { separator: ' ' });
+					// const valCaseInsensitive = slugify(value, { separator: ' ' });
 
-					selectItems.push({
-						key,
-						value: val,
-						// label: `${valDisplay} <span style="color:grey">(${key})</span>`
-						label: `${val} <span style="color:grey">(${key})</span>`
-					});
+					// Format the displayed option text.
+					// const label = `${value} <span style="color:grey">(${key.replaceAll('_', ' ')})</span>`;
+					const label = value;
+
+					selectOptions.push({ key, value, label });
 				}
 			});
 		});
 
 		// Remove duplicates.
 		let seen = {};
-		const dedup = selectItems.filter(item =>
+		const dedup = selectOptions.filter(item =>
 			seen.hasOwnProperty(item.label) ? false : (seen[item.label] = true)
 		);
 
@@ -65,9 +81,9 @@
 	/**
 	 * Filters results based on the multi-select field current selection.
 	 */
-	 const applyFilter = (selectedVal) => {
-		if (!selectedFilterItems) {
-			clearfilter();
+	 const applyFilter = () => {
+		if (!activeFilters) {
+			clearFilters();
 			return;
 		}
 		switch (filterOp) {
@@ -84,26 +100,34 @@
 	 * Applies "and" filtering for the multi-select field.
 	 */
 	const applyFilterAnd = () => {
-		selectionStore.update(currentResults => {
+		filteredDeviceStore.update(currentResults => {
 			let newResults = [];
 
-			for (let i = 0; i < documents.length; i++) {
-				const result = documents[i];
+			for (let i = 0; i < initialDevices.length; i++) {
+				const result = initialDevices[i];
 				let allFilterValuesMatch = true;
 
-				selectedFilterItems.forEach(selectedFilterItem => {
-					// Emojis are arrays of objects.
-					if (selectedFilterItem.key === 'reactions' && 'reactions' in result && result.reactions.length) {
-						let noneMatches = true;
-						result.reactions.forEach(reaction => {
-							if (reaction.name === selectedFilterItem.value) {
-								noneMatches = false;
-							}
-						});
-						if (noneMatches) {
-							allFilterValuesMatch = false;
-						}
-					} else if (!(selectedFilterItem.key in result) || !result[selectedFilterItem.key].includes(selectedFilterItem.value)) {
+				// If we use the <Select> component for a single value, activeFilters
+				// will not be an array.
+				if (!Array.isArray(activeFilters)) {
+					activeFilters = [activeFilters];
+				}
+
+				activeFilters.forEach(activeFilter => {
+					// TODO [evol] make this thing more generic : deal with keys that
+					// contain arrays.
+					// if (activeFilter.key === 'reactions' && 'reactions' in result && result.reactions.length) {
+					// 	let noneMatches = true;
+					// 	result.reactions.forEach(reaction => {
+					// 		if (reaction.name === activeFilter.value) {
+					// 			noneMatches = false;
+					// 		}
+					// 	});
+					// 	if (noneMatches) {
+					// 		allFilterValuesMatch = false;
+					// 	}
+					// } else
+					if (!(activeFilter.key in result) || !result[activeFilter.key].includes(activeFilter.value)) {
 						allFilterValuesMatch = false;
 					}
 				});
@@ -121,22 +145,30 @@
 	 * Applies "or" filtering for the multi-select field.
 	 */
 	const applyFilterOr = () => {
-		selectionStore.update(currentResults => {
+		filteredDeviceStore.update(currentResults => {
 			let newResults = [];
 
-			for (let i = 0; i < documents.length; i++) {
-				const result = documents[i];
+			for (let i = 0; i < initialDevices.length; i++) {
+				const result = initialDevices[i];
 				let anyFilterValueMatches = false;
 
-				selectedFilterItems.forEach(selectedFilterItem => {
-					// Emojis are arrays of objects.
-					if (selectedFilterItem.key === 'reactions' && 'reactions' in result && result.reactions.length) {
-						result.reactions.forEach(reaction => {
-							if (reaction.name === selectedFilterItem.value) {
-								anyFilterValueMatches = true;
-							}
-						});
-					} else if (selectedFilterItem.key in result && result[selectedFilterItem.key].includes(selectedFilterItem.value)) {
+				// If we use the <Select> component for a single value, activeFilters
+				// will not be an array.
+				if (!Array.isArray(activeFilters)) {
+					activeFilters = [activeFilters];
+				}
+
+				activeFilters.forEach(activeFilter => {
+					// TODO [evol] make this thing more generic : deal with keys that
+					// contain arrays.
+					// if (activeFilter.key === 'reactions' && 'reactions' in result && result.reactions.length) {
+					// 	result.reactions.forEach(reaction => {
+					// 		if (reaction.name === activeFilter.value) {
+					// 			anyFilterValueMatches = true;
+					// 		}
+					// 	});
+					// } else
+					if (activeFilter.key in result && result[activeFilter.key].includes(activeFilter.value)) {
 						anyFilterValueMatches = true;
 					}
 				});
@@ -154,24 +186,49 @@
 	 * Resets selection to initial options.
 	 */
   const clearFilters = () => {
-		selectionStore.update(currentSelection => {
-			currentSelection.options = initialOptions;
-			return currentSelection;
+		filteredDeviceStore.set(initialDevices);
+	};
+
+	/**
+	 * Adds selected device.
+	 *
+	 * TODO remove the results we don't use.
+	 */
+	const addSelectedDevice = e => {
+		selectedDeviceStore.update(selectedDevices => {
+			if (!Array.isArray(activeFilters)) {
+				activeFilters = [activeFilters];
+			}
+			activeFilters.forEach(activeFilter => {
+				selectedDevices.push(activeFilter);
+			});
 		});
+		e.preventDefault();
 	};
 
 </script>
 
 {#if $deviceStore.rows.length}
+	<p>Please select one or more devices :</p>
 	<form>
 		<div class="select">
-			<Select items={getSelectOptions($selectionStore)} isMulti={true}
+			<Select items={getSelectOptions($filteredDeviceStore)}
 				on:select={applyFilter}
 				on:clear={clearFilters}
-				bind:selectedValue={selectedFilterItems}
+				bind:selectedValue={activeFilters}
+				placeholder="Search here to add device to the list"
 			/>
 		</div>
 		<div>
+			&times;
+		</div>
+		<div class="nb">
+			<input type="number" value="1" />
+		</div>
+		<div>
+			<button class="btn" on:click={addSelectedDevice}>Add</button>
+		</div>
+		<!-- <div>
 			<div class="radio">
 				<input type="radio" id="filter-op-or" name="filter-op" value="or"
 					bind:group={filterOp}
@@ -186,8 +243,14 @@
 					/>
 				<label for="filter-op-and">And</label>
 			</div>
-		</div>
+		</div> -->
 	</form>
+{/if}
+
+{#if $selectedDeviceStore.length}
+	{#each $selectedDeviceStore as selectedDevice}
+		<p>{ selectedDevice }</p>
+	{/each}
 {/if}
 
 <style>
@@ -195,6 +258,7 @@
 		display: flex;
 		justify-items: center;
 		align-items: center;
+		margin-top: calc(var(--space) / 2);
 	}
 	form > * + * {
 		padding-left: var(--space-s);
@@ -202,7 +266,19 @@
 	.select {
 		flex-grow: 1;
 	}
-	.radio,
+	.nb {
+		width: 5rem;
+	}
+	.nb > input {
+		min-width: 4rem;
+	}
+	/* .u-fs-s {
+		font-size: .75rem;
+	} */
+	/* .u-fs-m {
+		font-size: 1.15rem;
+	} */
+	/* .radio,
 	.radio > * {
 		cursor: pointer;
 	}
@@ -214,5 +290,5 @@
 	}
 	.radio label:hover {
 		text-decoration: underline;
-	}
+	} */
 </style>

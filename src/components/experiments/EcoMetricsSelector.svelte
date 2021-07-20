@@ -2,6 +2,7 @@
 	import Select from 'svelte-select';
 	import { deviceStore, deviceHashTableStore, selectedDeviceStore } from '../../stores/ecometrics.js';
 	import LoadingSpinner from '../LoadingSpinner.svelte';
+	import EcoMetricsDataViz from './EcoMetricsDataViz.svelte';
 
 	// TODO rework data model to accomodate other sources.
 	// @see scripts/experiments/ecometrics/fetch.sh
@@ -12,6 +13,11 @@
 			storedDevices.rows.forEach(row => {
 				const device = {};
 				row.forEach(kv => device[kv.key] = kv.val || '');
+				if ('date' in device && device.date.length) {
+					device.manufacturedAge = new Date().getFullYear() - parseInt(device.date.replace(/\D/g, ''));
+				} else {
+					device.manufacturedAge = 1;
+				}
 				initialDevices.push(device);
 			});
 			deviceHashTableStore.set(initialDevices);
@@ -128,10 +134,34 @@
 		});
 	};
 
+	/**
+	 * Updates selected device.
+	 */
+	const updateSelectedDevice = (e, deviceToUpdate) => {
+		e.preventDefault();
+
+		// Get the new values.
+		const scope = e.target.closest('tr');
+		const newAge = scope.querySelector('input[name="age"]').value;
+		const newQty = scope.querySelector('input[name="qty"]').value;
+
+		selectedDeviceStore.update(selectedDevices => {
+			selectedDevices.forEach((device, i) => {
+				if (device.id === deviceToUpdate.id) {
+					// Apply Changes.
+					selectedDevices[i].qty = newQty;
+					selectedDevices[i].age = newAge;
+				}
+			});
+			return selectedDevices;
+		});
+
+		e.target.blur();
+	};
+
 </script>
 
 {#if $deviceStore.rows.length}
-	<p>Please select one or more devices :</p>
 	<form class="selector">
 		<div class="select">
 			<Select items={getSelectOptions($deviceHashTableStore)}
@@ -143,7 +173,7 @@
 			&times;
 		</div>
 		<div class="nb">
-			<input type="number" bind:value={quantity} />
+			<input type="number" min="1" bind:value={quantity} />
 		</div>
 		<div>
 			<button class="btn" on:click={addSelectedDevice}>Add</button>
@@ -154,13 +184,14 @@
 {/if}
 
 {#if $selectedDeviceStore.length}
-	<form class="full-w fill-h">
+	<form class="full-vw fill-h">
 		<table class="selection">
 			<thead>
 				<tr>
 					<!-- <th>#</th> -->
 					<th>Device</th>
 					<th>Quantity</th>
+					<th>Age (years)</th>
 					<th>Actions</th>
 				</tr>
 			</thead>
@@ -169,8 +200,24 @@
 					<tr>
 						<!-- <td>{ device.pos }</td> -->
 						<td>{ device.value }</td>
-						<td>{ device.qty }</td>
 						<td>
+							<div class="nb">
+								<input type="number" min="1" name="qty"
+									value={device.qty}
+									on:change={e => updateSelectedDevice(e, device)}
+									/>
+							</div>
+						</td>
+						<td>
+							<div class="nb">
+								<input type="number" min="0" name="age"
+									value={device.age || device.device.manufacturedAge}
+									on:change={e => updateSelectedDevice(e, device)}
+									/>
+							</div>
+						</td>
+						<td>
+							<!-- <button class="btn btn--s" on:click={e => updateSelectedDevice(e, device)}>Update</button> -->
 							<button class="btn btn--s" on:click={e => removeSelectedDevice(e, device)}>Remove</button>
 						</td>
 					</tr>
@@ -179,10 +226,10 @@
 		</table>
 	</form>
 {:else}
-	<div class="full-vw fill-h">
-		<LoadingSpinner size="10vmin" border="1vmin" />
-	</div>
+	<p>Please select one or more devices.</p>
 {/if}
+
+<EcoMetricsDataViz />
 
 <style>
 	.selector {

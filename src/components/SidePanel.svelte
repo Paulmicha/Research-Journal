@@ -5,7 +5,7 @@
 	export let h = "60ch";
 	export let dir = "ltr"; // left to right (other values TODO : rtl, ttb, btt).
 	export let speed = ".33s";
-	export let offset = "10vmin";
+	export let offset = "5%";
 
 	export let id = Math.random().toString(36).substr(2, 9);
 

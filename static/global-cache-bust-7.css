@@ -196,6 +196,11 @@ blockquote {
 .rich-text--inverse {
 	color: white;
 }
+.rich-text--inverse a:focus,
+.rich-text--inverse a:hover,
+.rich-text--inverse a.is-active {
+	color: var(--color-invert-link-on);
+}
 
 
 /* Generic utilities */
@@ -364,6 +369,20 @@ select:focus {
 	outline: 0;
 }
 
+
+/* Special effects */
+
 .fx-shadow {
 	box-shadow: 0 0 8px rgba(0,0,0,.18),0 8px 16px rgba(0,0,0,.36);
 }
+
+
+/* Global third-party components overrides */
+
+/*
+	TODO later :
+	See https://github.com/rob-balfre/svelte-select/blob/master/docs/theming_variables.md
+*/
+/* .selectContainer {
+	--padding: var(--space) var(--space-l) !important;
+} */

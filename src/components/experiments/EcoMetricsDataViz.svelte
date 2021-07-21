@@ -55,34 +55,38 @@
 <div class="ecometrics-dataviz">
 
 	<h2>Details</h2>
-	<div class="full-vw fill-h p-h">
+
+	<div class="details-zone full-vw fill-h p-h">
 		<div class="f-grid f-grid--center f-grid--gutter-l f-grid--vgutter-l">
 			{#each $selectedDeviceStore as device}
 				<div class="item">
+
 					<CardBase>
 						<h3 slot="title">{ device.qty }&nbsp;&times;&nbsp;{ device.label }</h3>
 						<div slot="content">
 							{#each $co2EqStore as co2Eq}
-								<button class="measurement" title={ co2Eq.name.fr } on:click={ e => showCo2EqInfo(e, co2Eq) }>
+								<button class="measurement" title={ co2Eq.name_fr } on:click={ e => showCo2EqInfo(e, co2Eq) }>
 									{ co2Eq.emoji.trim() }<!--
 									-->&nbsp;:&nbsp;<!--
-									-->{ getEqCo2(device.device.kg_co_2eq_total * device.qty, co2Eq.id) }
+									-->{ getEqCo2(device.device.kg_co2eq * device.qty, co2Eq.id) }
 								</button>
 							{/each}
+							<pre style="font-size:.75rem">{JSON.stringify(device, null, 2)}</pre>
 						</div>
 					</CardBase>
+
 				</div>
 			{/each}
 		</div>
+
+		<SidePanel bind:exposedMethods={sidePanelMethods} id="co2-eq-info-panel">
+			{#if $selectedCo2Eq && 'about' in $selectedCo2Eq}
+				<h2>{ $selectedCo2Eq.emoji }&nbsp;{ $selectedCo2Eq.name_fr }</h2>
+				<p>{@html $selectedCo2Eq.about }</p>
+			{/if}
+		</SidePanel>
+
 	</div>
-
-	<SidePanel bind:exposedMethods={sidePanelMethods} id="co2-eq-info-panel">
-		{#if $selectedCo2Eq && 'about' in $selectedCo2Eq}
-			<h2>{ $selectedCo2Eq.emoji }&nbsp;{ $selectedCo2Eq.name.fr }</h2>
-			<p>{@html $selectedCo2Eq.about }</p>
-		{/if}
-	</SidePanel>
-
 </div>
 
 <style>
@@ -98,5 +102,8 @@
 	}
 	.measurement:hover {
 		color: cornflowerblue;
+	}
+	.details-zone {
+		position: relative;
 	}
 </style>

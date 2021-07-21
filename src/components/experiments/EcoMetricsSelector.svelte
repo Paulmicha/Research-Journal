@@ -8,10 +8,8 @@
 	// @see scripts/experiments/ecometrics/extract.js
 	let initialDevices = [];
 	deviceStore.subscribe(storedDevices => {
-		if ('rows' in storedDevices && storedDevices.rows.length) {
-			storedDevices.rows.forEach(row => {
-				const device = {};
-				row.forEach(kv => device[kv.key] = kv.val || '');
+		if ('devices' in storedDevices && storedDevices.devices.length) {
+			storedDevices.devices.forEach(device => {
 				if ('date' in device && device.date.length) {
 					device.manufacturedAge = new Date().getFullYear() - parseInt(device.date.replace(/\D/g, ''));
 				} else {
@@ -168,7 +166,7 @@
 
 </script>
 
-{#if $deviceStore.rows.length}
+{#if $deviceStore.devices.length}
 	<form class="selector">
 		<div class="select">
 			<Select items={getSelectOptions($deviceHashTableStore)}

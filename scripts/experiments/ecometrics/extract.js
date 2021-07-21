@@ -22,9 +22,9 @@ const initSqlJs = require('../../../static/sql-wasm.js');
 
 const datagirJsonFile = 'private/co2-eq/equivalents.json';
 
-// For now, we're only using the "FR" list.
-const boaviztaCsvFile = 'private/footprint-data/boavizta-data-fr.csv';
-const boaviztaCsvSeparator = ';';
+// For now, we're only using the "US" list.
+const boaviztaCsvFile = 'private/footprint-data/boavizta-data-us.csv';
+const boaviztaCsvSeparator = ',';
 
 // Can't carry on without having downloaded the source files.
 if (!fs.existsSync(boaviztaCsvFile) || !fs.existsSync(datagirJsonFile)) {

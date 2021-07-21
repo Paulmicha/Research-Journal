@@ -193,6 +193,10 @@ blockquote {
 	margin-bottom: 0;
 }
 
+.rich-text--inverse {
+	color: white;
+}
+
 
 /* Generic utilities */
 
@@ -300,6 +304,18 @@ input[type='submit'].is-active {
 	padding: var(--space-xs) var(--space-s);
 }
 
+.btn.btn--inverse {
+	border-color: white;
+	background-color: white;
+	color: cornflowerblue;
+}
+.btn.btn--inverse:hover,
+.btn.btn--inverse:focus {
+	border-color: cornflowerblue;
+	background-color: cornflowerblue;
+	color: white;
+}
+
 input[type='color'],
 input[type='date'],
 input[type='datetime'],
@@ -346,4 +362,8 @@ textarea:focus,
 select:focus {
 	border-color: var(--color-invert-link-on);
 	outline: 0;
+}
+
+.fx-shadow {
+	box-shadow: 0 0 8px rgba(0,0,0,.18),0 8px 16px rgba(0,0,0,.36);
 }

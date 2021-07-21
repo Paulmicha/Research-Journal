@@ -2,9 +2,8 @@
 	import Select from 'svelte-select';
 	import { deviceStore, deviceHashTableStore, selectedDeviceStore } from '../../stores/ecometrics.js';
 	import LoadingSpinner from '../LoadingSpinner.svelte';
-	import EcoMetricsDataViz from './EcoMetricsDataViz.svelte';
 
-	// TODO rework data model to accomodate other sources.
+	// TODO Make device data model lighter ?
 	// @see scripts/experiments/ecometrics/fetch.sh
 	// @see scripts/experiments/ecometrics/extract.js
 	let initialDevices = [];
@@ -209,7 +208,7 @@
 						<!-- <td>{ device.pos }</td> -->
 						<td>{ device.value }</td>
 						<td>
-							<div class="nb">
+							<div class="nb--s">
 								<input class="input--s" type="number" min="1" name="qty"
 									value={device.qty}
 									on:change={e => updateSelectedDevice(e, device)}
@@ -217,7 +216,7 @@
 							</div>
 						</td>
 						<td>
-							<div class="nb">
+							<div class="nb--s">
 								<input class="input--s" type="number" min="0" name="age"
 									value={device.age || device.device.manufacturedAge}
 									on:change={e => updateSelectedDevice(e, device)}
@@ -237,8 +236,6 @@
 	<p>Please select one or more devices.</p>
 {/if}
 
-<EcoMetricsDataViz />
-
 <style>
 	.selector {
 		display: flex;
@@ -256,7 +253,10 @@
 		width: 5rem;
 	}
 	.nb > input {
-		min-width: 4rem;
+		width: 4rem;
+	}
+	.nb--s > input {
+		width: 3.3rem;
 	}
 	.selection {
 		margin: var(--space-l) auto;

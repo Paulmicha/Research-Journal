@@ -136,7 +136,7 @@
 		<div>
 			<span>impartial</span>
 			<span>
-				<input type="text" bind:value={ partial_weight } />
+				<input class="input--s" type="text" bind:value={ partial_weight } />
 				<br/>
 				<input type="range" on:input={ onWeightUpdate } value={ partial_weight } id="partial_weight" />
 			</span>
@@ -145,7 +145,7 @@
 		<div>
 			<span>formel</span>
 			<span>
-				<input type="text" bind:value={ informel_weight } />
+				<input class="input--s" type="text" bind:value={ informel_weight } />
 				<br/>
 				<input type="range" on:input={ onWeightUpdate } value={ informel_weight } id="informel_weight" />
 			</span>
@@ -154,7 +154,7 @@
 		<div>
 			<span>consensuel</span>
 			<span>
-				<input type="text" bind:value={ conflictuel_weight } />
+				<input class="input--s" type="text" bind:value={ conflictuel_weight } />
 				<br/>
 				<input type="range" on:input={ onWeightUpdate } value={ conflictuel_weight } id="conflictuel_weight" />
 			</span>
@@ -228,6 +228,7 @@
 		display: inline-block;
 	}
 	.controls input[type="text"] {
-		max-width: 2rem;
+		max-width: 2.33rem;
+		text-align: center;
 	}
 </style>

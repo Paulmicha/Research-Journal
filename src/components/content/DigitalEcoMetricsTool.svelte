@@ -1,8 +1,9 @@
 <script>
 	import { route } from '../../stores/route.js';
 	import { deviceStore, co2EqStore } from '../../stores/ecometrics.js';
-	import EcoMetricsSelector from '../experiments/EcoMetricsSelector.svelte';
 	import LoadingSpinner from '../LoadingSpinner.svelte';
+	import EcoMetricsSelector from '../experiments/EcoMetricsSelector.svelte';
+	import EcoMetricsDataViz from '../experiments/EcoMetricsDataViz.svelte';
 
 	// Init custom data.
 	route.subscribe(o => {
@@ -37,4 +38,5 @@
 	</div>
 {:else}
 	<EcoMetricsSelector />
+	<EcoMetricsDataViz />
 {/if}

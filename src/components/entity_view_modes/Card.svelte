@@ -17,9 +17,11 @@
 
 <CardBase>
 	<img slot="img" alt="{ title }" src="/{ image }" />
-	<a slot="title" href="/{ path }">
-		{ title }
-	</a>
+	<h2 slot="title">
+		<a href="/{ path }">
+			{ title }
+		</a>
+	</h2>
 	<Text slot="content" text={ description } />
 	<div slot="footer" class="o-fgrid">
 		<small>

@@ -2,9 +2,7 @@
 	<div class="c-card__img">
 		<slot name="img" />
 	</div>
-	<h2>
-		<slot name="title" />
-	</h2>
+	<slot name="title" />
 	<div class="rich-text">
 		<slot name="content" />
 	</div>

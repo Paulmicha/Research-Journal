@@ -53,4 +53,4 @@ export const selectedDeviceStore = typeof localStorage === 'undefined'
   : createBrowserSelectedDeviceStore();
 
 export const co2EqStore = writable([]);
-export const co2EqBySelectedDeviceStore = writable({});
+export const selectedCo2Eq = writable({});

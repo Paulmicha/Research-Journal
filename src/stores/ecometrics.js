@@ -33,7 +33,7 @@ export const deviceStore = writable({
 // export const filteredDeviceStore = writable([]);
 export const deviceHashTableStore = writable([]);
 
-// Anytime the store changes, update the local storage value.
+// Anytime the store changes, update the corresponding local storage value.
 // See https://dev.to/danawoodman/svelte-quick-tip-connect-a-store-to-local-storage-4idi
 const createBrowserSelectedDeviceStore = () => {
 	let defaultVal = [];
@@ -53,3 +53,4 @@ export const selectedDeviceStore = typeof localStorage === 'undefined'
   : createBrowserSelectedDeviceStore();
 
 export const co2EqStore = writable([]);
+export const co2EqBySelectedDeviceStore = writable({});

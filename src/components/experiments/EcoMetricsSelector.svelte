@@ -192,7 +192,7 @@
 {/if}
 
 {#if $selectedDeviceStore.length}
-	<form class="full-vw fill-h">
+	<form class="full-vw">
 		<table class="selection">
 			<thead>
 				<tr>

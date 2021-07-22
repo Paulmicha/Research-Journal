@@ -141,6 +141,7 @@ const normalizeEcodiagKeys = rawKey => {
 	const map = {
 		// "label_fr": "", // TODO [evol] string translations.
     "label_en": "name",
+    "label": "name",
     "grey_CO2": "kg_co2eq",
     "yearly_consumption": "yearly_kwh",
     "duration": "lifetime"
@@ -197,8 +198,10 @@ const devicesFromEcodiagNormalizeAll = input => {
 				}
 			});
 			// TODO workaround naming issues.
-			if (model.label_en !== model.subcategory) {
+			if ('label_en' in model && model.label_en !== model.subcategory) {
 				model.label_en = model.subcategory + ' ' + model.label_en;
+			} else if ('label' in model && model.label !== model.subcategory) {
+				model.label_en = model.subcategory + ' ' + model.label;
 			}
 		}
 
@@ -213,11 +216,6 @@ const devicesFromEcodiagNormalizeAll = input => {
 		if ('grey_CO2' in model && typeof model.grey_CO2 === 'object') {
 			model.kg_co2eq = model.grey_CO2.mean;
 			model.error_percent = (model.grey_CO2.std * 100).toFixed(2);
-		}
-
-		// TODO workaround other naming issues.
-		if (!model.label_en || model.label_en.trim() === '') {
-			model.label_en = model.subcategory;
 		}
 
 		// Normalize keys.
@@ -246,7 +244,7 @@ const devicesFromEcodiagNormalizeAll = input => {
 			}
 		});
 		if (!alreadyExists) {
-			cleanedObj.name = cleanedObj.name.charAt(0).toUpperCase() + cleanedObj.name.slice(1) + ' (ecodiag)';
+			cleanedObj.name = cleanedObj.name.charAt(0).toUpperCase() + cleanedObj.name.slice(1) + ' - ecodiag';
 			output.push(cleanedObj);
 		}
 	});

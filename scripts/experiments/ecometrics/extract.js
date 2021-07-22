@@ -7,7 +7,10 @@
  * Currently outputs 2 different formats : Json + Sqlite for comparing
  * performance (WIP).
  *
+ * For the Sqlite test :
  * @see src/components/content/DigitalEcoMetrics.svelte
+ *
+ * For the Json comparison :
  * @see src/components/content/DigitalEcoMetricsJson.svelte
  *
  * @example
@@ -108,6 +111,8 @@ initSqlJs().then(SQL => {
 		props2Arr(eqObj)
 	));
 
+	// TODO props2Arr() needs to sync the correct order (ecodiag devices have
+	// their columns mismatched) !
 	db.run(`CREATE TABLE devices (${ data.devicesKeys.join(', ') });`);
 	data.devices.forEach(device => db.run(
 		`INSERT INTO devices VALUES (${ data.devicesKeys.map(c => '?').join(',') })`,

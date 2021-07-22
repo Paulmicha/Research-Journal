@@ -25,6 +25,7 @@ html {
 	--content-width: 60ch;
 	--content-bleed: calc((100vw - var(--content-width)) / 2);
 
+	--space-xl: 2rem;
 	--space-l: 1rem;
 	--space: .75rem;
 	--space-s: .5rem;

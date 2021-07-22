@@ -1,11 +1,11 @@
 <script>
 	export let pos = "absolute";
 	export let zIndex = "1";
-	export let w = "33ch";
+	export let w = "42ch";
 	export let h = "60ch";
 	export let dir = "ltr"; // left to right (other values TODO : rtl, ttb, btt).
 	export let speed = ".33s";
-	export let offset = "5%";
+	export let offset = "25%";
 
 	export let id = Math.random().toString(36).substr(2, 9);
 
@@ -21,12 +21,17 @@
 	};
 
 	const open = () => {
+		componentInstanceElement.setAttribute('aria-hidden', 'false');
 		if (!componentInstanceElement.classList.contains('is-on')) {
 			componentInstanceElement.classList.add('is-on');
+		}
+		if (!componentInstanceElement.classList.contains('has-triggered')) {
+			componentInstanceElement.classList.add('has-triggered');
 		}
 	}
 
 	const close = () => {
+		componentInstanceElement.setAttribute('aria-hidden', 'true');
 		if (componentInstanceElement.classList.contains('is-on')) {
 			componentInstanceElement.classList.remove('is-on');
 		}
@@ -39,16 +44,18 @@
 	export const exposedMethods = { open, close, toggle };
 </script>
 
-<div
+<aside
 	use:init
 	id={ id }
+	aria-hidden="true"
 	class="side-panel side-panel--{ dir } fx-shadow"
 	style="--pos:{ pos }; --z-index:{ zIndex }; --w:{ w }; --h:{ h }; --speed:{ speed }; --offset:{ offset }"
 >
 	<div class="before">
 		<button
+			aria-controls={ id }
 			class="btn btn--s btn--inverse"
-			on:click={e => { e.preventDefault(); close(e.target.closest('.side-panel')) }}
+			on:click={e => { e.preventDefault(); close() }}
 		>
 			Close
 		</button>
@@ -56,37 +63,50 @@
 	<div class="content rich-text--inverse">
 		<slot />
 	</div>
-	<!-- <div class="after"></div> -->
-</div>
+</aside>
 
 <style>
 	.side-panel {
 		display: flex;
 		flex-direction: column;
 		align-items: center;
-		/* height: var(--h); */
-		width: 0;
+		width: var(--w);
 		position: var(--pos);
 		z-index: var(--z-index);
 		background-color: var(--color-invert-bg);
-		overflow-x: hidden;
-		transition: var(--speed);
-		will-change: width;
+		transform: translateX(-100%);
 	}
 	.side-panel--ltr {
 		top: var(--offset);
 		left: 0;
-		bottom: var(--offset);
 	}
-	.side-panel.is-on {
-		width: var(--w);
+
+	/* TODO adapt to all directions */
+	@keyframes tr-offcanvas-slide-in {
+		/* 0% { transform: translateX(-100%); } */
+		100% { transform: translateX(0%); }
 	}
+	@keyframes tr-offcanvas-slide-out {
+		0% { transform: translateX(0%); }
+		100% { transform: translateX(-100%); }
+	}
+	.side-panel.has-triggered[aria-hidden="true"] {
+		animation: tr-offcanvas-slide-out var(--speed) forwards;
+	}
+	.side-panel.is-on,
+	.side-panel:target,
+	.side-panel[aria-hidden="false"] {
+		animation: tr-offcanvas-slide-in var(--speed) forwards;
+	}
+
 	.side-panel > * {
 		width: 100%;
 	}
-	.before,
+	.before {
+		padding: var(--space) var(--space) 0 var(--space);
+	}
 	.content {
-		padding: var(--space);
+		padding: var(--space) var(--space) var(--space-xl) var(--space);
 	}
 	.before > * {
 		display: inline-block;

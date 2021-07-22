@@ -54,7 +54,7 @@
 
 <div class="ecometrics-dataviz">
 
-	<h2>Details</h2>
+	<h2>CO2 Equivalents</h2>
 
 	<div class="details-zone full-vw fill-h p-h">
 		<div class="f-grid f-grid--center f-grid--gutter-l f-grid--vgutter-l">
@@ -65,13 +65,18 @@
 						<h3 slot="title">{ device.qty }&nbsp;&times;&nbsp;{ device.label }</h3>
 						<div slot="content">
 							{#each $co2EqStore as co2Eq}
-								<button class="measurement" title={ co2Eq.name_fr } on:click={ e => showCo2EqInfo(e, co2Eq) }>
+								<button
+									class="measurement"
+									aria-controls="co2-eq-info-panel"
+									title={ co2Eq.name_fr }
+									on:click={ e => showCo2EqInfo(e, co2Eq) }
+								>
 									{ co2Eq.emoji.trim() }<!--
 									-->&nbsp;:&nbsp;<!--
 									-->{ getEqCo2(device.device.kg_co2eq * device.qty, co2Eq.id) }
 								</button>
 							{/each}
-							<pre style="font-size:.75rem">{JSON.stringify(device, null, 2)}</pre>
+							<!-- <pre style="font-size:.75rem">{JSON.stringify(device, null, 2)}</pre> -->
 						</div>
 					</CardBase>
 
@@ -81,7 +86,7 @@
 
 		<SidePanel bind:exposedMethods={sidePanelMethods} id="co2-eq-info-panel">
 			{#if $selectedCo2Eq && 'about' in $selectedCo2Eq}
-				<h2>{ $selectedCo2Eq.emoji }&nbsp;{ $selectedCo2Eq.name_fr }</h2>
+				<h2 class="no-m-t">{ $selectedCo2Eq.emoji }&nbsp;{ $selectedCo2Eq.name_fr }</h2>
 				<p>{@html $selectedCo2Eq.about }</p>
 			{/if}
 		</SidePanel>
@@ -92,6 +97,9 @@
 <style>
 	.p-h {
 		padding: 0 var(--space);
+	}
+	.no-m-t {
+		margin-top: 0;
 	}
 	.item {
 		max-width: 30ch;

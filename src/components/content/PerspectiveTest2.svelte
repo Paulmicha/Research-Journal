@@ -129,9 +129,9 @@
 	<div>
 		<span>X</span>
 		<span>
-			3D : <input type="text" bind:value={x} />
+			3D : <input class="input--s u-center" type="text" bind:value={x} />
 			<br/>
-			2D : <input type="text" bind:value={projectedX} />
+			2D : <input class="input--s u-center" type="text" bind:value={projectedX} />
 			<br/>
 			<input type="range" min="{-sceneW / 2}" max="{sceneW / 2}" id="input-x" on:input={onInputPos} bind:value={x} />
 		</span>
@@ -139,9 +139,9 @@
 	<div>
 		<span>Y</span>
 		<span>
-			3D : <input type="text" bind:value={y} />
+			3D : <input class="input--s u-center" type="text" bind:value={y} />
 			<br/>
-			2D : <input type="text" bind:value={projectedY} />
+			2D : <input class="input--s u-center" type="text" bind:value={projectedY} />
 			<br/>
 			<input type="range" min="{-sceneH / 2}" max="{sceneH / 2}" id="input-y" on:input={onInputPos} bind:value={y} />
 		</span>
@@ -149,9 +149,9 @@
 	<div>
 		<span>Z</span>
 		<span>
-			3D : <input type="text" bind:value={z} />
+			3D : <input class="input--s u-center" type="text" bind:value={z} />
 			<br/>
-			Scale : <input type="text" bind:value={projectedScale} />
+			Scale : <input class="input--s u-center" type="text" bind:value={projectedScale} />
 			<br/>
 			<input type="range" max="{(sceneW + sceneH) / 2}" id="input-z" on:input={onInputPos} bind:value={z} />
 		</span>
@@ -192,13 +192,14 @@
 	}
 	.controls > * > * {
 		padding: 0 .5rem;
-		text-align: center;
+		text-align: right;
 	}
 	.controls input {
 		display: inline-block;
 	}
 	.controls input[type="text"] {
-		max-width: 2rem;
+		max-width: 3.3rem;
+		background-color: white;
 	}
 
 	.scene {
@@ -209,6 +210,7 @@
 		left: var(--sceneMargin);
 		z-index: var(--z_index);
 		border: 5px dashed gray;
+		overflow: hidden;
 	}
 
 	.itemTest {

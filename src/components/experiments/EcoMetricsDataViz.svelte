@@ -18,6 +18,8 @@
 		"datasets": []
 	};
 
+	const limitDecimals = (num, x) =>  Math.round(num * Math.pow(10, x)) / Math.pow(10, x)
+
 	selectedDeviceStore.subscribe(selectedDevices => {
 		const labels = [];
 		const datasetCo2Eq = [];
@@ -36,14 +38,14 @@
 				labels.push(device.qty + " × " + device.label);
 
 				if (device.data.kg_co2eq && !isNaN(parseInt(device.data.kg_co2eq))) {
-					datasetCo2Eq.push(device.data.kg_co2eq * device.qty);
+					datasetCo2Eq.push(limitDecimals(device.data.kg_co2eq * device.qty, 2));
 				} else {
 					datasetCo2Eq.push(0);
 					datasetCo2EqMissing++;
 				}
 
 				if (device.data.yearly_kwh && !isNaN(parseInt(device.data.yearly_kwh))) {
-					datasetYearlyKwh.push(device.data.yearly_kwh * device.qty);
+					datasetYearlyKwh.push(limitDecimals(device.data.yearly_kwh * device.qty, 2));
 				} else {
 					datasetYearlyKwh.push(0);
 					datasetYearlyKwhMissing++;
@@ -127,14 +129,16 @@
 {#if $selectedDeviceStore.length}
 	<div class="ecometrics-dataviz">
 
-		<h2>Comparaisons</h2>
-
-		<p>Pour éviter que l’augmentation des températures ne dépasse les 2°C d’ici 2050, chaque habitant de la planète ne devrait pas émettre plus de 2,1 tonnes de CO2.</p>
+		<h2>Comparisons</h2>
 
 		<div class="full-vw p-h">
 			<div class="f-grid f-grid--center f-grid--gutter-l f-grid--vgutter-l">
-				<Chart data={co2EqChartData} type="bar" />
-				<Chart data={co2EqChartData} type="pie" maxSlices="20" />
+				<div class="chart-wrap">
+					<Chart data={co2EqChartData} type="bar" />
+				</div>
+				<div class="chart-wrap">
+					<Chart data={co2EqChartData} type="pie" maxSlices="20" />
+				</div>
 			</div>
 		</div>
 
@@ -144,8 +148,8 @@
 		<!-- <pre style="font-size:.75rem">{JSON.stringify(co2EqChartData, null, 2)}</pre> -->
 		<!-- <pre style="font-size:.75rem">{JSON.stringify($totalsStore, null, 2)}</pre> -->
 
-		<h3>Totaux :</h3>
-		<p>
+		<h3>Totals</h3>
+		<div class="u-center">
 			{#each $co2EqStore as co2Eq}
 				<button
 					class="measurement"
@@ -158,9 +162,9 @@
 					-->{ getEqCo2($totalsStore.kg_co2eq.value, co2Eq.id) }
 				</button>
 			{/each}
-		</p>
+		</div>
 
-		<h3>Par appareil :</h3>
+		<h3>Per device</h3>
 
 		<div class="details-zone full-vw fill-h p-h">
 			<div class="f-grid f-grid--center f-grid--gutter-l f-grid--vgutter-l">
@@ -169,7 +173,7 @@
 
 						<CardBase>
 							<h3 slot="title">{ device.qty }&nbsp;&times;&nbsp;{ device.label }</h3>
-							<div slot="content">
+							<div slot="content" class="u-center">
 								{#each $co2EqStore as co2Eq}
 									<button
 										class="measurement"
@@ -210,6 +214,9 @@
 	}
 	.no-m-t {
 		margin-top: 0;
+	}
+	.chart-wrap {
+		max-width: 66ch;
 	}
 	.item {
 		max-width: 30ch;

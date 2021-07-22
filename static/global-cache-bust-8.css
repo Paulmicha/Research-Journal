@@ -388,3 +388,10 @@ select:focus {
 /* .selectContainer {
 	--padding: var(--space) var(--space-l) !important;
 } */
+
+
+/* Misc utilities. */
+
+.u-center {
+	text-align: center;
+}

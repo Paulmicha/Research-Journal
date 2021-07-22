@@ -1,5 +1,5 @@
 <script>
-	export let pos = "absolute";
+	export let pos = "fixed";
 	export let zIndex = "1";
 	export let w = "42ch";
 	export let h = "60ch";

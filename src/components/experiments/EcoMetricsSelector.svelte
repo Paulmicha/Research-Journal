@@ -99,8 +99,8 @@
 	/**
 	 * Adds selected device (with quantity) to the list.
 	 */
-	const addSelectedDevice = e => {
-		e.preventDefault();
+	const addSelectedDevice = async () => {
+		// e.preventDefault();
 		if (!selectedDevice) {
 			return;
 		}
@@ -113,13 +113,16 @@
 			return selectedDevices;
 		});
 
-		// TODO if this is called on:select on the <Select /> instance, the reset
-		// will not work : delay or trigger a manual "reset" event dispatch ?
-		// See https://stackoverflow.com/questions/66982839/is-it-possible-to-dispatch-a-svelte-custom-event-with-a-target-object
-		// -> Meanwhile, just leave the "Add" button.
-		resetDeviceSelector();
+		// TODO when this is called on:select on the <Select /> instance, the reset
+		// will not work immediately. Find better workaround than delaying.
+		// resetDeviceSelector();
+		let failsafe = 99;
+		while (selectedDevice && failsafe > 0) {
+			await new Promise(resolve => setTimeout(resetDeviceSelector, 150));
+			failsafe--;
+		}
 
-		e.target.blur();
+		// e.target.blur();
 	};
 
 	/**
@@ -168,6 +171,14 @@
 		e.target.blur();
 	};
 
+	/**
+	 * Empties the whole list of selected devices.
+	 */
+	const clearSelection = e => {
+		selectedDeviceStore.set([]);
+		resetDeviceSelector();
+	};
+
 </script>
 
 {#if $deviceStore.devices.length}
@@ -175,10 +186,11 @@
 		<div class="select">
 			<Select items={getSelectOptions($deviceHashTableStore)}
 				bind:selectedValue={selectedDevice}
+				on:select={addSelectedDevice}
 				placeholder="Search for devices to add to the list..."
 			/>
 		</div>
-		<div>
+		<!-- <div>
 			&times;
 		</div>
 		<div class="nb">
@@ -186,7 +198,7 @@
 		</div>
 		<div>
 			<button class="btn" on:click={addSelectedDevice}>Add</button>
-		</div>
+		</div> -->
 	</form>
 {:else}
 	<LoadingSpinner />
@@ -218,6 +230,7 @@
 							</div>
 						</td>
 						<td>
+							<!-- { device.age || device.data.manufacturedAge } -->
 							<div class="nb--s">
 								<input class="input--s" type="number" min="0" name="age"
 									value={device.age || device.data.manufacturedAge}
@@ -233,6 +246,9 @@
 				{/each}
 			</tbody>
 		</table>
+		<div class="clear-btn">
+			<button class="btn btn--s" on:click={clearSelection}>Clear selection</button>
+		</div>
 	</form>
 {:else}
 	<p>Please select one or more devices.</p>
@@ -266,5 +282,9 @@
 	.selection td,
 	.selection th {
 		padding: calc(var(--space-s) / 2) var(--space-s);
+	}
+	.clear-btn {
+		margin: var(--space-l);
+		text-align: center;
 	}
 </style>

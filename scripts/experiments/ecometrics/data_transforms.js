@@ -224,6 +224,9 @@ const devicesFromEcodiagNormalizeAll = input => {
 		Object.keys(model).forEach(rawKey => {
 			const key = normalizeEcodiagKeys(rawKey);
 			if (devicesKeys.includes(key)) {
+				if (model[rawKey] == 'N/A') {
+					model[rawKey] = '';
+				}
 				cleanedObj[key] = `${model[rawKey] || ''}`.trim();
 			}
 		});

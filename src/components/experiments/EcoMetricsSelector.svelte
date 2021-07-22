@@ -67,7 +67,11 @@
 					// const label = `${value} <span style="color:grey">(${key.replaceAll('_', ' ')})</span>`;
 					const label = value;
 
-					selectOptions.push({ key, value, label, device });
+					// Other props not used by the Select component are kept in the bound
+					// "selectedValue" -> attach our devices data to easily get it back
+					// upon selection.
+					// @see addSelectedDevice()
+					selectOptions.push({ key, value, label, data: device });
 				}
 			});
 		});
@@ -216,7 +220,7 @@
 						<td>
 							<div class="nb--s">
 								<input class="input--s" type="number" min="0" name="age"
-									value={device.age || device.device.manufacturedAge}
+									value={device.age || device.data.manufacturedAge}
 									on:change={e => updateSelectedDevice(e, device)}
 									/>
 							</div>

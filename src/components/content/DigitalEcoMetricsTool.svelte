@@ -1,6 +1,6 @@
 <script>
 	import { route } from '../../stores/route.js';
-	import { deviceStore, co2EqStore } from '../../stores/ecometrics.js';
+	import { deviceStore, co2EqStore, selectedDeviceStore } from '../../stores/ecometrics.js';
 	import LoadingSpinner from '../LoadingSpinner.svelte';
 	import EcoMetricsSelector from '../experiments/EcoMetricsSelector.svelte';
 	import EcoMetricsDataViz from '../experiments/EcoMetricsDataViz.svelte';
@@ -28,8 +28,36 @@
 			// Store all CO2 equivalences.
 			co2EqStore.set([...o.data.ecometrics.co2Eq]);
 
-			// TODO presets from query args.
-			// console.log(o.query);
+			// Presets from query args (shareable links).
+			if ('s' in o.query && o.query.s.length) {
+				const devicesToSelect = [];
+
+				o.query.s.split(',').forEach(part => {
+					const deviceToSelect = {};
+
+					part.split(':').forEach((subPart, i) => {
+						deviceToSelect.pos = i;
+						const firstChar = subPart.substring(0, 1);
+
+						if (firstChar === 'a') {
+							deviceToSelect.age = subPart.substring(1);
+						} else if (firstChar === 'q') {
+							deviceToSelect.qty = subPart.substring(1);
+						} else {
+							// Find the device with this ID.
+							devices.forEach(device => {
+								if (device.id === subPart) {
+									deviceToSelect.data = device;
+								}
+							})
+						}
+					});
+
+					devicesToSelect.push(deviceToSelect);
+				});
+
+				selectedDeviceStore.update(selectedDevices => devicesToSelect);
+			}
 		}
 	});
 </script>

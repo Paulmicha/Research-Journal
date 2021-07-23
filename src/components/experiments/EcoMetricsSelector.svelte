@@ -21,6 +21,20 @@
 		}
 	});
 
+	/**
+	 * Copy shareable link button click handler.
+	 */
+	const copyShareableLink = e => {
+		e.preventDefault();
+		shareableLinkInput.focus();
+    shareableLinkInput.select();
+    try {
+      document.execCommand('copy');
+    } catch (err) {
+			alert('Error : you will need to copy the link manually.');
+		}
+	};
+
 	// Define the search filters by "keys" (the rows' columns).
 	// @see static/data/ecometrics.json
 	// @see static/data/ecometrics.sqlite (alternative impl. to compare later on)
@@ -109,7 +123,6 @@
 		selectedDeviceStore.update(selectedDevices => {
 			selectedDevice.pos = selectedDevices.length;
 			selectedDevice.qty = quantity;
-			selectedDevice.id = `${selectedDevice.value}.${selectedDevice.pos}`;
 			selectedDevices.push(selectedDevice);
 			return selectedDevices;
 		});
@@ -133,7 +146,7 @@
 		e.preventDefault();
 		selectedDeviceStore.update(selectedDevices => {
 			selectedDevices.forEach((device, i) => {
-				if (device.id === deviceToRemove.id) {
+				if (device.data.id === deviceToRemove.data.id) {
 					selectedDevices.splice(i, 1);
 				}
 			});
@@ -141,7 +154,6 @@
 			selectedDevices = [...selectedDevices];
 			selectedDevices.forEach((device, i) => {
 				selectedDevices[i].pos = i;
-				selectedDevices[i].id = `${device.value}.${i}`;
 			});
 			return selectedDevices;
 		});
@@ -160,7 +172,7 @@
 
 		selectedDeviceStore.update(selectedDevices => {
 			selectedDevices.forEach((device, i) => {
-				if (device.id === deviceToUpdate.id) {
+				if (device.data.id === deviceToUpdate.data.id) {
 					// Apply Changes.
 					selectedDevices[i].qty = newQty;
 					selectedDevices[i].age = newAge;
@@ -221,7 +233,7 @@
 				{#each $selectedDeviceStore as device}
 					<tr>
 						<!-- <td>{ device.pos }</td> -->
-						<td>{ device.value }</td>
+						<td>{ device.data.manufacturer } { device.data.name }</td>
 						<td>
 							<div class="nb--s">
 								<input class="input--s" type="number" min="1" name="qty"
@@ -249,12 +261,20 @@
 		</table>
 		<div class="bottom-zone">
 			<button class="btn btn--s" on:click={clearSelection}>Clear selection</button>
-			<button
-				title="This link contains current selection. Opening it will preset this page with this list."
+			<button class="btn btn--s"
+				on:click={copyShareableLink}
+				title="This link contains the current selection. Opening it will preset this page with this list."
 			>
 				Copy shareable link
 			</button>
-			<input type="text" bind:this={shareableLinkInput} value="{shareLink}" />
+			(to send this list to someone)
+			<input
+				class="u-sr-only"
+				type="text"
+				aria-hidden="true"
+				bind:this={shareableLinkInput}
+				value="{shareLink}"
+			/>
 		</div>
 	</form>
 {:else}

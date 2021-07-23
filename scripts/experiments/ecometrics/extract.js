@@ -25,6 +25,7 @@ const {
 	devicesKeys,
 	devicesFromBoaviztaNormalizeAll,
 	devicesFromEcodiagNormalizeAll,
+	generateDevicesIds,
 	co2EqKeys,
 	co2EqNormalizeItem
 } = require('./data_transforms');
@@ -94,10 +95,14 @@ data.devices = [...boaviztaDevices, ...ecodiagDevices];
 data.co2EqKeys = co2EqKeys;
 data.co2Eq = co2Eq;
 
+// Assign numerical IDs to devices for selection presets shareable by URL.
+generateDevicesIds(data);
+
 // Debug.
 // for (let i = 0; i < 20; i++) {
-// 	console.log(ecodiagDevices[Math.floor(Math.random() * ecodiagDevices.length)]);
-// 	console.log(data.devices[Math.floor(Math.random() * data.devices.length)]);
+// 	const d = data.devices[Math.floor(Math.random() * data.devices.length)];
+// 	console.log(`${d.id} : ${Object.keys(d).length} == ${devicesKeys.length} ?`);
+// 	console.log(d);
 // }
 // return;
 

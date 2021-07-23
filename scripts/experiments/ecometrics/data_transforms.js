@@ -16,6 +16,7 @@ const slugify = require('@sindresorhus/slugify');
 // See https://github.com/Boavizta/environmental-footprint-data/blob/main/boavizta-data-us.csv
 // See https://gitlab.inria.fr/guenneba/ecodiag/-/blob/master/src/devices.js
 const devicesKeys = [
+	"id", // to export a device selection list as URL query parameter
 	"manufacturer",
 	"name",
 	"category",
@@ -63,6 +64,109 @@ const arr2Props = (csvLine, keys) => {
 		obj[keys[i]] = value;
 	});
 	return obj;
+};
+
+/**
+ * Sorts device object keys in the correct order.
+ *
+ * The order of keys must be the same for the props2Arr() function to work.
+ * @see scripts/experiments/ecometrics/extract.js
+ *
+ * @param {Object} device : normalized device object.
+ */
+const sortDeviceObjKeys = device => {
+	const orderedObj = {};
+	devicesKeys.forEach(key => orderedObj[key] = device[key]);
+	return orderedObj;
+};
+
+/**
+ * Generates a unique numerical device "fingerprint".
+ *
+ * Best guess is to use a slug of manufacturer + subcategory + device name as a
+ * kind of fingerprint (because in the future, when updates of sources are
+ * fetched, the other props might be more likely to vary and/or be completed).
+ *
+ * We'll also store an array of fingerprints to make sure we avoid duplicates.
+ * @see generateDevicesIds()
+ *
+ * @param {Object} device : normalized device object.
+ */
+const getDeviceFingerprint = device => slugify(
+	`${device.manufacturer} ${device.subcategory} ${device.name}`,
+	{ separator: '_' }
+);
+
+/**
+ * Generates a 53-bit hash.
+ *
+ * See https://stackoverflow.com/questions/7616461/generate-a-hash-from-string-in-javascript/52171480#52171480
+ */
+const cyrb53 = (str, seed = 0) => {
+	let h1 = 0xdeadbeef ^ seed, h2 = 0x41c6ce57 ^ seed;
+	for (let i = 0, ch; i < str.length; i++) {
+		ch = str.charCodeAt(i);
+		h1 = Math.imul(h1 ^ ch, 2654435761);
+		h2 = Math.imul(h2 ^ ch, 1597334677);
+	}
+	h1 = Math.imul(h1 ^ (h1>>>16), 2246822507) ^ Math.imul(h2 ^ (h2>>>13), 3266489909);
+	h2 = Math.imul(h2 ^ (h2>>>16), 2246822507) ^ Math.imul(h1 ^ (h1>>>13), 3266489909);
+	return 4294967296 * (2097151 & h2) + (h1>>>0);
+};
+
+/**
+ * Generates unique numerical device IDs.
+ *
+ * @see getDeviceFingerprint()
+ *
+ * @param {Object} data : whole ecometrics dataset, where data.devices contains
+ *   the list of every aggregated devices' objects.
+ */
+const generateDevicesIds = data => {
+	// Associates fingerprints to every data.devices, drop the ones which don't
+	// have enough data to get one (presumably inexploitable).
+	data.devices
+		.map(device => device.fingerprint = getDeviceFingerprint(device))
+		.filter(device => device.fingerprint && device.fingerprint.length);
+
+	// Prevent duplicates.
+	let dedup = {};
+	// Debug (these duplicates appear discardable) :
+	// data.devices.forEach(device => {
+	// 	if (!dedup[device.fingerprint]) {
+	// 		dedup[device.fingerprint] = [];
+	// 	}
+	// 	dedup[device.fingerprint].push(device);
+	// });
+	// let duplicatesCount = 0;
+	// Object.keys(dedup).forEach(fingerprint => {
+	// 	if (dedup[fingerprint].length > 1) {
+	// 		duplicatesCount++;
+	// 		console.log(dedup[fingerprint]);
+	// 	}
+	// });
+	// console.log(duplicatesCount);
+
+	// Flatten - keep only the last of all duplicates.
+	data.devices.forEach(device => {
+		const d = {...device};
+		delete d['fingerprint'];
+		dedup[device.fingerprint] = d;
+	});
+
+	data.deviceFingerprints = Object.keys(dedup);
+	data.deviceFingerprints.sort();
+
+	const sortedDevices = [];
+	data.deviceFingerprints.forEach((fingerprint, i) => {
+		sortedDevices[i] = dedup[fingerprint];
+
+		// If the items change place in the sorted array, the fingerprint will not
+		// change. TODO evalute collision risk of truncating at 8 chars ?
+		sortedDevices[i].id = `${cyrb53(fingerprint)}`.substring(0, 8);
+	});
+
+	data.devices = sortedDevices;
 };
 
 /**
@@ -128,7 +232,7 @@ const devicesFromBoaviztaNormalizeAll = input => {
 				cleanedObj[key] = '';
 			}
 		});
-		output.boaviztaDevices[i] = cleanedObj;
+		output.boaviztaDevices[i] = sortDeviceObjKeys(cleanedObj);
 	});
 
 	return output;
@@ -237,18 +341,22 @@ const devicesFromEcodiagNormalizeAll = input => {
 			}
 		});
 
+		// The order of keys must be the same for the props2Arr() function to work.
+		// @see scripts/experiments/ecometrics/extract.js
+		const orderedObj = sortDeviceObjKeys(cleanedObj);
+
 		// TODO unusable titles (lots of duplicates with distinct values - we need
 		// just a few generic entries here, no time for now to dig deeper -> skip
 		// if we already have an identical title).
 		let alreadyExists = false;
 		output.forEach(device => {
-			if (device.name === cleanedObj.name) {
+			if (device.name === orderedObj.name) {
 				alreadyExists = true;
 			}
 		});
 		if (!alreadyExists) {
-			cleanedObj.name = cleanedObj.name.charAt(0).toUpperCase() + cleanedObj.name.slice(1) + ' - ecodiag';
-			output.push(cleanedObj);
+			orderedObj.name = orderedObj.name.charAt(0).toUpperCase() + orderedObj.name.slice(1) + ' - ecodiag';
+			output.push(orderedObj);
 		}
 	});
 
@@ -296,6 +404,7 @@ module.exports = {
 	devicesKeys,
 	devicesFromBoaviztaNormalizeAll,
 	devicesFromEcodiagNormalizeAll,
+	generateDevicesIds,
 	co2EqKeys,
 	co2EqNormalizeItem
 };

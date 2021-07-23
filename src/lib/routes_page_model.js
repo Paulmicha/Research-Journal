@@ -17,6 +17,7 @@
 export const commonRoutesPreload = async (pageModel, page, session, context) => {
 	pageModel.session = session || {};
 	pageModel.query = page.query || {};
+	pageModel.host = page.host || {};
 
 	// Allow additional arbitrary data to be fetched.
 	if ('data' in pageModel && typeof pageModel.data === 'object') {
@@ -47,7 +48,7 @@ export const commonRoutesPreload = async (pageModel, page, session, context) => 
  */
 export const updateRoute = (pageModel, currentRoute) => {
 	currentRoute.title = pageModel.title;
-	currentRoute.title = pageModel.title;
+	currentRoute.host = pageModel.host;
 	currentRoute.path = pageModel.slug;
 	currentRoute.lang = pageModel.lang;
 	currentRoute.description = pageModel.description;

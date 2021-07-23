@@ -1,23 +1,23 @@
 <script>
 	import Select from 'svelte-select';
-	import { deviceStore, deviceHashTableStore, selectedDeviceStore } from '../../stores/ecometrics.js';
+	import { route } from '../../stores/route.js';
+	import { deviceStore, selectedDeviceStore } from '../../stores/ecometrics.js';
 	import LoadingSpinner from '../LoadingSpinner.svelte';
 
-	// TODO Make device data model lighter ?
-	// @see scripts/experiments/ecometrics/fetch.sh
-	// @see scripts/experiments/ecometrics/extract.js
-	let initialDevices = [];
-	deviceStore.subscribe(storedDevices => {
-		if ('devices' in storedDevices && storedDevices.devices.length) {
-			storedDevices.devices.forEach(device => {
-				if ('date' in device && device.date.length) {
-					device.manufacturedAge = new Date().getFullYear() - parseInt(device.date.replace(/\D/g, ''));
-				} else {
-					device.manufacturedAge = 1;
-				}
-				initialDevices.push(device);
+	// Sharing link reacts to current selection store.
+	let shareLink = '';
+	let shareableLinkInput;
+
+	selectedDeviceStore.subscribe(selectedDevices => {
+		if (selectedDevices.length) {
+			const parts = [];
+			shareLink = 'http://' + $route.host + '/' + $route.path + '?s=';
+
+			selectedDevices.forEach(device => {
+				parts.push(`${device.data.id}:q${device.qty}:a${device.age || device.data.age}`);
 			});
-			deviceHashTableStore.set(initialDevices);
+
+			shareLink += parts.join(',');
 		}
 	});
 
@@ -29,6 +29,7 @@
 	let selectOptions = [];
 	const searchKeys = ['name'];
 
+	// TODO deprecated (not needed anymore since the removal of input + btn "add").
 	// Contains the current quantity value once the selection is made when adding
 	// to the list of selected devices.
 	let quantity = 1;
@@ -184,7 +185,7 @@
 {#if $deviceStore.devices.length}
 	<form class="selector">
 		<div class="select">
-			<Select items={getSelectOptions($deviceHashTableStore)}
+			<Select items={getSelectOptions($deviceStore.devices)}
 				bind:selectedValue={selectedDevice}
 				on:select={addSelectedDevice}
 				placeholder="Search for devices to add to the list..."
@@ -230,10 +231,10 @@
 							</div>
 						</td>
 						<td>
-							<!-- { device.age || device.data.manufacturedAge } -->
+							<!-- { device.age || device.data.age } -->
 							<div class="nb--s">
 								<input class="input--s" type="number" min="0" name="age"
-									value={device.age || device.data.manufacturedAge}
+									value={device.age || device.data.age}
 									on:change={e => updateSelectedDevice(e, device)}
 									/>
 							</div>
@@ -246,8 +247,14 @@
 				{/each}
 			</tbody>
 		</table>
-		<div class="clear-btn">
+		<div class="bottom-zone">
 			<button class="btn btn--s" on:click={clearSelection}>Clear selection</button>
+			<button
+				title="This link contains current selection. Opening it will preset this page with this list."
+			>
+				Copy shareable link
+			</button>
+			<input type="text" bind:this={shareableLinkInput} value="{shareLink}" />
 		</div>
 	</form>
 {:else}
@@ -284,8 +291,12 @@
 	.selection th {
 		padding: calc(var(--space-s) / 2) var(--space-s);
 	}
-	.clear-btn {
+	.bottom-zone {
 		margin: var(--space-l);
 		text-align: center;
+	}
+	.bottom-zone > * {
+		display: inline-block;
+		width: auto;
 	}
 </style>

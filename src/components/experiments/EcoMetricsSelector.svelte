@@ -11,7 +11,10 @@
 	selectedDeviceStore.subscribe(selectedDevices => {
 		if (selectedDevices.length) {
 			const parts = [];
-			shareLink = 'http://' + $route.host + '/' + $route.path + '?s=';
+
+			// TODO reverse proxy... ?
+			// shareLink = 'http://' + $route.host + '/' + $route.path + '?s=';
+			shareLink = 'https://msc.paulmichalet.com/' + $route.path + '?s=';
 
 			selectedDevices.forEach(device => {
 				parts.push(`${device.data.id}:q${device.qty}:a${device.age || device.data.age}`);

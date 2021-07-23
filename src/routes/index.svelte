@@ -7,23 +7,22 @@
 	import { getContext } from 'svelte';
 	import { nav_menu_get_items } from '../lib/nav.js';
 	import MenuMain from '../components/MenuMain.svelte';
-	import DropCap from '../components/DropCap.svelte';
 	import Footer from '../components/Footer.svelte';
 	import Lede from '../components/content/Lede.svelte';
 
-	// TODO Evaluate using Netflify CMS.
-	import { onMount } from 'svelte';
-	onMount(() => {
-		if (window.netlifyIdentity) {
-			window.netlifyIdentity.on("init", user => {
-				if (!user) {
-					window.netlifyIdentity.on("login", () => {
-						document.location.href = "/admin/";
-					});
-				}
-			});
-		}
-	});
+	// Specific Netflify CMS admin init.
+	// import { onMount } from 'svelte';
+	// onMount(() => {
+	// 	if (window.netlifyIdentity) {
+	// 		window.netlifyIdentity.on("init", user => {
+	// 			if (!user) {
+	// 				window.netlifyIdentity.on("login", () => {
+	// 					document.location.href = "/admin/";
+	// 				});
+	// 			}
+	// 		});
+	// 	}
+	// });
 
 	const global_data = getContext('global_data');
 

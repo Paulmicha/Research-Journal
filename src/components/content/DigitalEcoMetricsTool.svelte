@@ -15,6 +15,9 @@
 			});
 			// Store all CO2 equivalences.
 			co2EqStore.set([...o.data.ecometrics.co2Eq]);
+
+			// TODO presets from query args.
+			// console.log(o.query);
 		}
 	});
 </script>

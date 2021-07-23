@@ -198,7 +198,7 @@
 		display: inline-block;
 	}
 	.controls input[type="text"] {
-		max-width: 3.3rem;
+		max-width: 3.5rem;
 		background-color: white;
 	}
 

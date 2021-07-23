@@ -134,7 +134,7 @@
 		<div class="full-vw p-h">
 			<div class="f-grid f-grid--center f-grid--gutter-l f-grid--vgutter-l">
 				<div class="chart-wrap">
-					<Chart data={co2EqChartData} type="bar" />
+					<Chart data={co2EqChartData} type="bar" valuesOverPoints="1" />
 				</div>
 				<div class="chart-wrap">
 					<Chart data={co2EqChartData} type="pie" maxSlices="20" />

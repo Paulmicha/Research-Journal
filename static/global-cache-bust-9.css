@@ -88,6 +88,11 @@ body {
 	@see src/components/LayoutContentPage.svelte
 */
 
+main {
+	display: flex;
+	flex-direction: column;
+	flex-grow: 1;
+}
 main > .fill-h {
 	flex-grow: 1;
 }

@@ -261,7 +261,7 @@
 		align-items: center;
 		margin-top: calc(var(--space) / 2);
 	}
-	.selector > * + * {
+	/* .selector > * + * {
 		padding-left: var(--space-s);
 	}
 	.select {
@@ -272,7 +272,7 @@
 	}
 	.nb > input {
 		width: 4rem;
-	}
+	} */
 	.nb--s > input {
 		width: 3.3rem;
 	}

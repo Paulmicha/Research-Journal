@@ -46,7 +46,7 @@
 
 			multiSelectSearchesInKeys.forEach(key => {
 				if (key in doc) {
-					doc[key].replaceAll(';', ',').split(',').forEach(val => {
+					doc[key].replace(/;/g, ',').split(',').forEach(val => {
 						val = val.trim();
 						if (!val.length) {
 							return;

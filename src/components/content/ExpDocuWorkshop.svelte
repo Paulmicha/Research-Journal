@@ -1,6 +1,7 @@
 <script>
 	import { Canvas } from "svelte-canvas";
 	import { onMount } from 'svelte';
+	import { afterUpdate } from 'svelte';
 	import { route } from '../../stores/route.js';
 	// import { spring } from 'svelte/motion';
 	import { writable } from 'svelte/store';
@@ -8,7 +9,7 @@
 	import Scene from '../../lib/projection_2d/Scene.js';
 	import SceneItem from '../../lib/projection_2d/SceneItem.js';
 
-	import Popover from 'svelte-popover';
+	// import Popover from 'svelte-popover';
 	import Postures from '../experiments/Postures.svelte';
 	import Point from '../canvas_items/Point.svelte';
 
@@ -56,38 +57,44 @@
 	// This will allow the list of items to be updated using Svelte compiler "$".
 	const posturesStore = writable([]);
 
+	/**
+	 * Positions elements.
+	 */
+	const initPosturesLayout = postures => {
+		// For now, distribute in a grid of 5 columuns.
+		const nbPerLine = 4;
+		const linesNb = postures.length / nbPerLine;
+		let currentLine = 0;
+		const stepX = sceneW / nbPerLine;
+		const stepY = sceneH / linesNb; // <- "line height", in px.
+
+		postures.forEach((posture, i) => {
+			const currentCol = i % nbPerLine;
+			if (i > 0 && i % nbPerLine === 0) {
+				currentLine++;
+			}
+			const x = -sceneW / 2 + currentCol * stepX - radius / 2 + stepX / 2;
+			const y = -sceneH / 2 + currentLine * stepY - radius / 2 + stepY / 2;
+			const z = maxScore - get_score(posture);
+
+			// Debug.
+			// console.log({ x, y, z });
+
+			posture.si = new SceneItem({ scene, x, y, z });
+			updatePos(posture);
+
+			posture.hslaAngle = Math.round(Math.random() * 360);
+		});
+
+		posturesStore.set(postures);
+	};
+
 	// Init custom data.
 	let postures = [];
 	route.subscribe(o => {
-		if (o.data && o.data.postures) {
+		if (o.data && o.data.postures && o.data.postures.items) {
 			postures = o.data.postures.items;
-
-			// For now, distribute in a grid of 5 columuns.
-			const nbPerLine = 4;
-			const linesNb = postures.length / nbPerLine;
-			let currentLine = 0;
-			const stepX = sceneW / nbPerLine;
-			const stepY = sceneH / linesNb; // <- "line height", in px.
-
-			postures.forEach((posture, i) => {
-				const currentCol = i % nbPerLine;
-				if (i > 0 && i % nbPerLine === 0) {
-					currentLine++;
-				}
-				const x = -sceneW / 2 + currentCol * stepX - radius / 2 + stepX / 2;
-				const y = -sceneH / 2 + currentLine * stepY - radius / 2 + stepY / 2;
-				const z = maxScore - get_score(posture);
-
-				// Debug.
-				// console.log({ x, y, z });
-
-				posture.si = new SceneItem({ scene, x, y, z });
-				updatePos(posture);
-
-				posture.hslaAngle = Math.round(Math.random() * 360);
-			});
-
-			posturesStore.set(postures);
+			initPosturesLayout(postures);
 		}
 	});
 
@@ -120,8 +127,17 @@
 	/**
 	 * Component is mounted into the DOM.
 	 */
-	onMount(() => {
+	onMount(async () => {
 		scene.init(sceneW, sceneH, (sceneW + sceneH) / 2);
+
+		// TODO can't figure out why we need to do this, but it is not getting the
+		// correct initial positions unless this is delayed.
+		// initPosturesLayout(postures);
+		let failsafe = 15;
+		while (postures[0].projectedScale < .1 && failsafe > 0) {
+			failsafe--;
+			await new Promise(resolve => setTimeout(() => { initPosturesLayout(postures) }, 150));
+		}
 	});
 </script>
 
@@ -131,7 +147,7 @@
 <!-- <pre>src/components/content/ExpDocuWorkshop.svelte : postures = {JSON.stringify(postures, null, 2)}</pre> -->
 
 
-<div class="full-vw">
+<div class="full-vw fill-h">
 	<div class="controls">
 		<div>
 			<span>impartial</span>

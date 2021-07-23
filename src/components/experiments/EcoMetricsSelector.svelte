@@ -251,7 +251,7 @@
 		</div>
 	</form>
 {:else}
-	<p>Please select one or more devices.</p>
+	<p>↑ Please select one or more devices.</p>
 {/if}
 
 <style>
@@ -260,12 +260,13 @@
 		justify-items: center;
 		align-items: center;
 		margin-top: calc(var(--space) / 2);
-	}
-	/* .selector > * + * {
-		padding-left: var(--space-s);
+		margin-bottom: var(--space);
 	}
 	.select {
 		flex-grow: 1;
+	}
+	/* .selector > * + * {
+		padding-left: var(--space-s);
 	}
 	.nb {
 		width: 5rem;
@@ -277,7 +278,7 @@
 		width: 3.3rem;
 	}
 	.selection {
-		margin: var(--space-l) auto;
+		margin: 0 auto var(--space-l) auto;
 	}
 	.selection td,
 	.selection th {

@@ -35,7 +35,7 @@
 
 		if (selectedDevices.length) {
 			selectedDevices.forEach(device => {
-				labels.push(device.qty + " × " + device.label);
+				labels.push(device.qty + " × " + device.data.manufacturer + ' ' + device.data.name);
 
 				if (device.data.kg_co2eq && !isNaN(parseInt(device.data.kg_co2eq))) {
 					datasetCo2Eq.push(limitDecimals(device.data.kg_co2eq * device.qty, 2));

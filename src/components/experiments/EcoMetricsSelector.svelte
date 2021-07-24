@@ -34,7 +34,8 @@
     try {
       document.execCommand('copy');
     } catch (err) {
-			alert('Error : you will need to copy the link manually.');
+			alert('Something prevents the "copy" action. You will need to copy the link manually.');
+			shareableLinkInput.classList.remove('u-sr-only');
 		}
 	};
 

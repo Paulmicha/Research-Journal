@@ -10,6 +10,7 @@
 	import Chart from 'svelte-frappe-charts';
 
 	// Allows to trigger actions in the SidePanel component.
+	let toasterMethods;
 	let sidePanelMethods;
 
 	// ['Production (Kg Co2 Eq)', 'Power (yearly Kw/h)', 'IPCC Target (Kg Co2 Eq / year)']
@@ -18,7 +19,22 @@
 		"datasets": []
 	};
 
-	const limitDecimals = (num, x) =>  Math.round(num * Math.pow(10, x)) / Math.pow(10, x)
+	/**
+	 * Formats values to limit the number of decimal characters displayed.
+	 *
+	 * @param {Number} n : the number to format.
+	 * @param {Integer} x : maximum decimal characters to display.
+	 * @return {Number} : the formatted number.
+	 */
+	const limitDecimals = (n, x) =>  Math.round(n * Math.pow(10, x)) / Math.pow(10, x);
+
+	/**
+	 * Formats given device label.
+	 *
+	 * @param {Object} n : the device.
+	 * @return {String} : the formatted label.
+	 */
+	const getDeviceLabel = device =>  device.data.manufacturer + ' ' + device.data.name;
 
 	selectedDeviceStore.subscribe(selectedDevices => {
 		const labels = [];
@@ -35,7 +51,7 @@
 
 		if (selectedDevices.length) {
 			selectedDevices.forEach(device => {
-				labels.push(device.qty + " × " + device.data.manufacturer + ' ' + device.data.name);
+				labels.push(device.qty + " × " + getDeviceLabel(device));
 
 				if (device.data.kg_co2eq && !isNaN(parseInt(device.data.kg_co2eq))) {
 					datasetCo2Eq.push(limitDecimals(device.data.kg_co2eq * device.qty, 2));
@@ -171,7 +187,7 @@
 					<div class="item">
 
 						<CardBase>
-							<h3 slot="title">{ device.qty }&nbsp;&times;&nbsp;{ device.label }</h3>
+							<h3 slot="title">{ device.qty }&nbsp;&times;&nbsp;{ getDeviceLabel(device) }</h3>
 							<div slot="content" class="u-center">
 								{#each $co2EqStore as co2Eq}
 									<button
@@ -250,6 +266,15 @@
 			</ul>
 		</div>
 	</div>
+
+	<!-- WIP -->
+	<!-- <SidePanel bind:exposedMethods={toasterMethods} id="toaster" dir="btt">
+		<p>test</p>
+	</SidePanel>
+	<button class="btn" on:click={ e => { e.preventDefault(); toasterMethods.open() } }>
+		test btn toaster
+	</button> -->
+
 {/if}
 
 <style>

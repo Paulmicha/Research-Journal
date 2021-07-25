@@ -98,6 +98,9 @@ data.co2Eq = co2Eq;
 // Assign numerical IDs to devices for selection presets shareable by URL.
 generateDevicesIds(data);
 
+// TODO (wip) associate fallback values when missing power consumption - e.g.
+// based on the "average" devices ?
+
 // Debug.
 // for (let i = 0; i < 20; i++) {
 // 	const d = data.devices[Math.floor(Math.random() * data.devices.length)];

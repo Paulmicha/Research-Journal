@@ -53,8 +53,17 @@ export const updateRoute = (pageModel, currentRoute) => {
 	currentRoute.lang = pageModel.lang;
 	currentRoute.description = pageModel.description;
 	currentRoute.image = pageModel.poster_image;
-	currentRoute.query = pageModel.query;
+	currentRoute.query = pageModel.query || {};
 	currentRoute.session = pageModel.session;
+
+	// Netlify appears to be issuing unexpected redirects :
+	// https://ex.tld/test?q=arg -> https://ex.tld/test/?q=arg
+	// -> Workaround : manual retrieval from window.location.href
+	if (typeof window !== 'undefined' && !Object.keys(currentRoute.query).length) {
+		const urlObj = new URL(window.location.href);
+		const urlParams = new URLSearchParams(urlObj.search);
+		currentRoute.query = Object.fromEntries(urlParams);
+	}
 
 	// Allow to specify active menu items through the route store.
 	// @see src/routes/[year([0-9]+)]/[month([0-9]+)]/[slug].svelte

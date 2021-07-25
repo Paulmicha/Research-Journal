@@ -26,6 +26,7 @@ const {
 	devicesFromBoaviztaNormalizeAll,
 	devicesFromEcodiagNormalizeAll,
 	generateDevicesIds,
+	generateDevicesFallbackValues,
 	co2EqKeys,
 	co2EqNormalizeItem
 } = require('./data_transforms');
@@ -98,13 +99,27 @@ data.co2Eq = co2Eq;
 // Assign numerical IDs to devices for selection presets shareable by URL.
 generateDevicesIds(data);
 
-// TODO (wip) associate fallback values when missing power consumption - e.g.
-// based on the "average" devices ?
+// console.log('before');
+// console.log(data.devices.length);
+
+// Associate fallback values when some metrics are missing based on averages.
+data.devices = generateDevicesFallbackValues(data.devices);
+
+// console.log('after');
+// console.log(data.devices.length);
+
+// Make sure there are no more devices without a power consumption estimate :
+// data.devices.forEach(device => {
+// 	if (!device.yearly_kwh.length) {
+// 		console.log(device);
+// 	}
+// 	console.log(`${device.name} : ${device.yearly_kwh}`);
+// });
 
 // Debug.
 // for (let i = 0; i < 20; i++) {
 // 	const d = data.devices[Math.floor(Math.random() * data.devices.length)];
-// 	console.log(`${d.id} : ${Object.keys(d).length} == ${devicesKeys.length} ?`);
+// 	// console.log(`${d.id} : ${Object.keys(d).length} == ${devicesKeys.length} ?`);
 // 	console.log(d);
 // }
 // return;

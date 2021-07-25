@@ -32,7 +32,7 @@ const devicesKeys = [
 	"error_percent", // error
 	// "weight", // ? no unit provided (Boavizta)
 	// "assembly_location",
-	// "screen_size",
+	"screen_size",
 	// "server_type",
 	// "hdd_ssd",
 	// "ram",
@@ -115,61 +115,6 @@ const cyrb53 = (str, seed = 0) => {
 };
 
 /**
- * Generates unique numerical device IDs.
- *
- * @see getDeviceFingerprint()
- *
- * @param {Object} data : whole ecometrics dataset, where data.devices contains
- *   the list of every aggregated devices' objects.
- */
-const generateDevicesIds = data => {
-	// Associates fingerprints to every data.devices, drop the ones which don't
-	// have enough data to get one (presumably inexploitable).
-	data.devices
-		.map(device => device.fingerprint = getDeviceFingerprint(device))
-		.filter(device => device.fingerprint && device.fingerprint.length);
-
-	// Prevent duplicates.
-	let dedup = {};
-	// Debug (these duplicates appear discardable) :
-	// data.devices.forEach(device => {
-	// 	if (!dedup[device.fingerprint]) {
-	// 		dedup[device.fingerprint] = [];
-	// 	}
-	// 	dedup[device.fingerprint].push(device);
-	// });
-	// let duplicatesCount = 0;
-	// Object.keys(dedup).forEach(fingerprint => {
-	// 	if (dedup[fingerprint].length > 1) {
-	// 		duplicatesCount++;
-	// 		console.log(dedup[fingerprint]);
-	// 	}
-	// });
-	// console.log(duplicatesCount);
-
-	// Flatten - keep only the last of all duplicates.
-	data.devices.forEach(device => {
-		const d = {...device};
-		delete d['fingerprint'];
-		dedup[device.fingerprint] = d;
-	});
-
-	data.deviceFingerprints = Object.keys(dedup);
-	data.deviceFingerprints.sort();
-
-	const sortedDevices = [];
-	data.deviceFingerprints.forEach((fingerprint, i) => {
-		sortedDevices[i] = dedup[fingerprint];
-
-		// If the items change place in the sorted array, the fingerprint will not
-		// change. TODO evalute collision risk of truncating at 8 chars ?
-		sortedDevices[i].id = `${cyrb53(fingerprint)}`.substring(0, 8);
-	});
-
-	data.devices = sortedDevices;
-};
-
-/**
  * Normalizes Boavizta keys.
  */
 const normalizeBoaviztaKey = rawKey => {
@@ -221,17 +166,32 @@ const devicesFromBoaviztaNormalizeAll = input => {
 	// Make sure we have the correct number of keys.
 	input.forEach((deviceRaw, i) => {
 		const cleanedObj = {};
+
 		Object.keys(deviceRaw).forEach(rawKey => {
 			const key = normalizeBoaviztaKey(rawKey);
 			if (devicesKeys.includes(key)) {
 				cleanedObj[key] = `${deviceRaw[rawKey] || ''}`.trim();
 			}
 		});
+
+		// Make sure we're not missing any key + filter out any "N/A" value.
 		devicesKeys.forEach(key => {
-			if (!(key in cleanedObj)) {
+			if (!(key in cleanedObj) || cleanedObj[key] === 'N/A') {
 				cleanedObj[key] = '';
 			}
 		});
+
+		// Normalize subcategories.
+		cleanedObj.subcategory = slugify(cleanedObj.subcategory, { separator: '_' });
+		const substitutions = {
+			'workstation': 'desktop'
+		};
+		Object.keys(substitutions).forEach(oldCat => {
+			if (cleanedObj.subcategory === oldCat) {
+				cleanedObj.subcategory = substitutions[oldCat];
+			}
+		});
+
 		output.boaviztaDevices[i] = sortDeviceObjKeys(cleanedObj);
 	});
 
@@ -269,8 +229,19 @@ const devicesFromEcodiagNormalizeAll = input => {
 	Object.keys(input).forEach(categoryRaw => {
 		if ('models' in input[categoryRaw]) {
 			Object.keys(input[categoryRaw].models).forEach(modelRaw => {
-				input[categoryRaw].models[modelRaw].subcategory = categoryRaw;
-				models.push({...input[categoryRaw].models[modelRaw]});
+				const item = input[categoryRaw].models[modelRaw];
+
+				// Some entries are not objects, just numbers.
+				if (typeof item === 'object' && item !== null && !Array.isArray(item)) {
+					item.subcategory = categoryRaw;
+					models.push({...item});
+				} else if (isFinite(String(item))) {
+					models.push({
+						name: modelRaw,
+						subcategory: categoryRaw,
+						kg_co2eq: item
+					});
+				}
 
 				// Erase while we process so we can get the rest as defaults below.
 				delete input[categoryRaw].models[modelRaw];
@@ -335,9 +306,22 @@ const devicesFromEcodiagNormalizeAll = input => {
 			}
 		});
 
+		// Make sure we're not missing any key + filter out any "N/A" value.
 		devicesKeys.forEach(key => {
-			if (!(key in cleanedObj)) {
+			if (!(key in cleanedObj) || cleanedObj[key] === 'N/A') {
 				cleanedObj[key] = '';
+			}
+		});
+
+		// Normalize subcategories.
+		cleanedObj.subcategory = slugify(cleanedObj.subcategory, { separator: '_' });
+		const substitutions = {
+			'pad': 'tablet',
+			'screen': 'monitor'
+		};
+		Object.keys(substitutions).forEach(oldCat => {
+			if (cleanedObj.subcategory === oldCat) {
+				cleanedObj.subcategory = substitutions[oldCat];
 			}
 		});
 
@@ -355,6 +339,7 @@ const devicesFromEcodiagNormalizeAll = input => {
 			}
 		});
 		if (!alreadyExists) {
+			// Apply uppercase on 1st character + append suffix.
 			orderedObj.name = orderedObj.name.charAt(0).toUpperCase() + orderedObj.name.slice(1) + ' - ecodiag';
 			output.push(orderedObj);
 		}
@@ -362,6 +347,145 @@ const devicesFromEcodiagNormalizeAll = input => {
 
 	return output;
 }
+
+/**
+ * Generates unique numerical device IDs.
+ *
+ * @see getDeviceFingerprint()
+ *
+ * @param {Object} data : whole ecometrics dataset, where data.devices contains
+ *   the list of every aggregated devices' objects.
+ */
+const generateDevicesIds = data => {
+	// Associates fingerprints to every data.devices, drop the ones which don't
+	// have enough data to get one (presumably inexploitable).
+	data.devices
+		.map(device => device.fingerprint = getDeviceFingerprint(device))
+		.filter(device => device.fingerprint && device.fingerprint.length);
+
+	// Prevent duplicates.
+	let dedup = {};
+	// Debug (these duplicates appear discardable) :
+	// data.devices.forEach(device => {
+	// 	if (!dedup[device.fingerprint]) {
+	// 		dedup[device.fingerprint] = [];
+	// 	}
+	// 	dedup[device.fingerprint].push(device);
+	// });
+	// let duplicatesCount = 0;
+	// Object.keys(dedup).forEach(fingerprint => {
+	// 	if (dedup[fingerprint].length > 1) {
+	// 		duplicatesCount++;
+	// 		console.log(dedup[fingerprint]);
+	// 	}
+	// });
+	// console.log(duplicatesCount);
+
+	// Flatten - keep only the last of all duplicates.
+	data.devices.forEach(device => {
+		const d = {...device};
+		delete d['fingerprint'];
+		dedup[device.fingerprint] = d;
+	});
+
+	data.deviceFingerprints = Object.keys(dedup);
+	data.deviceFingerprints.sort();
+
+	const sortedDevices = [];
+	data.deviceFingerprints.forEach((fingerprint, i) => {
+		sortedDevices[i] = dedup[fingerprint];
+
+		// If the items change place in the sorted array, the fingerprint will not
+		// change. TODO evalute collision risk of truncating at 8 chars ?
+		sortedDevices[i].id = `${cyrb53(fingerprint)}`.substring(0, 8);
+	});
+
+	data.devices = sortedDevices;
+};
+
+/**
+ * Determines the screen size of given device.
+ */
+const getDeviceScreenSize = device => {
+	if (device.screen_size.length) {
+		return device.screen_size;
+	}
+	const regex = /\s([0-9]+)(\.[0-9]+)?[\-|\.|"|\s?inche?s?]/g;
+	const match = regex.exec(device.name);
+	if (match && match[1]) {
+		return match[1];
+	}
+	return '';
+};
+
+/**
+ * Associates fallback values when some metrics are missing based on averages.
+ */
+const generateDevicesFallbackValues = devices => {
+	const incomplete = [];
+	const averages = {};
+
+	// In the absence of screen or screen size, devices names are considered
+	// closest if they both contain these same words :
+	const matchingWords = ['tower', 'station'];
+
+	devices.forEach(device => {
+		if (device.yearly_kwh.length && device.name.includes('average')) {
+			if (!averages[device.subcategory]) {
+				averages[device.subcategory] = [];
+			}
+			averages[device.subcategory].push(device);
+		}
+	});
+
+	devices.map((device, i) => {
+		if (device.yearly_kwh.length) {
+			return;
+		}
+
+		// Look for matching Ecodiag "average devices" by subcategory and screen
+		// size.
+		if (device.subcategory in averages) {
+			let noneMatched = true;
+			const incompleteDeviceScreenSize = getDeviceScreenSize(device);
+
+			averages[device.subcategory].forEach(averageDevice => {
+				if (!incompleteDeviceScreenSize.length) {
+					matchingWords.forEach(w => {
+						if (device.name.toLowerCase().includes(w) && averageDevice.name.toLowerCase().includes(w)) {
+							noneMatched = false;
+							device.yearly_kwh = averageDevice.yearly_kwh;
+							// Debug.
+							// console.log("fallback: " + device.name + " -> " + averageDevice.name + `(${device.yearly_kwh})`);
+						}
+					});
+				} else if (incompleteDeviceScreenSize === getDeviceScreenSize(averageDevice)) {
+					device.yearly_kwh = averageDevice.yearly_kwh;
+					// Debug.
+					// console.log("fallback: " + device.name + " -> " + averageDevice.name + `(${device.yearly_kwh})`);
+				}
+			});
+
+			// Last resort : use the first average device in same category.
+			if (noneMatched) {
+				device.yearly_kwh = averages[device.subcategory][0].yearly_kwh;
+
+				// Debug.
+				// console.log("fallback: " + device.name + " -> " + averages[device.subcategory][0].name + `(${device.yearly_kwh})`);
+			}
+		} else {
+			// Debug.
+			// console.log("no matching category for " + device.name);
+			// console.log(device);
+
+			// We're down to just 2 devices with no yearly power consumption
+			// estimates : keyboard and mouse -> skip those for now.
+			devices.splice(i, 1);
+		}
+	});
+
+	return devices;
+};
 
 /**
  * Normalizes co2Eq objects from extracted data sources.
@@ -405,6 +529,7 @@ module.exports = {
 	devicesFromBoaviztaNormalizeAll,
 	devicesFromEcodiagNormalizeAll,
 	generateDevicesIds,
+	generateDevicesFallbackValues,
 	co2EqKeys,
 	co2EqNormalizeItem
 };

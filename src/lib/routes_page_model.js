@@ -13,6 +13,7 @@
  * @param {Object} pageModel : our custom page data model.
  * @param {Object} page : page object coming from routes' preload().
  * @param {Object} session : session object coming from routes' preload().
+ * @param {Object} context : the "this" in routes' preload().
  */
 export const commonRoutesPreload = async (pageModel, page, session, context) => {
 	pageModel.session = session || {};
@@ -28,7 +29,7 @@ export const commonRoutesPreload = async (pageModel, page, session, context) => 
 			const dataFetch = await context.fetch(`/${pageModel.data[key]}`);
 
 			if (dataFetch.status !== 200) {
-				this.error(res.status, `The data source '${pageModel.data[key]}' was not found.`);
+				context.error(res.status, `The data source '${pageModel.data[key]}' was not found.`);
 				return {};
 			}
 

@@ -78,9 +78,14 @@ const ecodiagDeviceList = {
         label_en:           "average 13\"",
         grey_CO2: {mean:250,std:hypot([0.2 /* arbitrary */, 0.44])}},
 
+			// Ecometrics : need 1 screen size per average.
+			avg_laptop_14: {
+				label_fr:           "moyenne 14\"",
+				label_en:           "average 14\"",
+				grey_CO2: {mean:294,std:hypot([0.2 /* arbitrary */, 0.37])}},
       avg_laptop_15: {
-        label_fr:           "moyenne 14-15\"",
-        label_en:           "average 14-15\"",
+        label_fr:           "moyenne 15\"",
+        label_en:           "average 15\"",
         grey_CO2: {mean:294,std:hypot([0.2 /* arbitrary */, 0.37])}},
 
       avg_laptop_17: {
@@ -144,8 +149,8 @@ const ecodiagDeviceList = {
 
   // ecodiag: 350
   screen:{
-    label_fr:           "écran",
-    label_en:           "screen",
+    label_fr:           "écran (moyenne)",
+    label_en:           "screen (average)",
     grey_CO2:           430,    // based on the average of 9 DELL's 24" monitors (24" monitors are likely the most common)
     power_consumption:  0.035,  // kW (measured on AOC Q3277PQU)
     duration:           5,      // years, ecodiag: 3
@@ -201,9 +206,10 @@ const ecodiagDeviceList = {
   // },
 
   // ecodiag: 80
+  // Ecometrics : use 'average' in title for our values fallback process.
   pad: {
-    label_fr:           'tablette',
-    label_en:           'pad',
+    label_fr:           'tablette (moyenne)',
+    label_en:           'pad (average)',
     grey_CO2:           150,
     power_consumption:  0, // TODO
     duration:           2,  // ecodiag
@@ -288,8 +294,8 @@ const ecodiagDeviceList = {
   },
 
   server: {
-    label_fr:           'serveur',
-    label_en:           'server',
+    label_fr:           'serveur (moyenne)',
+    label_en:           'server (average)',
     grey_CO2:           1300,   // ecodiag
     power_consumption:  0,      // TODO
     duration:           5,      // ecodiag

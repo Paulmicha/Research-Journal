@@ -20,7 +20,7 @@
 	}
 
 	// CSS vars inline helper.
-	const styleProps = { pos, zIndex, w, w2, dir, speed, offset, bg, id };
+	const styleProps = { pos, zIndex, w, dir, speed, offset, bg, id };
 	const inlineCssVars = Object.keys(styleProps)
 		.filter(k => styleProps[k] && styleProps[k].length)
 		.map(k => `--${k}:${styleProps[k]}`)

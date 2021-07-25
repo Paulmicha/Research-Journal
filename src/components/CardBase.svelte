@@ -19,7 +19,7 @@
 		--fx-scaling-speed: .1s;
 		--fx-scaling-ratio: 1.01;
 		position: relative;
-		margin-top: var(--space);
+		/* margin-top: var(--space); */
 		padding: var(--space);
 		box-shadow: 0 0 8px rgba(0,0,0,.18),0 8px 16px rgba(0,0,0,.36);
 		will-change: transform;

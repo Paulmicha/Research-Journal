@@ -41,13 +41,13 @@ html {
 @media (min-width: 30rem) and (max-width: 100rem) {
 	:root,
 	html {
-		font-size: calc(.95rem + .4 * ((100vmin - 30rem) / 70));
+		font-size: calc(1rem + .5 * ((100vmin - 30rem) / 70));
 	}
 }
 @media (min-width: 100rem) {
 	:root,
 	html {
-		font-size: 1.3rem;
+		font-size: 1.2rem;
 	}
 }
 
@@ -213,23 +213,23 @@ blockquote {
 /* Generic utilities */
 
 .f-grid {
-	--gutter: .5em;
-	--item-width: 33ch;
+	--gutter: var(--space-l);
+	--item-width: 50%;
 	display: flex;
 	flex-wrap: wrap;
-	/* align-items: center; */
   justify-content: center;
-	margin: calc(var(--gutter) * -1);
-}
-.f-grid--center {
-	align-items: center;
-}
-.f-grid--p {
-	padding: calc(var(--gutter) * 2);
+	margin: 0;
+	padding: 0;
 }
 .f-grid > * {
 	flex: 1 0 var(--item-width);
-	margin: var(--gutter);
+}
+.f-grid--g,
+.f-grid--g > * {
+	padding: calc(var(--gutter) / 2);
+}
+.f-grid--center {
+	align-items: center;
 }
 
 /* Hide elements visually, but keep them available for screen-readers. */

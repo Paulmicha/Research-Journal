@@ -13,7 +13,7 @@
 <!-- <pre>ViewDisplayGrid.svelte : results = {JSON.stringify(results, null, 2)}</pre> -->
 
 <div class="full-vw">
-	<div class="f-grid { align === 'center' ? 'f-grid--center' : '' } { space === 'large' ? 'f-grid--gutter-l f-grid--vgutter-l' : '' }">
+	<div class="f-grid { align === 'center' ? 'f-grid--center' : '' } { space === 'large' ? 'f-grid--g' : '' }">
 		{#each results as props}
 			<div class="item">
 				<!-- placeholder://src/preprocess.js#entity_view_modes -->

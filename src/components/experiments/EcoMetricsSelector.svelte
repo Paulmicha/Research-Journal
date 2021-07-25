@@ -3,10 +3,12 @@
 	import { route } from '../../stores/route.js';
 	import { deviceStore, selectedDeviceStore } from '../../stores/ecometrics.js';
 	import LoadingSpinner from '../LoadingSpinner.svelte';
+	import SidePanel from '../SidePanel.svelte';
 
 	// Sharing link reacts to current selection store.
 	let shareLink = '';
 	let shareableLinkInput;
+	let toasterMethods;
 
 	selectedDeviceStore.subscribe(selectedDevices => {
 		if (selectedDevices.length) {
@@ -33,6 +35,8 @@
     shareableLinkInput.select();
     try {
       document.execCommand('copy');
+			toasterMethods.open();
+			setTimeout(toasterMethods.close, 3000);
     } catch (err) {
 			alert('Something prevents the "copy" action. You will need to copy the link manually.');
 			shareableLinkInput.classList.remove('u-sr-only');
@@ -281,6 +285,13 @@
 			/>
 		</div>
 	</form>
+
+	<SidePanel bind:exposedMethods={toasterMethods} id="toaster" dir="btt" bg="mediumseagreen">
+		<div class="u-center">
+			<strong>Link copied to clipboard.</strong>
+		</div>
+	</SidePanel>
+
 {:else}
 	<p>↑ Please select one or more devices.</p>
 {/if}

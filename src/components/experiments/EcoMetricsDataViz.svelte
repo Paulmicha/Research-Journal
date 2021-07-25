@@ -10,7 +10,6 @@
 	import Chart from 'svelte-frappe-charts';
 
 	// Allows to trigger actions in the SidePanel component.
-	let toasterMethods;
 	let sidePanelMethods;
 
 	// ['Production (Kg Co2 Eq)', 'Power (yearly Kw/h)', 'IPCC Target (Kg Co2 Eq / year)']
@@ -147,8 +146,8 @@
 
 		<h2>Comparisons</h2>
 
-		<div class="full-vw p-h">
-			<div class="f-grid f-grid--center f-grid--gutter-l f-grid--vgutter-l">
+		<div class="full-vw">
+			<div class="f-grid f-grid--center f-grid--g">
 				<div class="chart-wrap">
 					<Chart data={co2EqChartData} type="bar" valuesOverPoints="1" />
 				</div>
@@ -181,8 +180,8 @@
 		</div>
 
 		<h3>Per device</h3>
-		<div class="details-zone full-vw fill-h p-h">
-			<div class="f-grid f-grid--center f-grid--gutter-l f-grid--vgutter-l">
+		<div class="details-zone full-vw fill-h">
+			<div class="f-grid f-grid--center f-grid--g">
 				{#each $selectedDeviceStore as device}
 					<div class="item">
 
@@ -266,26 +265,17 @@
 			</ul>
 		</div>
 	</div>
-
-	<!-- WIP -->
-	<!-- <SidePanel bind:exposedMethods={toasterMethods} id="toaster" dir="btt">
-		<p>test</p>
-	</SidePanel>
-	<button class="btn" on:click={ e => { e.preventDefault(); toasterMethods.open() } }>
-		test btn toaster
-	</button> -->
-
 {/if}
 
 <style>
-	.p-h {
+	/* .p-h {
 		padding: 0 var(--space);
-	}
+	} */
 	.no-m-t {
 		margin-top: 0;
 	}
 	.chart-wrap {
-		max-width: 66ch;
+		max-width: 100%;
 	}
 	.item {
 		max-width: 30ch;
@@ -299,5 +289,11 @@
 	}
 	.details-zone {
 		position: relative;
+	}
+	@media screen and (min-width:110ch) {
+		.chart-wrap {
+			width: 50%;
+			max-width: 66ch;
+		}
 	}
 </style>

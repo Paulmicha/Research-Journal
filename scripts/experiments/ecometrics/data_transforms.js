@@ -50,6 +50,35 @@ const co2EqKeys = [
 	"about"
 ];
 
+const substitutions = {
+	"boavizta": {
+		"keys": {
+			"kg_co_2eq_total": "kg_co2eq",
+			"yearly_tec_k_wh": "yearly_kwh",
+			"use": "use_percent",
+			"manufacturing": "manufacturing_percent",
+			"error": "error_percent"
+		},
+		"subcategories": {
+			"workstation": "desktop"
+		}
+	},
+	"ecodiag": {
+		"keys": {
+			"label_en": "name",
+			"label": "name",
+			"grey_CO2": "kg_co2eq",
+			"yearly_consumption": "yearly_kwh",
+			"duration": "lifetime"
+		},
+		"subcategories": {
+			"pad": "tablet",
+			"screen": "monitor",
+			"wifihub": "router"
+		}
+	}
+};
+
 /**
  * CSV extracted data helper.
  *
@@ -87,7 +116,6 @@ const sortDeviceObjKeys = device => {
  * kind of fingerprint (because in the future, when updates of sources are
  * fetched, the other props might be more likely to vary and/or be completed).
  *
- * We'll also store an array of fingerprints to make sure we avoid duplicates.
  * @see generateDevicesIds()
  *
  * @param {Object} device : normalized device object.
@@ -115,17 +143,57 @@ const cyrb53 = (str, seed = 0) => {
 };
 
 /**
- * Normalizes Boavizta keys.
+ * Determines the screen size of given device.
  */
-const normalizeBoaviztaKey = rawKey => {
-	const map = {
-		"kg_co_2eq_total": "kg_co2eq",
-		"yearly_tec_k_wh": "yearly_kwh",
-		"use": "use_percent",
-		"manufacturing": "manufacturing_percent",
-		"error": "error_percent"
-	};
-	return map[rawKey] || rawKey;
+const getDeviceScreenSize = device => {
+	if (device.screen_size.length) {
+		return device.screen_size;
+	}
+	const regex = /\s([0-9]+)(\.[0-9]+)?[\-|\.|"|\s?inche?s?]/g;
+	const match = regex.exec(device.name);
+	if (match && match[1]) {
+		return match[1];
+	}
+	return '';
+};
+
+/**
+ * Shared devices normalizations.
+ */
+const commonDeviceNormalization = (device, source) => {
+	const normalizedDevice = {};
+
+	// Normalize keys.
+	Object.keys(device).forEach(rawKey => {
+		const key = substitutions[source]['keys'][rawKey] || rawKey;
+		if (devicesKeys.includes(key)) {
+			normalizedDevice[key] = `${device[rawKey] || ''}`.trim();
+		}
+	});
+
+	// Make sure we're not missing any key + filter out any "N/A" value.
+	devicesKeys.forEach(key => {
+		if (!(key in normalizedDevice) || normalizedDevice[key] === 'N/A') {
+			normalizedDevice[key] = '';
+		}
+	});
+
+	// Normalize subcategories.
+	normalizedDevice.subcategory = slugify(normalizedDevice.subcategory, { separator: '_' });
+	Object.keys(substitutions[source]['subcategories']).forEach(oldCat => {
+		if (normalizedDevice.subcategory === oldCat) {
+			normalizedDevice.subcategory = substitutions[source]['subcategories'][oldCat];
+		}
+	});
+
+	// Determine screensize (if applicable).
+	if (!normalizedDevice.screen_size.length) {
+		normalizedDevice.screen_size = getDeviceScreenSize(normalizedDevice);
+	}
+
+	// The order of keys must be the same for the props2Arr() function to work.
+	// @see scripts/experiments/ecometrics/extract.js
+	return sortDeviceObjKeys(normalizedDevice);
 };
 
 /**
@@ -148,12 +216,12 @@ const devicesFromBoaviztaNormalizeAll = input => {
 	const rawKeys = colNames.map(colName => slugify(colName, { separator: '_' }));
 
 	// Filter out column we won't use in the "Ecometrics" experiment.
-	const keys = rawKeys.map(rawKey => normalizeBoaviztaKey(rawKey))
+	const keys = rawKeys.map(rawKey => substitutions['boavizta']['keys'][rawKey] || rawKey)
 		.filter(key => devicesKeys.includes(key));
 
 	// Transform column names in a key/value object.
 	colNames.forEach((colName, i) => {
-		const key = normalizeBoaviztaKey(rawKeys[i]);
+		const key = substitutions['boavizta']['keys'][rawKeys[i]];
 		if (devicesKeys.includes(key)) {
 			output.devicesColNames[key] = colName;
 		}
@@ -164,53 +232,11 @@ const devicesFromBoaviztaNormalizeAll = input => {
 
 	// Filter out the keys we won't use in the "Ecometrics" experiment.
 	// Make sure we have the correct number of keys.
-	input.forEach((deviceRaw, i) => {
-		const cleanedObj = {};
-
-		Object.keys(deviceRaw).forEach(rawKey => {
-			const key = normalizeBoaviztaKey(rawKey);
-			if (devicesKeys.includes(key)) {
-				cleanedObj[key] = `${deviceRaw[rawKey] || ''}`.trim();
-			}
-		});
-
-		// Make sure we're not missing any key + filter out any "N/A" value.
-		devicesKeys.forEach(key => {
-			if (!(key in cleanedObj) || cleanedObj[key] === 'N/A') {
-				cleanedObj[key] = '';
-			}
-		});
-
-		// Normalize subcategories.
-		cleanedObj.subcategory = slugify(cleanedObj.subcategory, { separator: '_' });
-		const substitutions = {
-			'workstation': 'desktop'
-		};
-		Object.keys(substitutions).forEach(oldCat => {
-			if (cleanedObj.subcategory === oldCat) {
-				cleanedObj.subcategory = substitutions[oldCat];
-			}
-		});
-
-		output.boaviztaDevices[i] = sortDeviceObjKeys(cleanedObj);
+	input.forEach((device, i) => {
+		output.boaviztaDevices[i] = commonDeviceNormalization(device, 'boavizta');
 	});
 
 	return output;
-};
-
-/**
- * Normalizes Ecodiag keys.
- */
-const normalizeEcodiagKeys = rawKey => {
-	const map = {
-		// "label_fr": "", // TODO [evol] string translations.
-    "label_en": "name",
-    "label": "name",
-    "grey_CO2": "kg_co2eq",
-    "yearly_consumption": "yearly_kwh",
-    "duration": "lifetime"
-	};
-	return map[rawKey] || rawKey;
 };
 
 /**
@@ -223,7 +249,7 @@ const normalizeEcodiagKeys = rawKey => {
  */
 const devicesFromEcodiagNormalizeAll = input => {
 	const output = [];
-	const models = [];
+	const devices = [];
 	const defaultsByCategoryRaw = {};
 
 	Object.keys(input).forEach(categoryRaw => {
@@ -234,9 +260,9 @@ const devicesFromEcodiagNormalizeAll = input => {
 				// Some entries are not objects, just numbers.
 				if (typeof item === 'object' && item !== null && !Array.isArray(item)) {
 					item.subcategory = categoryRaw;
-					models.push({...item});
+					devices.push({...item});
 				} else if (isFinite(String(item))) {
-					models.push({
+					devices.push({
 						name: modelRaw,
 						subcategory: categoryRaw,
 						kg_co2eq: item
@@ -249,99 +275,67 @@ const devicesFromEcodiagNormalizeAll = input => {
 
 			delete input[categoryRaw].models;
 			input[categoryRaw].subcategory = categoryRaw;
-			models.push({...input[categoryRaw]});
+			devices.push({...input[categoryRaw]});
 
 			// Used to complete missing entries below.
 			defaultsByCategoryRaw[categoryRaw] = {...input[categoryRaw]};
 		} else {
 			input[categoryRaw].subcategory = categoryRaw;
-			models.push({...input[categoryRaw]});
+			devices.push({...input[categoryRaw]});
 		}
 	});
 
 	// Manual adjustments.
-	models.map(model => {
-		if (!model.subcategory) {
+	devices.map(device => {
+		if (!device.subcategory) {
 			return;
 		}
 
 		// Fill in missing values (TODO confirm this is inherited).
-		if (model.subcategory in defaultsByCategoryRaw) {
-			Object.keys(defaultsByCategoryRaw[model.subcategory]).forEach(rawKey => {
-				if (!(rawKey in model)) {
-					model[rawKey] = defaultsByCategoryRaw[model.subcategory][rawKey];
+		if (device.subcategory in defaultsByCategoryRaw) {
+			Object.keys(defaultsByCategoryRaw[device.subcategory]).forEach(rawKey => {
+				if (!(rawKey in device)) {
+					device[rawKey] = defaultsByCategoryRaw[device.subcategory][rawKey];
 				}
 			});
 			// TODO workaround naming issues.
-			if ('label_en' in model && model.label_en !== model.subcategory) {
-				model.label_en = model.subcategory + ' ' + model.label_en;
-			} else if ('label' in model && model.label !== model.subcategory) {
-				model.label_en = model.subcategory + ' ' + model.label;
+			if ('label_en' in device && device.label_en !== device.subcategory) {
+				device.label_en = device.subcategory + ' ' + device.label_en;
+			} else if ('label' in device && device.label !== device.subcategory) {
+				device.label_en = device.subcategory + ' ' + device.label;
 			}
 		}
 
 		// Roughly map to Boavizta categorization.
-		if (model.subcategory === 'server') {
-			model.category = 'Datacenter';
+		if (device.subcategory === 'server') {
+			device.category = 'Datacenter';
 		} else {
-			model.category = 'Workplace';
+			device.category = 'Workplace';
 		}
 
 		// Convert objects to values for kg_co2eq.
-		if ('grey_CO2' in model && typeof model.grey_CO2 === 'object') {
-			model.kg_co2eq = model.grey_CO2.mean;
-			model.error_percent = (model.grey_CO2.std * 100).toFixed(2);
+		if ('grey_CO2' in device && typeof device.grey_CO2 === 'object') {
+			device.kg_co2eq = device.grey_CO2.mean;
+			device.error_percent = (device.grey_CO2.std * 100).toFixed(2);
 		}
-
-		// Normalize keys.
-		const cleanedObj = {};
-
-		Object.keys(model).forEach(rawKey => {
-			const key = normalizeEcodiagKeys(rawKey);
-			if (devicesKeys.includes(key)) {
-				if (model[rawKey] == 'N/A') {
-					model[rawKey] = '';
-				}
-				cleanedObj[key] = `${model[rawKey] || ''}`.trim();
-			}
-		});
-
-		// Make sure we're not missing any key + filter out any "N/A" value.
-		devicesKeys.forEach(key => {
-			if (!(key in cleanedObj) || cleanedObj[key] === 'N/A') {
-				cleanedObj[key] = '';
-			}
-		});
-
-		// Normalize subcategories.
-		cleanedObj.subcategory = slugify(cleanedObj.subcategory, { separator: '_' });
-		const substitutions = {
-			'pad': 'tablet',
-			'screen': 'monitor'
-		};
-		Object.keys(substitutions).forEach(oldCat => {
-			if (cleanedObj.subcategory === oldCat) {
-				cleanedObj.subcategory = substitutions[oldCat];
-			}
-		});
 
 		// The order of keys must be the same for the props2Arr() function to work.
 		// @see scripts/experiments/ecometrics/extract.js
-		const orderedObj = sortDeviceObjKeys(cleanedObj);
+		const normalizedDevice = commonDeviceNormalization(device, 'ecodiag');
 
 		// TODO unusable titles (lots of duplicates with distinct values - we need
 		// just a few generic entries here, no time for now to dig deeper -> skip
 		// if we already have an identical title).
 		let alreadyExists = false;
 		output.forEach(device => {
-			if (device.name === orderedObj.name) {
+			if (device.name === normalizedDevice.name) {
 				alreadyExists = true;
 			}
 		});
 		if (!alreadyExists) {
 			// Apply uppercase on 1st character + append suffix.
-			orderedObj.name = orderedObj.name.charAt(0).toUpperCase() + orderedObj.name.slice(1) + ' - ecodiag';
-			output.push(orderedObj);
+			normalizedDevice.name = normalizedDevice.name.charAt(0).toUpperCase() + normalizedDevice.name.slice(1) + ' - ecodiag';
+			output.push(normalizedDevice);
 		}
 	});
 
@@ -404,24 +398,9 @@ const generateDevicesIds = data => {
 };
 
 /**
- * Determines the screen size of given device.
- */
-const getDeviceScreenSize = device => {
-	if (device.screen_size.length) {
-		return device.screen_size;
-	}
-	const regex = /\s([0-9]+)(\.[0-9]+)?[\-|\.|"|\s?inche?s?]/g;
-	const match = regex.exec(device.name);
-	if (match && match[1]) {
-		return match[1];
-	}
-	return '';
-};
-
-/**
  * Associates fallback values when some metrics are missing based on averages.
  */
-const generateDevicesFallbackValues = devices => {
+const generateDevicesFallbackValues = data => {
 	const incomplete = [];
 	const averages = {};
 
@@ -429,7 +408,7 @@ const generateDevicesFallbackValues = devices => {
 	// closest if they both contain these same words :
 	const matchingWords = ['tower', 'station'];
 
-	devices.forEach(device => {
+	data.devices.forEach(device => {
 		if (device.yearly_kwh.length && device.name.includes('average')) {
 			if (!averages[device.subcategory]) {
 				averages[device.subcategory] = [];
@@ -438,7 +417,7 @@ const generateDevicesFallbackValues = devices => {
 		}
 	});
 
-	devices.map((device, i) => {
+	data.devices.map((device, i) => {
 		if (device.yearly_kwh.length) {
 			return;
 		}
@@ -480,11 +459,9 @@ const generateDevicesFallbackValues = devices => {
 
 			// We're down to just 2 devices with no yearly power consumption
 			// estimates : keyboard and mouse -> skip those for now.
-			devices.splice(i, 1);
+			data.devices.splice(i, 1);
 		}
 	});
-
-	return devices;
 };
 
 /**

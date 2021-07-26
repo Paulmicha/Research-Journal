@@ -142,86 +142,103 @@
 </script>
 
 {#if $selectedDeviceStore.length}
+
+	<!-- Debug. -->
+	<!-- <pre style="font-size:.75rem">{JSON.stringify(co2EqChartData, null, 2)}</pre> -->
+	<!-- <pre style="font-size:.75rem">{JSON.stringify($totalsStore, null, 2)}</pre> -->
+
 	<div class="ecometrics-dataviz">
+		<section>
+			<h2>Devices comparison</h2>
 
-		<h2>Comparisons</h2>
-
-		<div class="full-vw">
-			<div class="f-grid f-grid--center f-grid--g">
-				<div class="chart-wrap">
-					<Chart data={co2EqChartData} type="bar" valuesOverPoints="1" />
-				</div>
-				<div class="chart-wrap">
-					<Chart data={co2EqChartData} type="pie" maxSlices="20" />
+			<h3>Totals</h3>
+			<div class="full-vw">
+				<div class="f-grid f-grid--center f-grid--g">
+					<div class="chart-wrap">
+						<Chart data={co2EqChartData} type="bar" valuesOverPoints="1" />
+					</div>
+					<div class="chart-wrap">
+						<Chart data={co2EqChartData} type="pie" maxSlices="20" />
+					</div>
 				</div>
 			</div>
-		</div>
 
-		<h2>CO2 Equivalents</h2>
+			<!-- <h3>Per device</h3>
+			<div class="full-vw">
+				<div class="f-grid f-grid--center f-grid--g">
+					{#each $selectedDeviceStore as device}
+						<div>
+							{ getDeviceLabel(device) }
+						</div>
+					{/each}
+				</div>
+			</div> -->
 
-		<!-- Debug. -->
-		<!-- <pre style="font-size:.75rem">{JSON.stringify(co2EqChartData, null, 2)}</pre> -->
-		<!-- <pre style="font-size:.75rem">{JSON.stringify($totalsStore, null, 2)}</pre> -->
+		</section>
 
-		<h3>Totals</h3>
-		<div class="u-center">
-			{#each $co2EqStore as co2Eq}
-				<button
-					class="measurement"
-					aria-controls="co2-eq-info-panel"
-					title={ co2Eq.name_fr }
-					on:click={ e => showCo2EqInfo(e, co2Eq) }
-				>
-					{ co2Eq.emoji.trim() }<!--
-					-->&nbsp;:&nbsp;<!--
-					-->{ getEqCo2($totalsStore.kg_co2eq.value, co2Eq.id) }
-				</button>
-			{/each}
-		</div>
+		<section>
+			<h2>CO2 Equivalents</h2>
 
-		<h3>Per device</h3>
-		<div class="details-zone full-vw fill-h">
-			<div class="f-grid f-grid--center f-grid--g">
-				{#each $selectedDeviceStore as device}
-					<div class="item">
-
-						<CardBase>
-							<h3 slot="title">{ device.qty }&nbsp;&times;&nbsp;{ getDeviceLabel(device) }</h3>
-							<div slot="content" class="u-center">
-								{#each $co2EqStore as co2Eq}
-									<button
-										class="measurement"
-										aria-controls="co2-eq-info-panel"
-										title={ co2Eq.name_fr }
-										on:click={ e => showCo2EqInfo(e, co2Eq) }
-									>
-										{ co2Eq.emoji.trim() }<!--
-										-->&nbsp;:&nbsp;<!--
-										-->{ getEqCo2(device.data.kg_co2eq * device.qty, co2Eq.id) }
-									</button>
-								{/each}
-
-								<!-- Debug. -->
-								<!-- <pre style="font-size:.75rem">{JSON.stringify(device, null, 2)}</pre> -->
-
-							</div>
-						</CardBase>
-
-					</div>
+			<h3>Totals</h3>
+			<div class="u-center">
+				{#each $co2EqStore as co2Eq}
+					<button
+						class="measurement"
+						aria-controls="co2-eq-info-panel"
+						title={ co2Eq.name_fr }
+						on:click={ e => showCo2EqInfo(e, co2Eq) }
+					>
+						{ co2Eq.emoji.trim() }<!--
+						-->&nbsp;:&nbsp;<!--
+						-->{ getEqCo2($totalsStore.kg_co2eq.value, co2Eq.id) }
+					</button>
 				{/each}
 			</div>
 
-			<SidePanel bind:exposedMethods={sidePanelMethods} id="co2-eq-info-panel">
-				{#if $selectedCo2EqStore && 'about' in $selectedCo2EqStore}
-					<h2 class="no-m-t">{ $selectedCo2EqStore.emoji }&nbsp;{ $selectedCo2EqStore.name_fr }</h2>
-					<p>{@html $selectedCo2EqStore.about }</p>
-				{/if}
-			</SidePanel>
+			<h3>Per device</h3>
+			<div class="details-zone full-vw fill-h">
+				<div class="f-grid f-grid--center f-grid--g">
+					{#each $selectedDeviceStore as device}
+						<div class="item">
 
-		</div>
+							<CardBase>
+								<h3 slot="title">{ device.qty }&nbsp;&times;&nbsp;{ getDeviceLabel(device) }</h3>
+								<div slot="content" class="u-center">
+									{#each $co2EqStore as co2Eq}
+										<button
+											class="measurement"
+											aria-controls="co2-eq-info-panel"
+											title={ co2Eq.name_fr }
+											on:click={ e => showCo2EqInfo(e, co2Eq) }
+										>
+											{ co2Eq.emoji.trim() }<!--
+											-->&nbsp;:&nbsp;<!--
+											-->{ getEqCo2(device.data.kg_co2eq * device.qty, co2Eq.id) }
+										</button>
+									{/each}
 
-		<h2>Sources</h2>
-		<div class="rich-text">
+									<!-- Debug. -->
+									<!-- <pre style="font-size:.75rem">{JSON.stringify(device, null, 2)}</pre> -->
+
+								</div>
+							</CardBase>
+
+						</div>
+					{/each}
+				</div>
+
+				<SidePanel bind:exposedMethods={sidePanelMethods} id="co2-eq-info-panel">
+					{#if $selectedCo2EqStore && 'about' in $selectedCo2EqStore}
+						<h2 class="no-m-t">{ $selectedCo2EqStore.emoji }&nbsp;{ $selectedCo2EqStore.name_fr }</h2>
+						<p>{@html $selectedCo2EqStore.about }</p>
+					{/if}
+				</SidePanel>
+
+			</div>
+		</section>
+
+		<section class="rich-text">
+			<h2>Sources</h2>
 			<ul>
 				<li>
 					<a href="https://github.com/Boavizta/environmental-footprint-data" target="_blank">
@@ -247,23 +264,23 @@
 					</a>
 					(<a href="https://data.ademe.fr/" target="_blank">ADEME</a> + <a href="https://beta.gouv.fr/">beta.gouv.fr / DINUM</a>)
 				</li>
-				<li>
+				<!-- <li>
 					[wip]
 					<a href="https://github.com/GreenAlgorithms/green-algorithms-tool" target="_blank">
 						Green Algorithms
 					</a>
 					-
 					Lannelongue, L., Grealey, J., Inouye, M., <a href="https://doi.org/10.1002/advs.202100707" target="_blank">Green Algorithms: Quantifying the Carbon Footprint of Computation</a>. Adv. Sci. 2021, 2100707.
-				</li>
-				<li>
+				</li> -->
+				<!-- <li>
 					[wip]
 					<a href="https://medium.com/teads-engineering/estimating-aws-ec2-instances-power-consumption-c9745e347959" target="_blank">
 						Estimating AWS EC2 Instances Power Consumption
 					</a>
 					by Benjamin DAVY (2021/03/25)
-				</li>
+				</li> -->
 			</ul>
-		</div>
+		</section>
 	</div>
 {/if}
 

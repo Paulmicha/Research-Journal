@@ -259,6 +259,7 @@ button {
 	font-weight: inherit;
 	background: none;
 	cursor: pointer;
+	font-family: inherit;
 }
 button:focus,
 button:hover,
@@ -277,6 +278,7 @@ input[type='submit'] {
   color: white;
   cursor: pointer;
   display: inline-block;
+	font-family: inherit;
   font-size: .7rem;
   font-weight: bold;
   /* height: 2rem; */
@@ -374,6 +376,14 @@ textarea:focus,
 select:focus {
 	border-color: var(--color-invert-link-on);
 	outline: 0;
+}
+
+summary {
+	cursor: pointer;
+}
+summary:focus,
+summary:hover {
+	color: cornflowerblue;
 }
 
 

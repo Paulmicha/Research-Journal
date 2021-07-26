@@ -3,7 +3,7 @@
 	import { deviceStore, co2EqStore, selectedDeviceStore } from '../../stores/ecometrics.js';
 	import LoadingSpinner from '../LoadingSpinner.svelte';
 	import EcoMetricsSelector from '../experiments/EcoMetricsSelector.svelte';
-	import EcoMetricsDataViz from '../experiments/EcoMetricsDataViz.svelte';
+	import EcoMetricsManufacturing from '../experiments/EcoMetricsManufacturing.svelte';
 
 	// Init custom data.
 	route.subscribe(o => {
@@ -30,6 +30,7 @@
 
 			// Presets from query args (shareable links).
 			if ('s' in o.query && o.query.s.length) {
+				let pos = 0;
 				const devicesToSelect = [];
 
 				o.query.s.split(',').forEach(part => {
@@ -44,16 +45,25 @@
 						} else if (firstChar === 'q') {
 							deviceToSelect.qty = subPart.substring(1);
 						} else {
-							// Find the device with this ID.
+							deviceToSelect.id = subPart;
+
+							// Match data by device ID.
 							devices.forEach(device => {
 								if (device.id === subPart) {
 									deviceToSelect.data = device;
 								}
-							})
+							});
 						}
 					});
 
-					devicesToSelect.push(deviceToSelect);
+					if ('data' in deviceToSelect) {
+						deviceToSelect.pos = pos;
+						devicesToSelect.push(deviceToSelect);
+						pos++;
+					} else {
+						// TODO Fallback matching after v1 ?
+						console.log(`Device ${deviceToSelect.id} data not matched (the source dataset was likely updated)`);
+					}
 				});
 
 				selectedDeviceStore.update(selectedDevices => devicesToSelect);
@@ -68,5 +78,5 @@
 	</div>
 {:else}
 	<EcoMetricsSelector />
-	<EcoMetricsDataViz />
+	<EcoMetricsManufacturing />
 {/if}

@@ -209,7 +209,7 @@ const ecodiagDeviceList = {
   // Ecometrics : use 'average' in title for our values fallback process.
   pad: {
     label_fr:           'tablette (moyenne)',
-    label_en:           'pad (average)',
+    label_en:           'tablet (average)',
     grey_CO2:           150,
     power_consumption:  0, // TODO
     duration:           2,  // ecodiag
@@ -220,7 +220,8 @@ const ecodiagDeviceList = {
   // http://bilans-ges.ademe.fr/fr/basecarbone/donnees-consulter/liste-element?recherche=t%C3%A9l%C3%A9phone
   // - [16:40] +/- 50%
   smartphone: {
-    label:              'smartphone',
+    label_fr:              'smartphone (moyenne)',
+    label_en:              'smartphone (average)',
     grey_CO2:           63,
     power_consumption:  0,    // TODO
     duration:           1.5,  // TODO
@@ -284,8 +285,8 @@ const ecodiagDeviceList = {
   },
 
   wifihub: {
-    label_fr:           'borne wifi',
-    label_en:           'wifi hub',
+    label_fr:           'routeur wifi (moyenne)',
+    label_en:           'wifi router (average)',
     grey_CO2:           10, // ecodiag, https://www.ece.nus.edu.sg/stfpage/bsikdar/papers/tce_bs_12.pdf
     power_consumption:   70/(24*365), // to match yearly_consumption
     duration:            6,

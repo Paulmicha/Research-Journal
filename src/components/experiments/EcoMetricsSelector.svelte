@@ -175,7 +175,7 @@
 
 		// Get the new values.
 		const scope = e.target.closest('tr');
-		const newAge = scope.querySelector('input[name="age"]').value;
+		// const newAge = scope.querySelector('input[name="age"]').value;
 		const newQty = scope.querySelector('input[name="qty"]').value;
 
 		selectedDeviceStore.update(selectedDevices => {
@@ -183,7 +183,7 @@
 				if (device.data.id === deviceToUpdate.data.id) {
 					// Apply Changes.
 					selectedDevices[i].qty = newQty;
-					selectedDevices[i].age = newAge;
+					// selectedDevices[i].age = newAge;
 				}
 			});
 			return selectedDevices;
@@ -226,65 +226,73 @@
 {/if}
 
 {#if $selectedDeviceStore.length}
-	<form class="full-vw">
-		<table class="selection">
-			<thead>
-				<tr>
-					<!-- <th>#</th> -->
-					<th>Device</th>
-					<th>Quantity</th>
-					<th>Age (years)</th>
-					<th>Actions</th>
-				</tr>
-			</thead>
-			<tbody>
-				{#each $selectedDeviceStore as device}
+	<details open>
+		<summary>Selection</summary>
+		<form class="full-vw">
+			<table class="selection">
+				<thead>
 					<tr>
-						<!-- <td>{ device.pos }</td> -->
-						<td>{ device.data.manufacturer } { device.data.name }</td>
-						<td>
-							<div class="nb--s">
-								<input class="input--s" type="number" min="1" name="qty"
-									value={device.qty}
-									on:change={e => updateSelectedDevice(e, device)}
-									/>
-							</div>
-						</td>
-						<td>
-							<!-- { device.age || device.data.age } -->
-							<div class="nb--s">
-								<input class="input--s" type="number" min="0" name="age"
-									value={device.age || device.data.age}
-									on:change={e => updateSelectedDevice(e, device)}
-									/>
-							</div>
-						</td>
-						<td>
-							<!-- <button class="btn btn--s" on:click={e => updateSelectedDevice(e, device)}>Update</button> -->
-							<button class="btn btn--s" on:click={e => removeSelectedDevice(e, device)}>Remove</button>
-						</td>
+						<!-- <th>#</th> -->
+						<!-- <th>ID</th> -->
+						<th>Device</th>
+						<th>Quantity</th>
+						<!-- <th>Age (years)</th> -->
+						<!-- <th>Screen size</th> -->
+						<!-- <th>Type</th> -->
+						<th>Actions</th>
 					</tr>
-				{/each}
-			</tbody>
-		</table>
-		<div class="bottom-zone">
-			<button class="btn btn--s" on:click={clearSelection}>Clear selection</button>
-			<button class="btn btn--s"
-				on:click={copyShareableLink}
-				title="This link contains the current selection. Opening it will preset this page with this list."
-			>
-				Copy shareable link
-			</button>
-			(to send this list to someone)
-			<input
-				class="u-sr-only"
-				type="text"
-				aria-hidden="true"
-				bind:this={shareableLinkInput}
-				value="{shareLink}"
-			/>
-		</div>
-	</form>
+				</thead>
+				<tbody>
+					{#each $selectedDeviceStore as device}
+						<tr>
+							<!-- <td>{ device.pos }</td> -->
+							<!-- <td>{ device.data.id }</td> -->
+							<td>{ device.data.manufacturer } { device.data.name }</td>
+							<td>
+								<div class="nb--s">
+									<input class="input--s" type="number" min="1" name="qty"
+										value={device.qty}
+										on:change={e => updateSelectedDevice(e, device)}
+										/>
+								</div>
+							</td>
+							<!-- <td>
+								<div class="nb--s">
+									<input class="input--s" type="number" min="0" name="age"
+										value={device.age || device.data.age}
+										on:change={e => updateSelectedDevice(e, device)}
+										/>
+								</div>
+							</td> -->
+							<!-- <td>{ device.data.screen_size }</td> -->
+							<!-- <td>{ device.data.subcategory }</td> -->
+							<td>
+								<!-- <button class="btn btn--s" on:click={e => updateSelectedDevice(e, device)}>Update</button> -->
+								<button class="btn btn--s" on:click={e => removeSelectedDevice(e, device)}>Remove</button>
+							</td>
+						</tr>
+					{/each}
+				</tbody>
+			</table>
+			<div class="bottom-zone">
+				<button class="btn btn--s" on:click={clearSelection}>Clear selection</button>
+				<button class="btn btn--s"
+					on:click={copyShareableLink}
+					title="This link contains the current selection. Opening it will preset this page with this list."
+				>
+					Copy shareable link
+				</button>
+				(to send this list to someone)
+				<input
+					class="u-sr-only"
+					type="text"
+					aria-hidden="true"
+					bind:this={shareableLinkInput}
+					value="{shareLink}"
+				/>
+			</div>
+		</form>
+	</details>
 
 	<SidePanel bind:exposedMethods={toasterMethods} id="toaster" dir="btt" bg="mediumseagreen">
 		<div class="u-center">

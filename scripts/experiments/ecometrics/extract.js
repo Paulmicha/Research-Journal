@@ -103,7 +103,7 @@ generateDevicesIds(data);
 // console.log(data.devices.length);
 
 // Associate fallback values when some metrics are missing based on averages.
-data.devices = generateDevicesFallbackValues(data.devices);
+generateDevicesFallbackValues(data);
 
 // console.log('after');
 // console.log(data.devices.length);

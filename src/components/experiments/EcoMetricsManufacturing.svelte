@@ -33,6 +33,20 @@
 	const limitDecimals = (n, x) =>  Math.round(n * Math.pow(10, x)) / Math.pow(10, x);
 
 	/**
+	 * Formats number for display.
+	 */
+	const displayNb = n => {
+		let result;
+		if (n > 10) {
+			result = parseInt(n);
+			result = new Intl.NumberFormat('fr-FR').format(result);
+		} else {
+			result = n.toFixed(2);
+		}
+		return result;
+	};
+
+	/**
 	 * Formats given device label.
 	 *
 	 * @param {Object} device : the device.
@@ -50,8 +64,6 @@
 		if (!$deviceStore || !$deviceStore.devicesColNames) {
 			return '';
 		}
-
-		console.log($deviceStore.devicesColNames)
 
 		let info = [];
 		const keysToRender = [
@@ -111,11 +123,16 @@
 		const maxSize = 12; // in rem
 		const svg = getDeviceImg(device);
 		const value = device.data.kg_co2eq;
-		const percent = getValuePercentInRange(value, lowestKgCo2Value, highestKgCo2Value);
-		const scale = (minSize + percent * (maxSize - minSize) / 100).toFixed(2);
+
+		// When only 1 device is selected, use median value.
+		let scale = ((maxSize - minSize) / 2).toFixed(2);
+		if (lowestKgCo2Value !== highestKgCo2Value) {
+			const percent = getValuePercentInRange(value, lowestKgCo2Value, highestKgCo2Value);
+			scale = (minSize + percent * (maxSize - minSize) / 100).toFixed(2);
+		}
 
 		// debug.
-		// console.log(device.data.kg_co2eq + ' / ' + highestKgCo2Value + ' , s = ' + scale.toFixed(2));
+		// console.log(device.data.kg_co2eq + ' / ' + highestKgCo2Value + ' , s = ' + scale);
 
 		for (let i = 1; i <= device.qty; i++) {
 			deviceImgs.push({
@@ -264,13 +281,7 @@
 		let result = false;
 		$co2EqStore.forEach(eq => {
 			if (eq.id === measurement || eq.emoji === measurement) {
-				result = value / eq.total;
-				if (result > 10) {
-					result = parseInt(result);
-					result = new Intl.NumberFormat('fr-FR').format(result);
-				} else {
-					result = result.toFixed(2);
-				}
+				result = displayNb(value / eq.total);
 			}
 		});
 		// if (!isNaN(parseFloat(result)) && isFinite(result)) {
@@ -358,19 +369,22 @@
 			<h2>CO2 Equivalents</h2>
 
 			<h3>Totals</h3>
-			<div class="u-center">
-				{#each $co2EqStore as co2Eq}
-					<button
-						class="measurement"
-						aria-controls="co2-eq-info-panel"
-						title={ co2Eq.name_fr }
-						on:click={ e => showCo2EqInfo(e, co2Eq) }
-					>
-						{ co2Eq.emoji.trim() }<!--
-						-->&nbsp;:&nbsp;<!--
-						-->{ getEqCo2($totalsStore.kg_co2eq.value, co2Eq.id) }
-					</button>
-				{/each}
+			<div class="rich-text">
+				<p>Current selection of devices amounts to a total of <strong>{ displayNb($totalsStore.kg_co2eq.value) }</strong> Kg CO2 Equivalents for their production. Here's a list of corresponding measures for reference :</p>
+				<div class="u-center">
+					{#each $co2EqStore as co2Eq}
+						<button
+							class="measurement"
+							aria-controls="co2-eq-info-panel"
+							title={ co2Eq.name_fr }
+							on:click={ e => showCo2EqInfo(e, co2Eq) }
+						>
+							{ co2Eq.emoji.trim() }<!--
+							-->&nbsp;:&nbsp;<!--
+							-->{ getEqCo2($totalsStore.kg_co2eq.value, co2Eq.id) }
+						</button>
+					{/each}
+				</div>
 			</div>
 
 			<h3>Per device</h3>
@@ -491,6 +505,7 @@
 		flex-wrap: wrap;
 		justify-content: center;
 		align-items: center;
+		padding: var(--space);
 	}
 	:global(.device-pictos > button) {
 		position: relative;

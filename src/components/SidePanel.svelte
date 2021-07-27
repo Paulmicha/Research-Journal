@@ -94,6 +94,13 @@
 		position: var(--pos);
 		z-index: var(--zIndex);
 		background-color: var(--bg);
+		opacity: 0;
+		transition: opacity ease-out var(--speed);
+	}
+	.side-panel.is-on,
+	.side-panel:target,
+	.side-panel[aria-hidden="false"] {
+		opacity: 1;
 	}
 
 	/* Horizontal shared styles */
@@ -182,17 +189,15 @@
 	.before {
 		display: flex;
 		justify-content: space-between;
+		align-items: flex-end;
 		padding: var(--space) var(--space) 0 var(--space);
 	}
-	/* .before > * {
-		display: inline-block;
-	}
-	.before > * + * {
-		margin-right: var(--space);
-	} */
 	.before > strong {
 		flex-grow: 1;
 		text-align: center;
+	}
+	.before > button {
+		margin-left: auto;
 	}
 	.content {
 		flex-grow: 1;

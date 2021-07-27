@@ -385,6 +385,13 @@ summary:focus,
 summary:hover {
 	color: cornflowerblue;
 }
+/* details[open] summary ~ * {
+	animation: tr-sweep .25s ease-in-out;
+}
+@keyframes tr-sweep {
+	0%    { opacity: 0; transform: translateX(-2rem); }
+	100%  { opacity: 1; transform: translateX(0); }
+} */
 
 
 /* Special effects */

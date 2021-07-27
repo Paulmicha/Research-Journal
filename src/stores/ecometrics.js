@@ -7,12 +7,10 @@ import { writable } from 'svelte/store';
 
 export const deviceStore = writable({
 	"devices": [],
-	"devicesColNames": []
+	"devicesColNames": [],
+	// "devicesDistinctValues": {}
+	"devicesIcons": {}
 });
-
-// Update : only use the select to add devices to list (not for filtering rows).
-// export const filteredDeviceStore = writable([]);
-export const deviceHashTableStore = writable([]);
 
 // Anytime the store changes, update the corresponding local storage value.
 // See https://dev.to/danawoodman/svelte-quick-tip-connect-a-store-to-local-storage-4idi

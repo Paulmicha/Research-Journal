@@ -22,11 +22,13 @@
 			// Store all devices.
 			deviceStore.set({
 				devices,
-				devicesColNames: [...o.data.ecometrics.devicesColNames]
+				devicesColNames: o.data.ecometrics.devicesColNames,
+				// devicesDistinctValues: o.data.ecometrics.devicesDistinctValues
+				devicesIcons: o.data.devicesIcons
 			});
 
 			// Store all CO2 equivalences.
-			co2EqStore.set([...o.data.ecometrics.co2Eq]);
+			co2EqStore.set(o.data.ecometrics.co2Eq);
 
 			// Presets from query args (shareable links).
 			if ('s' in o.query && o.query.s.length) {

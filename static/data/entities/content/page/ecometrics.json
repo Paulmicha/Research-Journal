@@ -3,7 +3,8 @@
 	"title": "Ecometrics for the web",
 	"description": "Visualization tool for representing the impacts of the web.",
 	"data": {
-		"ecometrics": "data/ecometrics.json"
+		"ecometrics": "data/ecometrics.json",
+		"devicesIcons": "data/devicesIcons.json"
 	},
 	"content": [
 		{

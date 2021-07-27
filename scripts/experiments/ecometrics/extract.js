@@ -116,6 +116,19 @@ generateDevicesFallbackValues(data);
 // 	console.log(`${device.name} : ${device.yearly_kwh}`);
 // });
 
+// Preprocess distinct values.
+// data.devicesDistinctValues = {
+// 	"category": [],
+// 	"subcategory": []
+// };
+// Object.keys(data.devicesDistinctValues).forEach(key => {
+// 	data.devices.forEach(device => {
+// 		if (device[key].length && !data.devicesDistinctValues[key].includes(device[key])) {
+// 			data.devicesDistinctValues[key].push(device[key]);
+// 		}
+// 	});
+// });
+
 // Debug.
 // for (let i = 0; i < 20; i++) {
 // 	const d = data.devices[Math.floor(Math.random() * data.devices.length)];

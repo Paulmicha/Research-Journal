@@ -1,5 +1,6 @@
 <script>
 	import {
+		deviceStore,
 		selectedDeviceStore,
 		co2EqStore,
 		selectedCo2EqStore,
@@ -137,7 +138,37 @@
 	const showCo2EqInfo = (e, co2Eq) => {
 		selectedCo2EqStore.set(co2Eq);
 		sidePanelMethods.open();
-	}
+	};
+
+	/**
+	 * Returns device SVG code according to its type (subcategory).
+	 */
+	const getDeviceImg = device => {
+		if (!$deviceStore || !$deviceStore.devicesIcons) {
+			return '';
+		}
+		if (!(device.data.subcategory in $deviceStore.devicesIcons)) {
+			return $deviceStore.devicesIcons.box;
+		}
+		return $deviceStore.devicesIcons[device.data.subcategory];
+	};
+
+	/**
+	 * Workaround unable to repeat by quantity using svelte "each" syntax.
+	 */
+	const getDeviceImgWrapped = device => {
+		let html = '';
+
+		// TODO (wip) see https://css-tricks.com/create-a-tag-cloud-with-some-simple-css-and-even-simpler-javascript/
+		const scale = device.data.kg_co2eq / highestValue * maxFontSize;
+
+		for (let i = 1; i <= device.qty; i++) {
+			// html += '<div class="device-picto" style="font-size:' + scale + 'rem" title="' + getDeviceLabel(device) + ' ' + i + '">';
+			html += getDeviceImg(device);
+			// html += '</div>';
+		}
+		return html;
+	};
 
 </script>
 
@@ -163,16 +194,19 @@
 				</div>
 			</div>
 
-			<!-- <h3>Per device</h3>
-			<div class="full-vw">
-				<div class="f-grid f-grid--center f-grid--g">
-					{#each $selectedDeviceStore as device}
-						<div>
-							{ getDeviceLabel(device) }
-						</div>
+			<h3>Per device</h3>
+			<div class="full-vw u-center">
+				<!-- <div class="f-grid f-grid--center f-grid--g f-grid--devices"> -->
+					{#each $selectedDeviceStore as device, i}
+						<!-- {#each Array(device.qty) as _, j} -->
+							<!-- <div title={ j + ' / ' + device.qty + ' ' + getDeviceLabel(device) }> -->
+								<!-- {@html getDeviceImg(device).repeat(device.qty) } -->
+								{@html getDeviceImgWrapped(device) }
+							<!-- </div> -->
+						<!-- {/each} -->
 					{/each}
-				</div>
-			</div> -->
+				<!-- </div> -->
+			</div>
 
 		</section>
 
@@ -312,5 +346,15 @@
 			width: 50%;
 			max-width: 66ch;
 		}
+	}
+	/* .f-grid--devices {
+		--item-width: 2rem;
+	} */
+	:global(.device-picto) {
+		display: inline-block;
+		width: 1em;
+	}
+	:global(.device-picto > svg) {
+		max-width: 100%;
 	}
 </style>

@@ -37,7 +37,10 @@ export const co2EqStore = writable([]);
 export const selectedCo2EqStore = writable({});
 export const totalsStore = writable({});
 
-export const selectedMinMaxValues = writable({
-	"lowestKgCo2Value": 999999,
-	"highestKgCo2Value": 0
-});
+// export const selectedMinMaxValues = writable({
+// 	"lowestKgCo2Value": 999999,
+// 	"highestKgCo2Value": 0
+// });
+
+export const randomizedDeviceImgStore = writable([]);
+export const clickedDeviceImgStore = writable({});

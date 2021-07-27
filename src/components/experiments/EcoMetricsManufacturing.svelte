@@ -2,19 +2,22 @@
 	import {
 		deviceStore,
 		selectedDeviceStore,
-		selectedMinMaxValues,
+		// selectedMinMaxValues,
 		co2EqStore,
 		selectedCo2EqStore,
-		totalsStore
+		totalsStore,
+		randomizedDeviceImgStore,
+		clickedDeviceImgStore
 	} from '../../stores/ecometrics.js';
 	import CardBase from '../CardBase.svelte';
 	import SidePanel from '../SidePanel.svelte';
 	import Chart from 'svelte-frappe-charts';
 
-	// Allows to trigger actions in the SidePanel component.
-	let sidePanelMethods;
+	// Allows to trigger actions in SidePanel components.
+	let eqCo2SidePanelMethods;
+	let deviceSidePanelMethods;
 
-	// ['Production (Kg Co2 Eq)', 'Power (yearly Kw/h)', 'IPCC Target (Kg Co2 Eq / year)']
+	// Used for both graphs (bars + pie).
 	let co2EqChartData = {
 		"labels": [],
 		"datasets": []
@@ -32,10 +35,120 @@
 	/**
 	 * Formats given device label.
 	 *
-	 * @param {Object} n : the device.
+	 * @param {Object} device : the device.
 	 * @return {String} : the formatted label.
 	 */
 	const getDeviceLabel = device =>  device.data.manufacturer + ' ' + device.data.name;
+
+	/**
+	 * Formats given device info for the side panel details.
+	 *
+	 * @param {Object} device : the device.
+	 * @return {Array} of Objects like { label: "Title of value", value: "The value" }.
+	 */
+	const getDeviceInfo = device =>  {
+		if (!$deviceStore || !$deviceStore.devicesColNames) {
+			return '';
+		}
+
+		console.log($deviceStore.devicesColNames)
+
+		let info = [];
+		const keysToRender = [
+			"manufacturer",
+			"category",
+			"subcategory",
+			"kg_co2eq",
+			"yearly_kwh",
+			"use_percent",
+			"manufacturing_percent",
+			"lifetime",
+			"date",
+			"error_percent",
+			"screen_size",
+			"age"
+		];
+
+		keysToRender.forEach(key => {
+			if (device.data[key].length) {
+				info.push({
+					label: $deviceStore.devicesColNames[key] || key,
+					value: device.data[key]
+				});
+			}
+		});
+
+		return info;
+	};
+
+
+	/**
+	 * Returns device SVG code according to its type (subcategory).
+	 */
+	const getDeviceImg = device => {
+		if (!$deviceStore || !$deviceStore.devicesIcons) {
+			return '';
+		}
+		if (!(device.data.subcategory in $deviceStore.devicesIcons)) {
+			return $deviceStore.devicesIcons.box;
+		}
+		return $deviceStore.devicesIcons[device.data.subcategory];
+	};
+
+	/**
+	 * Returns a % representing the position of a value in given range.
+	 */
+	const getValuePercentInRange = (value, min, max) => {
+		return (value - min) / (max - min) * 100;
+	};
+
+	/**
+	 * Returns 1 scaled image per quantity of device as array of objects.
+	 */
+	const getDeviceImgRepeated = (device, lowestKgCo2Value, highestKgCo2Value) => {
+		const deviceImgs = [];
+		const minSize = 2.5; // in rem
+		const maxSize = 12; // in rem
+		const svg = getDeviceImg(device);
+		const value = device.data.kg_co2eq;
+		const percent = getValuePercentInRange(value, lowestKgCo2Value, highestKgCo2Value);
+		const scale = (minSize + percent * (maxSize - minSize) / 100).toFixed(2);
+
+		// debug.
+		// console.log(device.data.kg_co2eq + ' / ' + highestKgCo2Value + ' , s = ' + scale.toFixed(2));
+
+		for (let i = 1; i <= device.qty; i++) {
+			deviceImgs.push({
+				svg,
+				scale,
+				device
+			});
+		}
+
+		return deviceImgs;
+	};
+
+	/**
+	 * Renders scaled devices images in a random order.
+	 */
+	const getDeviceImgRandomized = (selectedDevices, lowestKgCo2Value, highestKgCo2Value) => {
+		let images = [];
+
+		// Merge all scaled images into the same array.
+		selectedDevices.forEach(device => {
+			const scaledImages = getDeviceImgRepeated(device, lowestKgCo2Value, highestKgCo2Value);
+			images = [...images, ...scaledImages];
+		});
+
+		// Randomize array.
+		for (let i = images.length - 1; i > 0; i--) {
+			const j = Math.floor(Math.random() * (i + 1));
+			[images[i], images[j]] = [images[j], images[i]];
+		}
+
+		// Output randomized items.
+		return images;
+	};
 
 	selectedDeviceStore.subscribe(selectedDevices => {
 		const labels = [];
@@ -83,15 +196,15 @@
 				}
 			});
 
-			selectedMinMaxValues.update(stored => {
-				if (stored.lowestKgCo2Value !== newMinMaxValues.lowestKgCo2Value) {
-					stored.lowestKgCo2Value = newMinMaxValues.lowestKgCo2Value;
-				}
-				if (stored.highestKgCo2Value !== newMinMaxValues.highestKgCo2Value) {
-					stored.highestKgCo2Value = newMinMaxValues.highestKgCo2Value;
-				}
-				return stored;
-			});
+			// selectedMinMaxValues.update(stored => {
+			// 	if (stored.lowestKgCo2Value !== newMinMaxValues.lowestKgCo2Value) {
+			// 		stored.lowestKgCo2Value = newMinMaxValues.lowestKgCo2Value;
+			// 	}
+			// 	if (stored.highestKgCo2Value !== newMinMaxValues.highestKgCo2Value) {
+			// 		stored.highestKgCo2Value = newMinMaxValues.highestKgCo2Value;
+			// 	}
+			// 	return stored;
+			// });
 		}
 
 		co2EqChartData = {
@@ -121,6 +234,16 @@
 			});
 		} else {
 			totalsStore.set({});
+		}
+
+		if (selectedDevices.length) {
+			randomizedDeviceImgStore.set(
+				getDeviceImgRandomized(
+					selectedDevices,
+					newMinMaxValues.lowestKgCo2Value,
+					newMinMaxValues.highestKgCo2Value
+				)
+			);
 		}
 	});
 
@@ -161,55 +284,20 @@
 	 * Opens side panel (co2 eq. measure items' click handler).
 	 */
 	const showCo2EqInfo = (e, co2Eq) => {
+		e.preventDefault();
 		selectedCo2EqStore.set(co2Eq);
-		sidePanelMethods.open();
+		deviceSidePanelMethods.close();
+		eqCo2SidePanelMethods.open();
 	};
 
 	/**
-	 * Returns device SVG code according to its type (subcategory).
+	 * Opens side panel (device images measure items' click handler).
 	 */
-	const getDeviceImg = device => {
-		if (!$deviceStore || !$deviceStore.devicesIcons) {
-			return '';
-		}
-		if (!(device.data.subcategory in $deviceStore.devicesIcons)) {
-			return $deviceStore.devicesIcons.box;
-		}
-		return $deviceStore.devicesIcons[device.data.subcategory];
-	};
-
-	/**
-	 * Returns a % representing the position of a value in given range.
-	 */
-	const getValuePercentInRange = (value, min, max) => {
-		return (value - min) / (max - min) * 100;
-	};
-
-	/**
-	 * Workaround unable to repeat by quantity using svelte "each" syntax.
-	 */
-	const getDeviceImgRepeated = device => {
-		let html = '';
-		let minSize = 2.5; // rem
-		let maxSize = 12; // rem
-
-		const value = device.data.kg_co2eq;
-		const min = $selectedMinMaxValues.lowestKgCo2Value;
-		const max = $selectedMinMaxValues.highestKgCo2Value;
-
-		const percent = getValuePercentInRange(value, min, max);
-		const scale = minSize + percent * (maxSize - minSize) / 100;
-
-		// debug.
-		// console.log(device.data.kg_co2eq + ' / ' + $selectedMinMaxValues.highestKgCo2Value + ' , s = ' + scale.toFixed(2));
-
-		for (let i = 1; i <= device.qty; i++) {
-			html += '<button style="font-size:' + scale.toFixed(2) + 'rem" title="' + getDeviceLabel(device) + ' ' + i + '">';
-			html += getDeviceImg(device);
-			html += '</button>';
-		}
-
-		return html;
+	const showDeviceInfo = (e, deviceImg) => {
+		e.preventDefault();
+		clickedDeviceImgStore.set(deviceImg);
+		eqCo2SidePanelMethods.close();
+		deviceSidePanelMethods.open();
 	};
 
 </script>
@@ -237,12 +325,33 @@
 			</div>
 
 			<h3>Per device</h3>
-			<p>The size of each device represents its manufacturing impact (in Kg Co2) :</p>
+			<p>The size of each one of the <strong>{ $randomizedDeviceImgStore.length }</strong> devices represents its manufacturing impact (in Kg Co2 emissions) relative to those of the other devices in current selection :</p>
 			<div class="full-vw device-pictos">
-				{#each $selectedDeviceStore as device}
-					{@html getDeviceImgRepeated(device) }
+				{#each $randomizedDeviceImgStore as deviceImg}
+					<button
+						style="font-size:{ deviceImg.scale }rem"
+						title="{ getDeviceLabel(deviceImg.device) }"
+						aria-controls="device-info-panel"
+						on:click={ e => showDeviceInfo(e, deviceImg) }
+					>
+						{@html deviceImg.svg }
+					</button>
 				{/each}
 			</div>
+			<SidePanel dir="rtl" bind:exposedMethods={deviceSidePanelMethods}
+				id="device-info-panel"
+				label="Device info"
+			>
+				{#if $clickedDeviceImgStore && 'device' in $clickedDeviceImgStore }
+					<h2 class="no-m-t">{ getDeviceLabel($clickedDeviceImgStore.device) }</h2>
+					<dl>
+						{#each getDeviceInfo($clickedDeviceImgStore.device) as prop}
+							<dt>{ prop.label }</dt>
+							<dd>{ prop.value }</dd>
+						{/each}
+					</dl>
+				{/if}
+			</SidePanel>
 		</section>
 
 		<section>
@@ -269,7 +378,6 @@
 				<div class="f-grid f-grid--center f-grid--g">
 					{#each $selectedDeviceStore as device}
 						<div class="item">
-
 							<CardBase>
 								<h3 slot="title">{ device.qty }&nbsp;&times;&nbsp;{ getDeviceLabel(device) }</h3>
 								<div slot="content" class="u-center">
@@ -285,24 +393,20 @@
 											-->{ getEqCo2(device.data.kg_co2eq * device.qty, co2Eq.id) }
 										</button>
 									{/each}
-
-									<!-- Debug. -->
-									<!-- <pre style="font-size:.75rem">{JSON.stringify(device, null, 2)}</pre> -->
-
 								</div>
 							</CardBase>
-
 						</div>
 					{/each}
 				</div>
-
-				<SidePanel bind:exposedMethods={sidePanelMethods} id="co2-eq-info-panel">
+				<SidePanel bind:exposedMethods={eqCo2SidePanelMethods}
+					id="co2-eq-info-panel"
+					label="Kg CO2 Equivalent"
+				>
 					{#if $selectedCo2EqStore && 'about' in $selectedCo2EqStore}
 						<h2 class="no-m-t">{ $selectedCo2EqStore.emoji }&nbsp;{ $selectedCo2EqStore.name_fr }</h2>
 						<p>{@html $selectedCo2EqStore.about }</p>
 					{/if}
 				</SidePanel>
-
 			</div>
 		</section>
 
@@ -392,6 +496,7 @@
 		position: relative;
 		display: flex;
 		align-items: center;
+		margin-bottom: calc(var(--space) * -.75);
 		padding: var(--space);
 		width: 1em;
 		height: 1em;
@@ -408,9 +513,14 @@
 		height: 100%;
 		opacity: 0;
 		transition: opacity ease-out .25s;
+		z-index: -1;
 	}
 	:global(.device-pictos > button:hover::before),
 	:global(.device-pictos > button:focus::before) {
 		opacity: 1;
+	}
+	:global(.device-pictos > button > svg) {
+		width: 100%;
+		height: 100%;
 	}
 </style>

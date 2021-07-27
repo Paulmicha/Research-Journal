@@ -5,7 +5,7 @@
  * This will generate and overwrite the JSON file static/data/devicesIcons.json
  * that contains the SVG code as strings.
  *
- * @see scripts/icons
+ * @see scripts/experiments/ecometrics/icons
  */
 
 const fs = require('fs');

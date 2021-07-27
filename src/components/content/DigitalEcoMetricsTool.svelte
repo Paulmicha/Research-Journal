@@ -31,7 +31,7 @@
 			// Store all devices.
 			deviceStore.set({
 				devices,
-				devicesColNames: o.data.ecometrics.devicesColNames,
+				devicesColNames: o.data.ecometrics.devicesColNamesByKey,
 				// devicesDistinctValues: o.data.ecometrics.devicesDistinctValues
 				devicesIcons: o.data.devicesIcons
 				// devicesLowestKgCo2Value,
@@ -79,7 +79,7 @@
 					}
 				});
 
-				selectedDeviceStore.update(selectedDevices => devicesToSelect);
+				selectedDeviceStore.set(devicesToSelect);
 			}
 		}
 	});

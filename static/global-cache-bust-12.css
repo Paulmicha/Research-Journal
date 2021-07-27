@@ -178,6 +178,19 @@ blockquote {
 	font-size: 120%;
 }
 
+dl {
+	display: grid;
+	grid-template-columns: max-content auto;
+}
+dt {
+	grid-column-start: 1;
+	padding-right: var(--space-l);
+	font-weight: bold;
+}
+dd {
+	grid-column-start: 2;
+}
+
 
 /* Rich text styles */
 

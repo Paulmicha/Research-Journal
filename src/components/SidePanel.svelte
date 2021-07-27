@@ -7,6 +7,7 @@
 	export let offset = "25%";
 	export let bg = "var(--color-invert-bg)";
 	export let id = Math.random().toString(36).substr(2, 9);
+	export let label = '';
 
 	let componentInstanceElement;
 
@@ -63,10 +64,13 @@
 	use:init
 	id={id}
 	aria-hidden="true"
-	class="side-panel side-panel--{dir} fx-shadow"
+	class="side-panel side-panel--{dir} fx-shadow rich-text--inverse"
 	style={inlineCssVars}
 >
 	<div class="before">
+		{#if label.length }
+			<strong>{ label }</strong>
+		{/if}
 		<button
 			aria-controls={ id }
 			class="btn btn--s btn--inverse"
@@ -75,7 +79,7 @@
 			Close
 		</button>
 	</div>
-	<div class="content rich-text--inverse">
+	<div class="content">
 		<slot />
 	</div>
 </aside>
@@ -92,9 +96,14 @@
 		background-color: var(--bg);
 	}
 
+	/* Horizontal shared styles */
+	.side-panel--ltr,
+	.side-panel--rtl {
+		top: var(--offset);
+	}
+
 	/* Left to Right */
 	.side-panel--ltr {
-		top: var(--offset);
 		left: 0;
 		transform: translateX(-100%);
 	}
@@ -114,14 +123,37 @@
 		animation: tr-offcanvas-slide-in--ltr var(--speed) forwards;
 	}
 
-	/* Right to Left (TODO) */
+	/* Right to Left */
+	.side-panel--rtl {
+		right: 0;
+		transform: translateX(100%);
+	}
+	@keyframes tr-offcanvas-slide-in--rtl {
+		100% { transform: translateX(0%); }
+	}
+	@keyframes tr-offcanvas-slide-out--rtl {
+		0% { transform: translateX(0%); }
+		100% { transform: translateX(100%); }
+	}
+	.side-panel--rtl.has-triggered[aria-hidden="true"] {
+		animation: tr-offcanvas-slide-out--rtl var(--speed) forwards;
+	}
+	.side-panel--rtl.is-on,
+	.side-panel--rtl:target,
+	.side-panel--rtl[aria-hidden="false"] {
+		animation: tr-offcanvas-slide-in--rtl var(--speed) forwards;
+	}
 
-	/* Shared styles for horizontal directions (ltr, rtl) */
+	/* Vertical shared styles */
+	.side-panel--btt,
+	.side-panel--ttb {
+		left: calc((100vw - var(--w)) / 2);
+		right: calc((100vw - var(--w)) / 2);
+	}
 
 	/* Bottom to Top */
 	.side-panel--btt {
 		bottom: 0;
-		/* left: calc(50% - var(--w)); */
 		transform: translateY(100%);
 	}
 	@keyframes tr-offcanvas-slide-in--btt {
@@ -140,30 +172,30 @@
 		animation: tr-offcanvas-slide-in--btt var(--speed) forwards;
 	}
 
-	/* Top to Bottom (TODO) */
-	.side-panel--btt,
-	.side-panel--ttb {
-		left: calc((100vw - var(--w)) / 2);
-		right: calc((100vw - var(--w)) / 2);
-	}
+	/* Top to Bottom */
+	/* (TODO) */
 
 	/* Side panel contents */
 	.side-panel > * {
 		width: 100%;
 	}
 	.before {
+		display: flex;
+		justify-content: space-between;
 		padding: var(--space) var(--space) 0 var(--space);
 	}
-	.content {
-		padding: var(--space) var(--space) var(--space-xl) var(--space);
-	}
-	.before > * {
+	/* .before > * {
 		display: inline-block;
 	}
-	.side-panel .before {
-		text-align: right;
+	.before > * + * {
+		margin-right: var(--space);
+	} */
+	.before > strong {
+		flex-grow: 1;
+		text-align: center;
 	}
 	.content {
 		flex-grow: 1;
+		padding: var(--space) var(--space) var(--space-xl) var(--space);
 	}
 </style>

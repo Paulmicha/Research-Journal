@@ -2,6 +2,7 @@
 	import {
 		deviceStore,
 		selectedDeviceStore,
+		selectedMinMaxValues,
 		co2EqStore,
 		selectedCo2EqStore,
 		totalsStore
@@ -49,14 +50,21 @@
 		// const datasetCo2Eq = [2100];
 		// const datasetYearlyKwh = [0];
 
+		const newMinMaxValues = {
+			"lowestKgCo2Value": 999999,
+			"highestKgCo2Value": 0
+		};
+
 		if (selectedDevices.length) {
 			selectedDevices.forEach(device => {
+				let kg_co2eq = 0;
 				labels.push(device.qty + " × " + getDeviceLabel(device));
 
 				if (device.data.kg_co2eq && !isNaN(parseInt(device.data.kg_co2eq))) {
-					datasetCo2Eq.push(limitDecimals(device.data.kg_co2eq * device.qty, 2));
+					kg_co2eq = parseInt(device.data.kg_co2eq);
+					datasetCo2Eq.push(limitDecimals(kg_co2eq * device.qty, 2));
 				} else {
-					datasetCo2Eq.push(0);
+					datasetCo2Eq.push(kg_co2eq);
 					datasetCo2EqMissing++;
 				}
 
@@ -66,6 +74,23 @@
 					datasetYearlyKwh.push(0);
 					datasetYearlyKwhMissing++;
 				}
+
+				if (kg_co2eq < newMinMaxValues.lowestKgCo2Value) {
+					newMinMaxValues.lowestKgCo2Value = kg_co2eq;
+				}
+				if (kg_co2eq > newMinMaxValues.highestKgCo2Value) {
+					newMinMaxValues.highestKgCo2Value = kg_co2eq;
+				}
+			});
+
+			selectedMinMaxValues.update(stored => {
+				if (stored.lowestKgCo2Value !== newMinMaxValues.lowestKgCo2Value) {
+					stored.lowestKgCo2Value = newMinMaxValues.lowestKgCo2Value;
+				}
+				if (stored.highestKgCo2Value !== newMinMaxValues.highestKgCo2Value) {
+					stored.highestKgCo2Value = newMinMaxValues.highestKgCo2Value;
+				}
+				return stored;
 			});
 		}
 
@@ -154,19 +179,36 @@
 	};
 
 	/**
+	 * Returns a % representing the position of a value in given range.
+	 */
+	const getValuePercentInRange = (value, min, max) => {
+		return (value - min) / (max - min) * 100;
+	};
+
+	/**
 	 * Workaround unable to repeat by quantity using svelte "each" syntax.
 	 */
-	const getDeviceImgWrapped = device => {
+	const getDeviceImgRepeated = device => {
 		let html = '';
+		let minSize = 2.5; // rem
+		let maxSize = 12; // rem
 
-		// TODO (wip) see https://css-tricks.com/create-a-tag-cloud-with-some-simple-css-and-even-simpler-javascript/
-		const scale = device.data.kg_co2eq / highestValue * maxFontSize;
+		const value = device.data.kg_co2eq;
+		const min = $selectedMinMaxValues.lowestKgCo2Value;
+		const max = $selectedMinMaxValues.highestKgCo2Value;
+
+		const percent = getValuePercentInRange(value, min, max);
+		const scale = minSize + percent * (maxSize - minSize) / 100;
+
+		// debug.
+		// console.log(device.data.kg_co2eq + ' / ' + $selectedMinMaxValues.highestKgCo2Value + ' , s = ' + scale.toFixed(2));
 
 		for (let i = 1; i <= device.qty; i++) {
-			// html += '<div class="device-picto" style="font-size:' + scale + 'rem" title="' + getDeviceLabel(device) + ' ' + i + '">';
+			html += '<button style="font-size:' + scale.toFixed(2) + 'rem" title="' + getDeviceLabel(device) + ' ' + i + '">';
 			html += getDeviceImg(device);
-			// html += '</div>';
+			html += '</button>';
 		}
+
 		return html;
 	};
 
@@ -195,19 +237,12 @@
 			</div>
 
 			<h3>Per device</h3>
-			<div class="full-vw u-center">
-				<!-- <div class="f-grid f-grid--center f-grid--g f-grid--devices"> -->
-					{#each $selectedDeviceStore as device, i}
-						<!-- {#each Array(device.qty) as _, j} -->
-							<!-- <div title={ j + ' / ' + device.qty + ' ' + getDeviceLabel(device) }> -->
-								<!-- {@html getDeviceImg(device).repeat(device.qty) } -->
-								{@html getDeviceImgWrapped(device) }
-							<!-- </div> -->
-						<!-- {/each} -->
-					{/each}
-				<!-- </div> -->
+			<p>The size of each device represents its manufacturing impact (in Kg Co2) :</p>
+			<div class="full-vw device-pictos">
+				{#each $selectedDeviceStore as device}
+					{@html getDeviceImgRepeated(device) }
+				{/each}
 			</div>
-
 		</section>
 
 		<section>
@@ -347,14 +382,35 @@
 			max-width: 66ch;
 		}
 	}
-	/* .f-grid--devices {
-		--item-width: 2rem;
-	} */
-	:global(.device-picto) {
-		display: inline-block;
-		width: 1em;
+	.device-pictos {
+		display: flex;
+		flex-wrap: wrap;
+		justify-content: center;
+		align-items: center;
 	}
-	:global(.device-picto > svg) {
-		max-width: 100%;
+	:global(.device-pictos > button) {
+		position: relative;
+		display: flex;
+		align-items: center;
+		padding: var(--space);
+		width: 1em;
+		height: 1em;
+	}
+	:global(.device-pictos > button::before),
+	:global(.device-pictos > button::before) {
+		position: absolute;
+		top: 0;
+		left: 0;
+		content: '';
+		border-radius: 50%;
+		border: 1px solid black;
+		width: 100%;
+		height: 100%;
+		opacity: 0;
+		transition: opacity ease-out .25s;
+	}
+	:global(.device-pictos > button:hover::before),
+	:global(.device-pictos > button:focus::before) {
+		opacity: 1;
 	}
 </style>

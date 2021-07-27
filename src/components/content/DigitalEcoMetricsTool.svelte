@@ -8,7 +8,10 @@
 	// Init custom data.
 	route.subscribe(o => {
 		if (o.data && o.data.ecometrics) {
-			const devices = [...o.data.ecometrics.devices];
+			// For scaling images of devices to represent their manufacturing impact.
+			// let devicesLowestKgCo2Value = 999999;
+			// let devicesHighestKgCo2Value = 0;
+			const devices = o.data.ecometrics.devices;
 
 			// Seed the 'age' key by default based on manufacturing date.
 			devices.forEach(device => {
@@ -17,6 +20,12 @@
 				} else {
 					device.age = 1;
 				}
+				// if (device.kg_co2eq < devicesLowestKgCo2Value) {
+				// 	devicesLowestKgCo2Value = device.kg_co2eq;
+				// }
+				// if (device.kg_co2eq > devicesHighestKgCo2Value) {
+				// 	devicesHighestKgCo2Value = device.kg_co2eq;
+				// }
 			});
 
 			// Store all devices.
@@ -25,6 +34,8 @@
 				devicesColNames: o.data.ecometrics.devicesColNames,
 				// devicesDistinctValues: o.data.ecometrics.devicesDistinctValues
 				devicesIcons: o.data.devicesIcons
+				// devicesLowestKgCo2Value,
+				// devicesHighestKgCo2Value
 			});
 
 			// Store all CO2 equivalences.

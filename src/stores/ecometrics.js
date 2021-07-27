@@ -8,8 +8,10 @@ import { writable } from 'svelte/store';
 export const deviceStore = writable({
 	"devices": [],
 	"devicesColNames": [],
-	// "devicesDistinctValues": {}
+	// "devicesDistinctValues": {},
 	"devicesIcons": {}
+	// "devicesLowestKgCo2Value": 0,
+	// "devicesHighestKgCo2Value": 0
 });
 
 // Anytime the store changes, update the corresponding local storage value.
@@ -34,3 +36,8 @@ export const selectedDeviceStore = typeof localStorage === 'undefined'
 export const co2EqStore = writable([]);
 export const selectedCo2EqStore = writable({});
 export const totalsStore = writable({});
+
+export const selectedMinMaxValues = writable({
+	"lowestKgCo2Value": 999999,
+	"highestKgCo2Value": 0
+});

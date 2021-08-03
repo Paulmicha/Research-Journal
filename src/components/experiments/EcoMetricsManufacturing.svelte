@@ -4,17 +4,17 @@
 		selectedDeviceStore,
 		// selectedMinMaxValues,
 		co2EqStore,
-		selectedCo2EqStore,
+		// selectedCo2EqStore,
 		totalsStore,
 		randomizedDeviceImgStore,
 		clickedDeviceImgStore
 	} from '../../stores/ecometrics.js';
-	import CardBase from '../CardBase.svelte';
+	// import CardBase from '../CardBase.svelte';
 	import SidePanel from '../SidePanel.svelte';
 	import Chart from 'svelte-frappe-charts';
 
 	// Allows to trigger actions in SidePanel components.
-	let eqCo2SidePanelMethods;
+	// let eqCo2SidePanelMethods;
 	let deviceSidePanelMethods;
 
 	// Used for both graphs (bars + pie).
@@ -294,12 +294,12 @@
 	/**
 	 * Opens side panel (co2 eq. measure items' click handler).
 	 */
-	const showCo2EqInfo = (e, co2Eq) => {
-		e.preventDefault();
-		selectedCo2EqStore.set(co2Eq);
-		deviceSidePanelMethods.close();
-		eqCo2SidePanelMethods.open();
-	};
+	// const showCo2EqInfo = (e, co2Eq) => {
+	// 	e.preventDefault();
+	// 	selectedCo2EqStore.set(co2Eq);
+	// 	deviceSidePanelMethods.close();
+	// 	eqCo2SidePanelMethods.open();
+	// };
 
 	/**
 	 * Opens side panel (device images measure items' click handler).
@@ -307,7 +307,7 @@
 	const showDeviceInfo = (e, deviceImg) => {
 		e.preventDefault();
 		clickedDeviceImgStore.set(deviceImg);
-		eqCo2SidePanelMethods.close();
+		// eqCo2SidePanelMethods.close();
 		deviceSidePanelMethods.open();
 	};
 
@@ -367,60 +367,36 @@
 
 		<section>
 			<h2>CO2 Equivalents</h2>
-
-			<h3>Totals</h3>
 			<div class="rich-text">
 				<p>Current selection of devices amounts to a total of <strong>{ displayNb($totalsStore.kg_co2eq.value) }</strong> Kg CO2 Equivalents for their production. Here's a list of corresponding measures for reference :</p>
-				<div class="u-center">
-					{#each $co2EqStore as co2Eq}
-						<button
-							class="measurement"
-							aria-controls="co2-eq-info-panel"
-							title={ co2Eq.name_fr }
-							on:click={ e => showCo2EqInfo(e, co2Eq) }
-						>
-							{ co2Eq.emoji.trim() }<!--
-							-->&nbsp;:&nbsp;<!--
-							-->{ getEqCo2($totalsStore.kg_co2eq.value, co2Eq.id) }
-						</button>
-					{/each}
-				</div>
 			</div>
-
-			<h3>Per device</h3>
 			<div class="details-zone full-vw fill-h">
-				<div class="f-grid f-grid--center f-grid--g">
-					{#each $selectedDeviceStore as device}
+				<div class="f-grid f-grid--g">
+					{#each $co2EqStore as co2Eq}
 						<div class="item">
-							<CardBase>
-								<h3 slot="title">{ device.qty }&nbsp;&times;&nbsp;{ getDeviceLabel(device) }</h3>
-								<div slot="content" class="u-center">
-									{#each $co2EqStore as co2Eq}
-										<button
-											class="measurement"
-											aria-controls="co2-eq-info-panel"
-											title={ co2Eq.name_fr }
-											on:click={ e => showCo2EqInfo(e, co2Eq) }
-										>
-											{ co2Eq.emoji.trim() }<!--
-											-->&nbsp;:&nbsp;<!--
-											-->{ getEqCo2(device.data.kg_co2eq * device.qty, co2Eq.id) }
-										</button>
-									{/each}
+							<!-- <CardBase> -->
+								<!-- <h3 slot="title">{ co2Eq.emoji.trim() }&nbsp;{ co2Eq.name_fr }</h3> -->
+								<!-- <h3 slot="title">{ getEqCo2($totalsStore.kg_co2eq.value, co2Eq.id) }</h3> -->
+								<!-- <span class="co2eq-emoji" aria-hidden="true">{ co2Eq.emoji.trim() }</span> -->
+								<h3>
+									<!-- <div aria-hidden="true"> -->
+										<span class="co2eq-emoji" aria-hidden="true">{ co2Eq.emoji.trim() }</span>
+									<!-- </div> -->
+									<span>
+										{ getEqCo2($totalsStore.kg_co2eq.value, co2Eq.id) }&nbsp;{ co2Eq.name_fr }
+									</span>
+								</h3>
+								<!-- <div slot="content"> -->
+								<div>
+									<!-- <p>{ getEqCo2($totalsStore.kg_co2eq.value, co2Eq.id) }</p> -->
+									<!-- <strong><span class="co2eq-emoji">{ co2Eq.emoji.trim() }</span>&nbsp;{ co2Eq.name_fr }</strong> -->
+									<!-- <span class="co2eq-emoji">{ co2Eq.emoji.trim() }</span> -->
+									<p>{@html co2Eq.about }</p>
 								</div>
-							</CardBase>
+							<!-- </CardBase> -->
 						</div>
 					{/each}
 				</div>
-				<SidePanel bind:exposedMethods={eqCo2SidePanelMethods}
-					id="co2-eq-info-panel"
-					label="Kg CO2 Equivalent"
-				>
-					{#if $selectedCo2EqStore && 'about' in $selectedCo2EqStore}
-						<h2 class="no-m-t">{ $selectedCo2EqStore.emoji }&nbsp;{ $selectedCo2EqStore.name_fr }</h2>
-						<p>{@html $selectedCo2EqStore.about }</p>
-					{/if}
-				</SidePanel>
 			</div>
 		</section>
 
@@ -482,17 +458,36 @@
 		max-width: 100%;
 	}
 	.item {
-		max-width: 30ch;
+		border: 1px solid gray;
+		margin-right: -1px;
+		margin-bottom: -1px;
+		max-width: 38ch;
+		font-size: .9rem;
 	}
-	.measurement {
+	.item h3 {
+		margin-top: 0;
+		display: flex;
+		align-items: center;
+	}
+	.co2eq-emoji {
+		/* float: left; */
+		margin-right: var(--space);
+		/* margin-bottom: .1em; */
+		font-size: 2.15em;
+		/* line-height: 1; */
+	}
+	/* .measurement {
 		padding-right: var(--space-s);
 		cursor: pointer;
 	}
 	.measurement:hover {
 		color: cornflowerblue;
-	}
+	} */
 	.details-zone {
 		position: relative;
+	}
+	.details-zone .f-grid {
+		--gutter: 1.66em;
 	}
 	@media screen and (min-width:110ch) {
 		.chart-wrap {

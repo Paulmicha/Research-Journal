@@ -1,7 +1,9 @@
 <article class="c-card fx-focus-shadow--ahf fx-scale-up--ahf">
-	<div class="c-card__img">
-		<slot name="img" />
-	</div>
+	{#if $$slots.img}
+		<div class="c-card__img">
+			<slot name="img" />
+		</div>
+	{/if}
 	<slot name="title" />
 	<div class="rich-text">
 		<slot name="content" />

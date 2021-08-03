@@ -34,7 +34,7 @@ export const selectedDeviceStore = typeof localStorage === 'undefined'
   : createBrowserSelectedDeviceStore();
 
 export const co2EqStore = writable([]);
-export const selectedCo2EqStore = writable({});
+// export const selectedCo2EqStore = writable({});
 export const totalsStore = writable({});
 
 // export const selectedMinMaxValues = writable({

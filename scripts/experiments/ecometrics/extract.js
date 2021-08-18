@@ -96,6 +96,11 @@ data.devices = [...boaviztaDevices, ...ecodiagDevices];
 data.co2EqKeys = co2EqKeys;
 data.co2Eq = co2Eq;
 
+// We won't use the IT equipment equivalents here, as we're already measuring
+// those.
+const co2EqExcludedIds = ['27002', '27006', '27010'];
+data.co2Eq = data.co2Eq.filter(eq => !co2EqExcludedIds.includes(eq.id));
+
 // Assign numerical IDs to devices for selection presets shareable by URL.
 generateDevicesIds(data);
 

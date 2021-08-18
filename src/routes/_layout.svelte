@@ -15,6 +15,8 @@
 	setContext('global_data', globals);
 </script>
 
+<svelte:window on:load={e => document.documentElement.style.setProperty('--scrollbar-width', (window.innerWidth - document.documentElement.clientWidth) + "px")} />
+
 <Meta></Meta>
 
 <slot></slot>

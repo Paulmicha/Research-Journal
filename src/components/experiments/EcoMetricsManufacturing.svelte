@@ -427,14 +427,13 @@
 					</a>
 					(<a href="https://data.ademe.fr/" target="_blank">ADEME</a> + <a href="https://beta.gouv.fr/">beta.gouv.fr / DINUM</a>)
 				</li>
-				<!-- <li>
-					[wip]
+				<li>
 					<a href="https://github.com/GreenAlgorithms/green-algorithms-tool" target="_blank">
 						Green Algorithms
 					</a>
 					-
 					Lannelongue, L., Grealey, J., Inouye, M., <a href="https://doi.org/10.1002/advs.202100707" target="_blank">Green Algorithms: Quantifying the Carbon Footprint of Computation</a>. Adv. Sci. 2021, 2100707.
-				</li> -->
+				</li>
 				<!-- <li>
 					[wip]
 					<a href="https://medium.com/teads-engineering/estimating-aws-ec2-instances-power-consumption-c9745e347959" target="_blank">

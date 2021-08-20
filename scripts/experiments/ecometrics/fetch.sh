@@ -6,7 +6,9 @@
 # @example
 #		# From project docroot :
 #		scripts/experiments/ecometrics/fetch.sh
-#   # -> Results : see static/data/entities/experiment/search_index.json
+#   # Results :
+#		# - static/data/ecometrics.json
+#		# - static/data/ecometrics.sqlite
 #
 
 # Download the environmental footprint data from Boavizta.

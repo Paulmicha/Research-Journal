@@ -38,7 +38,11 @@
 				// devicesHighestKgCo2Value
 			});
 
-			// Store all CO2 equivalences.
+			// Store randomized CO2 equivalences.
+			for (let i = o.data.ecometrics.co2Eq.length - 1; i > 0; i--) {
+				const j = Math.floor(Math.random() * (i + 1));
+				[o.data.ecometrics.co2Eq[i], o.data.ecometrics.co2Eq[j]] = [o.data.ecometrics.co2Eq[j], o.data.ecometrics.co2Eq[i]];
+			}
 			co2EqStore.set(o.data.ecometrics.co2Eq);
 
 			// Presets from query args (shareable links).

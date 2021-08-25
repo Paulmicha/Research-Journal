@@ -2,6 +2,7 @@
 	import Select from 'svelte-select';
 	import { route } from '../../stores/route.js';
 	import { deviceStore, selectedDeviceStore } from '../../stores/ecometrics.js';
+	import { preferencesStore } from '../../stores/preferences.js';
 	import LoadingSpinner from '../LoadingSpinner.svelte';
 	import SidePanel from '../SidePanel.svelte';
 
@@ -200,6 +201,14 @@
 		resetDeviceSelector();
 	};
 
+	const toggleEcometricsDeviceSelectionListState = e => {
+		e.preventDefault();
+		preferencesStore.update(prefs => {
+			prefs.ecometricsDeviceSelectionListState = !prefs.ecometricsDeviceSelectionListState;
+			return prefs;
+		});
+	};
+
 </script>
 
 {#if $deviceStore.devices.length}
@@ -226,8 +235,11 @@
 {/if}
 
 {#if $selectedDeviceStore.length}
-	<details open>
-		<summary>Selection</summary>
+	<details
+		open={$preferencesStore.ecometricsDeviceSelectionListState}
+		on:click={e => toggleEcometricsDeviceSelectionListState(e)}
+	>
+		<summary>Selection{ $selectedDeviceStore.length ? ` (${$selectedDeviceStore.length} devices)` : '' }</summary>
 		<form class="full-vw">
 			<table class="selection">
 				<thead>

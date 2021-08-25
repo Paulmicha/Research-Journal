@@ -1,5 +1,6 @@
 <script>
 	import { route } from '../../stores/route.js';
+	import { randomizeArray } from '../../lib/generic_utils.js';
 	import { deviceStore, co2EqStore, selectedDeviceStore } from '../../stores/ecometrics.js';
 	import LoadingSpinner from '../LoadingSpinner.svelte';
 	import EcoMetricsSelector from '../experiments/EcoMetricsSelector.svelte';
@@ -41,11 +42,7 @@
 			});
 
 			// Store randomized CO2 equivalences.
-			for (let i = o.data.ecometrics.co2Eq.length - 1; i > 0; i--) {
-				const j = Math.floor(Math.random() * (i + 1));
-				[o.data.ecometrics.co2Eq[i], o.data.ecometrics.co2Eq[j]] = [o.data.ecometrics.co2Eq[j], o.data.ecometrics.co2Eq[i]];
-			}
-			co2EqStore.set(o.data.ecometrics.co2Eq);
+			co2EqStore.set(randomizeArray(o.data.ecometrics.co2Eq));
 
 			// Presets from query args (shareable links).
 			if ('s' in o.query && o.query.s.length) {
@@ -99,10 +96,10 @@
 	<EcoMetricsSelector />
 	{#if $selectedDeviceStore.length}
 		<Tabs id="metrics" items={[{label:"Manufacturing"}, {label:"Usage"}]}>
-			<TabContent id="metrics" i="0">
+			<TabContent i="0">
 				<EcoMetricsManufacturing />
 			</TabContent>
-			<TabContent id="metrics" i="1">
+			<TabContent i="1">
 				<p>TODO pane 2</p>
 			</TabContent>
 		</Tabs>

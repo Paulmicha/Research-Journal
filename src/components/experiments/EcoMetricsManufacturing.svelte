@@ -1,4 +1,5 @@
 <script>
+	import { randomizeArray, displayNb, limitDecimals } from '../../lib/generic_utils.js';
 	import {
 		deviceStore,
 		selectedDeviceStore,
@@ -21,29 +22,6 @@
 	let co2EqChartData = {
 		"labels": [],
 		"datasets": []
-	};
-
-	/**
-	 * Formats values to limit the number of decimal characters displayed.
-	 *
-	 * @param {Number} n : the number to format.
-	 * @param {Integer} x : maximum decimal characters to display.
-	 * @return {Number} : the formatted number.
-	 */
-	const limitDecimals = (n, x) =>  Math.round(n * Math.pow(10, x)) / Math.pow(10, x);
-
-	/**
-	 * Formats number for display.
-	 */
-	const displayNb = n => {
-		let result;
-		if (n > 10) {
-			result = parseInt(n);
-			result = new Intl.NumberFormat('fr-FR').format(result);
-		} else {
-			result = n.toFixed(2);
-		}
-		return result;
 	};
 
 	/**
@@ -157,14 +135,8 @@
 			images = [...images, ...scaledImages];
 		});
 
-		// Randomize array.
-		for (let i = images.length - 1; i > 0; i--) {
-			const j = Math.floor(Math.random() * (i + 1));
-			[images[i], images[j]] = [images[j], images[i]];
-		}
-
 		// Output randomized items.
-		return images;
+		return randomizeArray(images);
 	};
 
 	selectedDeviceStore.subscribe(selectedDevices => {

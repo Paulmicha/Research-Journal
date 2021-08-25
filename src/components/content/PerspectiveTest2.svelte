@@ -1,7 +1,7 @@
 <script>
 	import { Canvas } from 'svelte-canvas';
 	import { onMount } from 'svelte';
-	import { toPixels } from '../../lib/conversions.js';
+	import { toPixels } from '../../lib/generic_utils.js';
 
 	import Scene from '../../lib/projection_2d/Scene.js';
 	import SceneItem from '../../lib/projection_2d/SceneItem.js';

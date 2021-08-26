@@ -5,6 +5,8 @@
 		totalsStore
 	} from '../../stores/ecometrics.js';
 
+	export let totalKgEqCo2 = 0;
+
 	/**
 	 * Gets the KgEqCO2 of given equivalent measurement.
 	 *
@@ -36,7 +38,7 @@
 				<h3>
 					<span class="co2eq-emoji" aria-hidden="true">{ co2Eq.emoji.trim() }</span>
 					<span>
-						{ getEqCo2($totalsStore.kg_co2eq.value, co2Eq.id) }&nbsp;{ co2Eq.name_fr }
+						{ getEqCo2(totalKgEqCo2, co2Eq.id) }&nbsp;{ co2Eq.name_fr }
 					</span>
 				</h3>
 				<div>

@@ -124,6 +124,35 @@
 	};
 
 	/**
+	 * Gets use stats defaults per device.
+	 */
+	const getDeviceUseDefaultValue = (device, use) => {
+		switch (use) {
+			case "deploys_nb":
+				if (device.data.subcategory !== 'server') {
+					return 0;
+				}
+				return 4;
+			case "deploys_duration":
+				if (device.data.subcategory !== 'server') {
+					return 0;
+				}
+				return 120;
+			case "hours":
+				switch (device.data.subcategory) {
+					case 'router':
+					case 'server':
+						return 24;
+					case 'smartphone':
+						return 2;
+					case 'ipphone':
+						return 1;
+				}
+		}
+		return 6;
+	};
+
+	/**
 	 * Adds selected device (with quantity) to the list.
 	 */
 	const addSelectedDevice = async () => {
@@ -135,6 +164,9 @@
 		selectedDeviceStore.update(selectedDevices => {
 			selectedDevice.pos = selectedDevices.length;
 			selectedDevice.qty = quantity;
+			selectedDevice.deploys_nb = getDeviceUseDefaultValue(selectedDevice, 'deploys_nb');
+			selectedDevice.deploys_duration = getDeviceUseDefaultValue(selectedDevice, 'deploys_duration');
+			selectedDevice.hours = getDeviceUseDefaultValue(selectedDevice, 'hours');
 			selectedDevices.push(selectedDevice);
 			return selectedDevices;
 		});
@@ -177,17 +209,19 @@
 	const updateSelectedDevice = (e, deviceToUpdate) => {
 		e.preventDefault();
 
-		// Get the new values.
 		const scope = e.target.closest('tr');
-		// const newAge = scope.querySelector('input[name="age"]').value;
 		const newQty = scope.querySelector('input[name="qty"]').value;
+		const newHours = scope.querySelector('input[name="hours"]').value;
+		const newDeploysNb = scope.querySelector('input[name="deploys_nb"]').value;
+		const newDeploysDuration = scope.querySelector('input[name="deploys_duration"]').value;
 
 		selectedDeviceStore.update(selectedDevices => {
 			selectedDevices.forEach((device, i) => {
 				if (device.data.id === deviceToUpdate.data.id) {
-					// Apply Changes.
 					selectedDevices[i].qty = newQty;
-					// selectedDevices[i].age = newAge;
+					selectedDevices[i].hours = newHours;
+					selectedDevices[i].deploys_nb = newDeploysNb;
+					selectedDevices[i].deploys_duration = newDeploysDuration;
 				}
 			});
 			return selectedDevices;
@@ -248,11 +282,12 @@
 					<tr>
 						<!-- <th>#</th> -->
 						<!-- <th>ID</th> -->
-						<th>Device</th>
+						<th>Type</th>
+						<th>Name</th>
 						<th>Quantity</th>
 						<!-- <th>Age (years)</th> -->
 						<!-- <th>Screen size</th> -->
-						<!-- <th>Type</th> -->
+						<th class="u-center">Use</th>
 						<th>Actions</th>
 					</tr>
 				</thead>
@@ -261,28 +296,59 @@
 						<tr>
 							<!-- <td>{ device.pos }</td> -->
 							<!-- <td>{ device.data.id }</td> -->
+							<td>
+								<span class="type-icon" title="{ device.data.subcategory }">
+									{@html (device.data.subcategory in $deviceStore.devicesIcons) ? $deviceStore.devicesIcons[device.data.subcategory] : $deviceStore.devicesIcons.box }
+								</span>
+							</td>
 							<td>{ device.data.manufacturer } { device.data.name }</td>
 							<td>
 								<div class="nb--s">
 									<input class="input--s" type="number" min="1" name="qty"
-										value={device.qty}
-										on:change={e => updateSelectedDevice(e, device)}
-										/>
+										value={ device.qty }
+										on:change={ e => updateSelectedDevice(e, device) }
+									/>
 								</div>
 							</td>
 							<!-- <td>
 								<div class="nb--s">
 									<input class="input--s" type="number" min="0" name="age"
-										value={device.age || device.data.age}
-										on:change={e => updateSelectedDevice(e, device)}
+										value={ device.age || device.data.age }
+										on:change={ e => updateSelectedDevice(e, device) }
 										/>
 								</div>
 							</td> -->
 							<!-- <td>{ device.data.screen_size }</td> -->
-							<!-- <td>{ device.data.subcategory }</td> -->
 							<td>
-								<!-- <button class="btn btn--s" on:click={e => updateSelectedDevice(e, device)}>Update</button> -->
-								<button class="btn btn--s" on:click={e => removeSelectedDevice(e, device)}>Remove</button>
+								{#if device.data.subcategory === 'server'}
+									<div class="inner-form-item">
+										<label for="deploys-per-month" title="on average, during the development phase of the project">Deploys per month</label>
+										<input class="input--s" type="number" min="1" name="deploys_nb"
+											id="deploys-per-month"
+											value={ device.deploys_nb || getDeviceUseDefaultValue(device, 'deploys_nb') }
+											on:change={ e => updateSelectedDevice(e, device) }
+										/>
+									</div>
+									<div class="inner-form-item">
+										<label for="deploys-duration" title="with CI tests">Average deploys duration (seconds)</label>
+										<input class="input--s" type="number" min="1" name="deploys_duration"
+											id="deploys-duration"
+											value={ device.deploys_duration || getDeviceUseDefaultValue(device, 'deploys_duration') }
+											on:change={ e => updateSelectedDevice(e, device) }
+										/>
+									</div>
+								{/if}
+								<div class="inner-form-item">
+									<label for="hours-per-day">Average hours of use per day</label>
+									<input class="input--s" type="number" min="1" name="hours"
+										id="hours-per-day"
+										value={ device.hours || getDeviceUseDefaultValue(device, 'hours') }
+										on:change={ e => updateSelectedDevice(e, device) }
+									/>
+								</div>
+							</td>
+							<td>
+								<button class="btn btn--s" on:click={ e => removeSelectedDevice(e, device) }>Remove</button>
 							</td>
 						</tr>
 					{/each}
@@ -329,16 +395,20 @@
 	.select {
 		flex-grow: 1;
 	}
-	/* .selector > * + * {
-		padding-left: var(--space-s);
+	.type-icon {
+		display: inline-block;
+		vertical-align: middle;
+		width: 2em;
+		height: 2em;
 	}
-	.nb {
-		width: 5rem;
+	:global(.type-icon > svg) {
+		display: inline-block;
+		margin: -10%;
+		width: 120%;
+		height: 120%;
 	}
-	.nb > input {
-		width: 4rem;
-	} */
-	.nb--s > input {
+	.nb--s > input,
+	.inner-form-item > .input--s {
 		width: 3.3rem;
 	}
 	.selection {
@@ -347,6 +417,19 @@
 	.selection td,
 	.selection th {
 		padding: calc(var(--space-s) / 2) var(--space-s);
+	}
+	.inner-form-item {
+		display: flex;
+		align-items: center;
+		justify-content: space-between;
+	}
+	.inner-form-item > label {
+		display: inline-block;
+		margin-left: auto;
+		margin-right: var(--space-s);
+		font-size: 80%;
+		/* white-space: nowrap; */
+		text-align: right;
 	}
 	.bottom-zone {
 		margin: var(--space-l);

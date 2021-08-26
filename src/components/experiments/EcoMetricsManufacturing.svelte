@@ -85,7 +85,7 @@
 	 */
 	const getDeviceImgRepeated = (device, lowestKgCo2Value, highestKgCo2Value) => {
 		const deviceImgs = [];
-		const minSize = 2.5; // in rem
+		const minSize = 3; // in rem
 		const maxSize = 12; // in rem
 		const svg = getDeviceImg(device);
 		const value = device.data.kg_co2eq;
@@ -172,16 +172,6 @@
 					newMinMaxValues.highestKgCo2Value = kg_co2eq;
 				}
 			});
-
-			// selectedMinMaxValues.update(stored => {
-			// 	if (stored.lowestKgCo2Value !== newMinMaxValues.lowestKgCo2Value) {
-			// 		stored.lowestKgCo2Value = newMinMaxValues.lowestKgCo2Value;
-			// 	}
-			// 	if (stored.highestKgCo2Value !== newMinMaxValues.highestKgCo2Value) {
-			// 		stored.highestKgCo2Value = newMinMaxValues.highestKgCo2Value;
-			// 	}
-			// 	return stored;
-			// });
 		}
 
 		co2EqChartData = {
@@ -292,7 +282,7 @@
 			<div class="rich-text">
 				<p>Current selection of devices amounts to a total of <strong>{ displayNb($totalsStore.kg_co2eq.value) }</strong> Kg CO2 Equivalents for their production. Here's a list of corresponding measures for reference :</p>
 			</div>
-			<EcoMetricsCo2Equivalents />
+			<EcoMetricsCo2Equivalents totalKgEqCo2={$totalsStore.kg_co2eq.value} />
 		</section>
 	</div>
 {/if}

@@ -6,11 +6,11 @@
 	import LoadingSpinner from '../LoadingSpinner.svelte';
 	import EcoMetricsSelector from '../experiments/EcoMetricsSelector.svelte';
 	import EcoMetricsManufacturing from '../experiments/EcoMetricsManufacturing.svelte';
-	import EcoMetricsUsage from '../experiments/EcoMetricsUsage.svelte';
+	import EcoMetricsUse from '../experiments/EcoMetricsUse.svelte';
 	import Tabs from '../Tabs.svelte';
 	import TabContent from '../TabContent.svelte';
 
-	const changeTab = e => preferencesStore.update(prefs => {
+	const tabHasChanged = e => preferencesStore.update(prefs => {
 		prefs.ecometricsLastActiveTab = e.detail.selected;
 		return prefs;
 	});
@@ -108,14 +108,14 @@
 		<Tabs
 			id="metrics"
 			selected={$preferencesStore.ecometricsLastActiveTab || 0}
-			on:change={changeTab}
-			items={[{label:"Manufacturing"}, {label:"Usage"}]}
+			on:change={tabHasChanged}
+			items={[{label:"Manufacturing"}, {label:"Use"}]}
 		>
 			<TabContent i="0">
 				<EcoMetricsManufacturing />
 			</TabContent>
 			<TabContent i="1">
-				<EcoMetricsUsage />
+				<EcoMetricsUse />
 			</TabContent>
 		</Tabs>
 		<section class="rich-text">

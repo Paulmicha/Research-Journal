@@ -11,6 +11,32 @@
 #		# - static/data/ecometrics.sqlite
 #
 
+##
+# Only downloads given file if it does not already exist locally.
+#
+function downloadOnce() {
+	local url="$1"
+	local fileName="$2"
+	local dirName="$3"
+
+	if [[ -z "$url" ]]; then
+		return 1
+	fi
+	if [[ -z "$fileName" ]]; then
+		fileName="${url##*/}"
+	fi
+	if [[ -z "$dirName" ]]; then
+		dirName='footprint-data'
+	fi
+
+	if [[ ! -f "private/$dirName/$fileName" ]]; then
+		echo "Downloading $fileName ..."
+		wget "$url" -O "private/$dirName/$fileName"
+	else
+		echo "The file 'private/$dirName/$fileName' already exists."
+	fi
+}
+
 # Download the environmental footprint data from Boavizta.
 # See https://github.com/Boavizta/environmental-footprint-data
 if [[ ! -d 'private/footprint-data' ]]; then
@@ -18,21 +44,16 @@ if [[ ! -d 'private/footprint-data' ]]; then
 	mkdir -p 'private/footprint-data'
 fi
 
-deviceCsvUrlFr='https://raw.githubusercontent.com/Boavizta/environmental-footprint-data/main/boavizta-data-fr.csv'
-deviceCsvUrlUs='https://raw.githubusercontent.com/Boavizta/environmental-footprint-data/main/boavizta-data-us.csv'
+downloadOnce 'https://github.com/Boavizta/environmental-footprint-data/raw/main/boavizta-data-fr.csv'
+downloadOnce 'https://github.com/Boavizta/environmental-footprint-data/raw/main/boavizta-data-us.csv'
 
-csvFileFr="${deviceCsvUrlFr##*/}"
-csvFileUs="${deviceCsvUrlUs##*/}"
+# Download the regional grid carbon intensity from "Green Algorithms".
+downloadOnce 'https://github.com/GreenAlgorithms/green-algorithms-tool/raw/master/data/CI_aggregated.csv'
 
-if [[ ! -f "$PWD/private/footprint-data/$csvFileFr" ]]; then
-	echo "Downloading $csvFileFr ..."
-	wget "$deviceCsvUrlFr" -P "$PWD/private/footprint-data/"
-fi
-
-if [[ ! -f "$PWD/private/footprint-data/$csvFileUs" ]]; then
-	echo "Downloading $csvFileUs ..."
-	wget "$deviceCsvUrlUs" -P "$PWD/private/footprint-data/"
-fi
+# Download the regional grid carbon intensity from "Google Cloud Platform".
+downloadOnce \
+	'https://github.com/GoogleCloudPlatform/region-carbon-info/raw/main/data/yearly/2020.csv' \
+	'GoogleCloudPlatform-region-carbon-info-2020.csv'
 
 # Download the CO2 equivalences from datagir.
 # See https://github.com/datagir/monconvertisseurco2
@@ -41,15 +62,12 @@ if [[ ! -d 'private/co2-eq' ]]; then
 	mkdir -p 'private/co2-eq'
 fi
 
-eqJsonUrl='https://github.com/datagir/monconvertisseurco2/raw/master/public/data/equivalents.json'
-eqJsonFile="${eqJsonUrl##*/}"
-
-if [[ ! -f "$PWD/private/co2-eq/$eqJsonFile" ]]; then
-	echo "Downloading $eqJsonFile ..."
-	wget "$eqJsonUrl" -P "$PWD/private/co2-eq/"
-fi
+downloadOnce \
+	'https://github.com/datagir/monconvertisseurco2/raw/master/public/data/equivalents.json' \
+	'equivalents.json' \
+	'co2-eq'
 
 ## Transform sources into a single static asset.
-node "$PWD/scripts/experiments/ecometrics/extract.js"
+node scripts/experiments/ecometrics/extract.js
 
 echo "Done."

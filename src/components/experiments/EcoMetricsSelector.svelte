@@ -12,6 +12,15 @@
 	let shareableLinkInput;
 	let toasterMethods;
 
+	const oneLetterPropMap = {
+		qty: 'q',
+		deploys_nb: 'd',
+		deploys_duration: 'u',
+		backups_nb: 'b',
+		backups_duration: 'r',
+		hours: 'h'
+	};
+
 	selectedDeviceStore.subscribe(selectedDevices => {
 		if (selectedDevices.length) {
 			const parts = [];
@@ -22,10 +31,13 @@
 			shareLink = 'https://msc.paulmichalet.com/' + $route.path + '?s=';
 
 			selectedDevices.forEach(device => {
-				parts.push(`${device.data.id}:q${device.qty}:a${device.age || device.data.age}`);
+				const subParts = [];
+				Object.keys(oneLetterPropMap).forEach(k => subParts.push(
+					oneLetterPropMap[k] + device[k]
+				));
+				parts.push(`${device.data.id}:${subParts.join(':')}`);
 				totalNbOfDevices += parseInt(device.qty);
 			});
-
 			shareLink += parts.join(',');
 		}
 	});
@@ -128,6 +140,18 @@
 	 */
 	const getDeviceUseDefaultValue = (device, use) => {
 		switch (use) {
+			case "hours":
+				switch (device.data.subcategory) {
+					case 'router':
+					case 'server':
+						return 24;
+					case 'smartphone':
+						return 2;
+					case 'ipphone':
+						return 1;
+					default:
+						return 6;
+				}
 			case "deploys_nb":
 				if (device.data.subcategory !== 'server') {
 					return 0;
@@ -138,16 +162,9 @@
 					return 0;
 				}
 				return 120;
-			case "hours":
-				switch (device.data.subcategory) {
-					case 'router':
-					case 'server':
-						return 24;
-					case 'smartphone':
-						return 2;
-					case 'ipphone':
-						return 1;
-				}
+			case "backups_nb":
+			case "backups_duration":
+				return 0;
 		}
 		return 6;
 	};
@@ -166,6 +183,8 @@
 			selectedDevice.qty = quantity;
 			selectedDevice.deploys_nb = getDeviceUseDefaultValue(selectedDevice, 'deploys_nb');
 			selectedDevice.deploys_duration = getDeviceUseDefaultValue(selectedDevice, 'deploys_duration');
+			selectedDevice.backups_nb = getDeviceUseDefaultValue(selectedDevice, 'backups_nb');
+			selectedDevice.backups_duration = getDeviceUseDefaultValue(selectedDevice, 'backups_duration');
 			selectedDevice.hours = getDeviceUseDefaultValue(selectedDevice, 'hours');
 			selectedDevices.push(selectedDevice);
 			return selectedDevices;
@@ -214,6 +233,8 @@
 		const newHours = scope.querySelector('input[name="hours"]').value;
 		const newDeploysNb = scope.querySelector('input[name="deploys_nb"]').value;
 		const newDeploysDuration = scope.querySelector('input[name="deploys_duration"]').value;
+		const newBackupsNb = scope.querySelector('input[name="backups_nb"]').value;
+		const newBackupsDuration = scope.querySelector('input[name="backups_duration"]').value;
 
 		selectedDeviceStore.update(selectedDevices => {
 			selectedDevices.forEach((device, i) => {
@@ -222,6 +243,8 @@
 					selectedDevices[i].hours = newHours;
 					selectedDevices[i].deploys_nb = newDeploysNb;
 					selectedDevices[i].deploys_duration = newDeploysDuration;
+					selectedDevices[i].backups_nb = newBackupsNb;
+					selectedDevices[i].backups_duration = newBackupsDuration;
 				}
 			});
 			return selectedDevices;
@@ -292,7 +315,7 @@
 					</tr>
 				</thead>
 				<tbody>
-					{#each $selectedDeviceStore as device}
+					{#each $selectedDeviceStore as device, i}
 						<tr>
 							<!-- <td>{ device.pos }</td> -->
 							<!-- <td>{ device.data.id }</td> -->
@@ -322,26 +345,42 @@
 							<td>
 								{#if device.data.subcategory === 'server'}
 									<div class="inner-form-item">
-										<label for="deploys-per-month" title="on average, during the development phase of the project">Deploys per month</label>
+										<label for="deploys-per-month-{i}" title="on average, during the development phase of the project">Deploys per month</label>
 										<input class="input--s" type="number" min="1" name="deploys_nb"
-											id="deploys-per-month"
+											id="deploys-per-month-{i}"
 											value={ device.deploys_nb || getDeviceUseDefaultValue(device, 'deploys_nb') }
 											on:change={ e => updateSelectedDevice(e, device) }
 										/>
 									</div>
 									<div class="inner-form-item">
-										<label for="deploys-duration" title="with CI tests">Average deploys duration (seconds)</label>
+										<label for="deploys-duration-{i}" title="with CI tests">Average deploys duration (seconds)</label>
 										<input class="input--s" type="number" min="1" name="deploys_duration"
-											id="deploys-duration"
+											id="deploys-duration-{i}"
 											value={ device.deploys_duration || getDeviceUseDefaultValue(device, 'deploys_duration') }
+											on:change={ e => updateSelectedDevice(e, device) }
+										/>
+									</div>
+									<div class="inner-form-item">
+										<label for="backups-per-month-{i}" title="on average, during the development phase of the project">Backups per month</label>
+										<input class="input--s" type="number" min="1" name="backups_nb"
+											id="backups-per-month-{i}"
+											value={ device.backups_nb || getDeviceUseDefaultValue(device, 'backups_nb') }
+											on:change={ e => updateSelectedDevice(e, device) }
+										/>
+									</div>
+									<div class="inner-form-item">
+										<label for="backups-duration-{i}" title="with CI tests">Average backups duration (seconds)</label>
+										<input class="input--s" type="number" min="1" name="backups_duration"
+											id="backups-duration-{i}"
+											value={ device.backups_duration || getDeviceUseDefaultValue(device, 'backups_duration') }
 											on:change={ e => updateSelectedDevice(e, device) }
 										/>
 									</div>
 								{/if}
 								<div class="inner-form-item">
-									<label for="hours-per-day">Average hours of use per day</label>
+									<label for="hours-per-day-{i}">Average hours of use per day</label>
 									<input class="input--s" type="number" min="1" name="hours"
-										id="hours-per-day"
+										id="hours-per-day-{i}"
 										value={ device.hours || getDeviceUseDefaultValue(device, 'hours') }
 										on:change={ e => updateSelectedDevice(e, device) }
 									/>

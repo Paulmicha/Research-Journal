@@ -15,6 +15,17 @@
 		return prefs;
 	});
 
+	// TODO single source of truth this.
+	// @see src/components/experiments/EcoMetricsSelector.svelte
+	const oneLetterPropMapInverted = {
+		q: 'qty',
+		d: 'deploys_nb',
+		u: 'deploys_duration',
+		b: 'backups_nb',
+		r: 'backups_duration',
+		h: 'hours'
+	};
+
 	// Init custom data.
 	route.subscribe(o => {
 		if (o.data && o.data.ecometrics) {
@@ -62,18 +73,23 @@
 					part.split(':').forEach((subPart, i) => {
 						deviceToSelect.pos = i;
 						const firstChar = subPart.substring(0, 1);
+						let firstCharMatched = false;
 
-						if (firstChar === 'a') {
-							deviceToSelect.age = subPart.substring(1);
-						} else if (firstChar === 'q') {
-							deviceToSelect.qty = subPart.substring(1);
-						} else {
+						Object.keys(oneLetterPropMapInverted).forEach(l => {
+							if (firstChar === l) {
+								deviceToSelect[oneLetterPropMapInverted[l]] = subPart.substring(1);
+								firstCharMatched = true;
+							}
+						});
+
+						if (!firstCharMatched) {
 							deviceToSelect.id = subPart;
 
 							// Match data by device ID.
 							devices.forEach(device => {
 								if (device.id === subPart) {
 									deviceToSelect.data = device;
+									return;
 								}
 							});
 						}

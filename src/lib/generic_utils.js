@@ -5,7 +5,7 @@
  * Temporarily creates an empty div inside the element (position:'absolute')
  * to measure the real pixel value given by the browser, of any CSS unit.
  */
-const toPixels = (value, el) => {
+export const toPixels = (value, el) => {
 	let test = document.createElement('div');
 	Object.assign(test.style, {
 		position: 'absolute',
@@ -20,7 +20,7 @@ const toPixels = (value, el) => {
 /**
  * Re-orders randomly all items in given array.
  */
-const randomizeArray = arr => {
+export const randomizeArray = arr => {
 	for (let i = arr.length - 1; i > 0; i--) {
 		const j = Math.floor(Math.random() * (i + 1));
 		[arr[i], arr[j]] = [arr[j], arr[i]];
@@ -31,7 +31,7 @@ const randomizeArray = arr => {
 /**
  * Formats number for display.
  */
-const displayNb = n => {
+export const displayNb = n => {
 	let result;
 	if (n > 10) {
 		result = parseInt(n);
@@ -49,6 +49,11 @@ const displayNb = n => {
  * @param {Integer} x : maximum decimal characters to display.
  * @return {Number} : the formatted number.
  */
-const limitDecimals = (n, x) =>  Math.round(n * Math.pow(10, x)) / Math.pow(10, x);
+export const limitDecimals = (n, x) =>  Math.round(n * Math.pow(10, x)) / Math.pow(10, x);
 
-export { toPixels, randomizeArray, displayNb, limitDecimals };
+/**
+ * Returns a % representing the position of a value in given range.
+ */
+export const getValuePercentInRange = (value, min, max) => {
+	return (value - min) / (max - min) * 100;
+};

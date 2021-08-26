@@ -1,14 +1,17 @@
 <script>
-	import { setContext } from 'svelte';
+	import { setContext, createEventDispatcher } from 'svelte';
 	import TabContent from './TabContent.svelte';
 
 	export let id = Math.random().toString(36).substr(2, 9);
 	export let items = [];
 	export let selected = 0;
 
+	const dispatch = createEventDispatcher();
+
 	selected = parseInt(selected);
 
 	setContext('Tabs.id', id);
+	setContext('Tabs.selected', selected);
 
 	let componentInstanceElement;
 
@@ -49,8 +52,12 @@
 		tabs.forEach((tab, i) => selected === i ? open(tab) : close(tab));
 		const contentPanes = Array.from(componentInstanceElement.querySelectorAll('[role="tabpanel"]'));
 		contentPanes.forEach((contentPane, i) => selected === i ? open(contentPane) : close(contentPane));
+		dispatch('change', { selected });
 	};
 </script>
+
+<!-- Debug. -->
+<!-- <pre>Tabs : { JSON.stringify(selected, null, 2) } </pre> -->
 
 <div class="tabs" bind:this={componentInstanceElement}>
 	<div class="full-vw">
@@ -93,7 +100,8 @@
 		display: block;
 		margin: auto;
 		width: 90%;
-		border-bottom: 1px solid black;
+		height: 1px;
+		background-image: linear-gradient(to right, rgba(0, 0, 0, 0), rgba(0, 0, 0, 0.75), rgba(0, 0, 0, 0));
 	}
 	ul {
 		list-style: none;

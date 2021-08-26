@@ -2,12 +2,11 @@
 	import { getContext } from 'svelte';
 
 	export let i = 0;
-	export let selected = 0;
 
 	i = parseInt(i);
-	selected = parseInt(selected);
 
 	const id = getContext('Tabs.id');
+	const selected = getContext('Tabs.selected');
 </script>
 
 <div

@@ -7,6 +7,7 @@
 	import SidePanel from '../SidePanel.svelte';
 
 	// Sharing link reacts to current selection store.
+	let totalNbOfDevices = 0;
 	let shareLink = '';
 	let shareableLinkInput;
 	let toasterMethods;
@@ -14,6 +15,7 @@
 	selectedDeviceStore.subscribe(selectedDevices => {
 		if (selectedDevices.length) {
 			const parts = [];
+			totalNbOfDevices = 0;
 
 			// TODO reverse proxy... ?
 			// shareLink = 'http://' + $route.host + '/' + $route.path + '?s=';
@@ -21,6 +23,7 @@
 
 			selectedDevices.forEach(device => {
 				parts.push(`${device.data.id}:q${device.qty}:a${device.age || device.data.age}`);
+				totalNbOfDevices += parseInt(device.qty);
 			});
 
 			shareLink += parts.join(',');
@@ -235,11 +238,10 @@
 {/if}
 
 {#if $selectedDeviceStore.length}
-	<details
-		open={$preferencesStore.ecometricsDeviceSelectionListState}
-		on:click={e => toggleEcometricsDeviceSelectionListState(e)}
-	>
-		<summary>Selection{ $selectedDeviceStore.length ? ` (${$selectedDeviceStore.length} devices)` : '' }</summary>
+	<details open={$preferencesStore.ecometricsDeviceSelectionListState}>
+		<summary on:click={e => toggleEcometricsDeviceSelectionListState(e)}>
+			Selection{ $selectedDeviceStore.length ? ` (${totalNbOfDevices} devices)` : '' }
+		</summary>
 		<form class="full-vw">
 			<table class="selection">
 				<thead>

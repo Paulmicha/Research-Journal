@@ -1,21 +1,17 @@
 <script>
-	import { randomizeArray, displayNb, limitDecimals } from '../../lib/generic_utils.js';
+	import { randomizeArray, displayNb, limitDecimals, getValuePercentInRange } from '../../lib/generic_utils.js';
 	import {
 		deviceStore,
 		selectedDeviceStore,
-		// selectedMinMaxValues,
-		co2EqStore,
-		// selectedCo2EqStore,
 		totalsStore,
 		randomizedDeviceImgStore,
 		clickedDeviceImgStore
 	} from '../../stores/ecometrics.js';
-	// import CardBase from '../CardBase.svelte';
 	import SidePanel from '../SidePanel.svelte';
 	import Chart from 'svelte-frappe-charts';
+  import EcoMetricsCo2Equivalents from './EcoMetricsCo2Equivalents.svelte';
 
 	// Allows to trigger actions in SidePanel components.
-	// let eqCo2SidePanelMethods;
 	let deviceSidePanelMethods;
 
 	// Used for both graphs (bars + pie).
@@ -71,7 +67,6 @@
 		return info;
 	};
 
-
 	/**
 	 * Returns device SVG code according to its type (subcategory).
 	 */
@@ -83,13 +78,6 @@
 			return $deviceStore.devicesIcons.box;
 		}
 		return $deviceStore.devicesIcons[device.data.subcategory];
-	};
-
-	/**
-	 * Returns a % representing the position of a value in given range.
-	 */
-	const getValuePercentInRange = (value, min, max) => {
-		return (value - min) / (max - min) * 100;
 	};
 
 	/**
@@ -237,49 +225,11 @@
 	});
 
 	/**
-	 * Gets the KgEqCO2 of given equivalent measurement.
-	 *
-	 * @see scripts/experiments/ecometrics/fetch.sh
-	 * @see private/co2-eq/equivalents.json
-	 *
-	 * @example
-	 * 	// Apple 13-inch MacBook Pro 4 Thunderbolt 3 ports with 1TB (= 298 kg) :
-	 * 	// How many Km by Car can I make for what it cost to build it ?
-	 * 	km = getEqCo2(298, '🚗'); // We can use emojis (with quotes) !
-	 * 	// Or :
-	 * 	km = getEqCo2(298, 27976); // 27976 is the ID of the "Car" measurement.
-	 */
-	const getEqCo2 = (value, measurement) => {
-		let result = false;
-		$co2EqStore.forEach(eq => {
-			if (eq.id === measurement || eq.emoji === measurement) {
-				result = displayNb(value / eq.total);
-			}
-		});
-		// if (!isNaN(parseFloat(result)) && isFinite(result)) {
-		// 	return result;
-		// }
-		// return 'No match';
-		return result;
-	};
-
-	/**
-	 * Opens side panel (co2 eq. measure items' click handler).
-	 */
-	// const showCo2EqInfo = (e, co2Eq) => {
-	// 	e.preventDefault();
-	// 	selectedCo2EqStore.set(co2Eq);
-	// 	deviceSidePanelMethods.close();
-	// 	eqCo2SidePanelMethods.open();
-	// };
-
-	/**
 	 * Opens side panel (device images measure items' click handler).
 	 */
 	const showDeviceInfo = (e, deviceImg) => {
 		e.preventDefault();
 		clickedDeviceImgStore.set(deviceImg);
-		// eqCo2SidePanelMethods.close();
 		deviceSidePanelMethods.open();
 	};
 
@@ -342,79 +292,17 @@
 			<div class="rich-text">
 				<p>Current selection of devices amounts to a total of <strong>{ displayNb($totalsStore.kg_co2eq.value) }</strong> Kg CO2 Equivalents for their production. Here's a list of corresponding measures for reference :</p>
 			</div>
-			<div class="details-zone full-vw fill-h">
-				<div class="f-grid f-grid--g">
-					{#each $co2EqStore as co2Eq}
-						<div class="item">
-							<!-- <CardBase> -->
-								<!-- <h3 slot="title">{ co2Eq.emoji.trim() }&nbsp;{ co2Eq.name_fr }</h3> -->
-								<!-- <h3 slot="title">{ getEqCo2($totalsStore.kg_co2eq.value, co2Eq.id) }</h3> -->
-								<!-- <span class="co2eq-emoji" aria-hidden="true">{ co2Eq.emoji.trim() }</span> -->
-								<h3>
-									<!-- <div aria-hidden="true"> -->
-										<span class="co2eq-emoji" aria-hidden="true">{ co2Eq.emoji.trim() }</span>
-									<!-- </div> -->
-									<span>
-										{ getEqCo2($totalsStore.kg_co2eq.value, co2Eq.id) }&nbsp;{ co2Eq.name_fr }
-									</span>
-								</h3>
-								<!-- <div slot="content"> -->
-								<div>
-									<!-- <p>{ getEqCo2($totalsStore.kg_co2eq.value, co2Eq.id) }</p> -->
-									<!-- <strong><span class="co2eq-emoji">{ co2Eq.emoji.trim() }</span>&nbsp;{ co2Eq.name_fr }</strong> -->
-									<!-- <span class="co2eq-emoji">{ co2Eq.emoji.trim() }</span> -->
-									<p>{@html co2Eq.about }</p>
-								</div>
-							<!-- </CardBase> -->
-						</div>
-					{/each}
-				</div>
-			</div>
+			<EcoMetricsCo2Equivalents />
 		</section>
 	</div>
 {/if}
 
 <style>
-	/* .p-h {
-		padding: 0 var(--space);
-	} */
 	.no-m-t {
 		margin-top: 0;
 	}
 	.chart-wrap {
 		max-width: 100%;
-	}
-	.item {
-		border: 1px solid gray;
-		margin-right: -1px;
-		margin-bottom: -1px;
-		max-width: 38ch;
-		font-size: .9rem;
-	}
-	.item h3 {
-		margin-top: 0;
-		display: flex;
-		align-items: center;
-	}
-	.co2eq-emoji {
-		/* float: left; */
-		margin-right: var(--space);
-		/* margin-bottom: .1em; */
-		font-size: 2.15em;
-		/* line-height: 1; */
-	}
-	/* .measurement {
-		padding-right: var(--space-s);
-		cursor: pointer;
-	}
-	.measurement:hover {
-		color: cornflowerblue;
-	} */
-	.details-zone {
-		position: relative;
-	}
-	.details-zone .f-grid {
-		--gutter: 1.66em;
 	}
 	@media screen and (min-width:110ch) {
 		.chart-wrap {

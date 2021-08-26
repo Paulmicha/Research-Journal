@@ -2,11 +2,18 @@
 	import { route } from '../../stores/route.js';
 	import { randomizeArray } from '../../lib/generic_utils.js';
 	import { deviceStore, co2EqStore, selectedDeviceStore } from '../../stores/ecometrics.js';
+	import { preferencesStore } from '../../stores/preferences.js';
 	import LoadingSpinner from '../LoadingSpinner.svelte';
 	import EcoMetricsSelector from '../experiments/EcoMetricsSelector.svelte';
 	import EcoMetricsManufacturing from '../experiments/EcoMetricsManufacturing.svelte';
+	import EcoMetricsUsage from '../experiments/EcoMetricsUsage.svelte';
 	import Tabs from '../Tabs.svelte';
 	import TabContent from '../TabContent.svelte';
+
+	const changeTab = e => preferencesStore.update(prefs => {
+		prefs.ecometricsLastActiveTab = e.detail.selected;
+		return prefs;
+	});
 
 	// Init custom data.
 	route.subscribe(o => {
@@ -88,6 +95,9 @@
 	});
 </script>
 
+<!-- Debug. -->
+<!-- <pre>$preferencesStore : { JSON.stringify($preferencesStore, null, 2) } </pre> -->
+
 {#if ! $deviceStore.devices.length}
 	<div class="full-vw fill-h">
 		<LoadingSpinner size="10vmin" border="1vmin" />
@@ -95,12 +105,17 @@
 {:else}
 	<EcoMetricsSelector />
 	{#if $selectedDeviceStore.length}
-		<Tabs id="metrics" items={[{label:"Manufacturing"}, {label:"Usage"}]}>
+		<Tabs
+			id="metrics"
+			selected={$preferencesStore.ecometricsLastActiveTab || 0}
+			on:change={changeTab}
+			items={[{label:"Manufacturing"}, {label:"Usage"}]}
+		>
 			<TabContent i="0">
 				<EcoMetricsManufacturing />
 			</TabContent>
 			<TabContent i="1">
-				<p>TODO pane 2</p>
+				<EcoMetricsUsage />
 			</TabContent>
 		</Tabs>
 		<section class="rich-text">

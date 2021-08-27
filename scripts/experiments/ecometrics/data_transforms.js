@@ -110,7 +110,7 @@ const sortDeviceObjKeys = device => {
 };
 
 /**
- * Generates a unique numerical device "fingerprint".
+ * Generates given device "fingerprint".
  *
  * Best guess is to use a slug of manufacturer + subcategory + device name as a
  * kind of fingerprint (because in the future, when updates of sources are
@@ -119,6 +119,7 @@ const sortDeviceObjKeys = device => {
  * @see generateDevicesIds()
  *
  * @param {Object} device : normalized device object.
+ * @return {String} : hopefully stable-ish value to be transformed into a hash.
  */
 const getDeviceFingerprint = device => slugify(
 	`${device.manufacturer} ${device.subcategory} ${device.name}`,

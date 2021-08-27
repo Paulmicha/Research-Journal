@@ -344,6 +344,12 @@
 							<!-- <td>{ device.data.screen_size }</td> -->
 							<td>
 								{#if device.data.subcategory === 'server'}
+									<!--
+										TODO region selector.
+										@see private/footprint-data/CI_aggregated.csv
+										@see private/footprint-data/GoogleCloudPlatform-region-carbon-info-2020.csv
+										@see scripts/experiments/ecometrics/extract.js
+									-->
 									<div class="inner-form-item">
 										<label for="deploys-per-month-{i}" title="on average, during the development phase of the project">Deploys per month</label>
 										<input class="input--s" type="number" min="1" name="deploys_nb"

@@ -51,11 +51,30 @@ const props2Arr = eqObj => {
 	return flattenedValues;
 };
 
+/**
+ * Converts given CSV file path to an array of arrays (lines x columns).
+ *
+ * @param {String} csvFile : CSV file path.
+ * @param {String} separator : [optional] character delimiting columns. Defaults
+ *  to ','.
+ * @returns {Array} array of arrays (lines x columns).
+ */
+const csvToArr = (csvFile, separator = ',') => fs.readFileSync(csvFile)
+	.toString() // convert Buffer to string
+	.split('\n') // split string to lines
+	.map(e => e.trim()) // remove white spaces for each line
+	.map(e => e
+		.split(separator) // split each line to array
+		.map(e => e.trim()) // remove white spaces for each column
+	)
+	.filter(e => e != null && e != ''); // remove empty lines
+
 // Data sources.
 const { ecodiagDeviceList } = require('./ecodiag/devices.js');
 const datagirJsonFile = 'private/co2-eq/equivalents.json';
 const boaviztaCsvFile = 'private/footprint-data/boavizta-data-us.csv';
-const boaviztaCsvSeparator = ',';
+const greenAlgorithmsCsvFile = 'private/footprint-data/CI_aggregated.csv';
+const googleCloudPlatformCsvFile = 'private/footprint-data/GoogleCloudPlatform-region-carbon-info-2020.csv';
 
 // Can't carry on without having downloaded the source files.
 if (!fs.existsSync(boaviztaCsvFile) || !fs.existsSync(datagirJsonFile)) {
@@ -94,22 +113,21 @@ co2EqRaw.push({
 	"about": "This represents the number of months a mature tree needs to absorb a given quantity of CO2. While the amount of CO2 sequestered by a tree per unit of time depends on a number of factors, such as its species, size, or environment, it was estimated that a mature tree sequesters, on average, ≈11 kg of CO2 per year, giving the multiplier in tree-months a value close to 1 kg of CO2 per month (0.92 kg). (<a href='https://onlinelibrary.wiley.com/doi/10.1002/advs.202100707'>source</a>)"
 });
 
-// Load the devices footprint CSV file as array.
-const boaviztaExtractedData = fs.readFileSync(boaviztaCsvFile)
-	.toString() // convert Buffer to string
-	.split('\n') // split string to lines
-	.map(e => e.trim()) // remove white spaces for each line
-	.map(e => e.split(boaviztaCsvSeparator) // split each line to array
-	.map(e => e.trim())) // remove white spaces for each column
-	.filter(e => e != null && e != ''); // remove empty lines
-
 // Aggregate normalized data from all sources.
 const data = {};
+const boaviztaExtractedData = csvToArr(boaviztaCsvFile);
 const { boaviztaDevices, devicesColNames } = devicesFromBoaviztaNormalizeAll(boaviztaExtractedData);
 const ecodiagDevices = devicesFromEcodiagNormalizeAll(ecodiagDeviceList);
+
+// TODO [wip] prepare carbon intensity data for the cloud providers we could find.
+const greenAlgorithmsExtractedData = csvToArr(greenAlgorithmsCsvFile);
+const googleCloudPlatformExtractedData = csvToArr(googleCloudPlatformCsvFile);
+
 const co2Eq = co2EqRaw.map(entry => co2EqNormalizeItem(entry));
 
 // Debug.
+// console.log(greenAlgorithmsExtractedData);
+// console.log(googleCloudPlatformExtractedData);
 // console.log(devicesColNames);
 // console.log(boaviztaDevices[0]);
 // console.log(ecodiagDevices[0]);

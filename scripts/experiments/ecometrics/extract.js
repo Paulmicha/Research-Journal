@@ -28,7 +28,10 @@ const {
 	generateDevicesIds,
 	generateDevicesFallbackValues,
 	co2EqKeys,
-	co2EqNormalizeItem
+	co2EqNormalizeItem,
+	carbonIntensityKeys,
+	greenAlgorithmsCINormalizeAll,
+	googleCloudPlatformCINormalizeAll
 } = require('./data_transforms');
 const initSqlJs = require('../../../static/sql-wasm.js');
 
@@ -118,11 +121,10 @@ const data = {};
 const boaviztaExtractedData = csvToArr(boaviztaCsvFile);
 const { boaviztaDevices, devicesColNames } = devicesFromBoaviztaNormalizeAll(boaviztaExtractedData);
 const ecodiagDevices = devicesFromEcodiagNormalizeAll(ecodiagDeviceList);
-
-// TODO [wip] prepare carbon intensity data for the cloud providers we could find.
 const greenAlgorithmsExtractedData = csvToArr(greenAlgorithmsCsvFile);
+const { greenAlgorithmsCI, greenAlgorithmsCIColNames } = greenAlgorithmsCINormalizeAll(greenAlgorithmsExtractedData);
 const googleCloudPlatformExtractedData = csvToArr(googleCloudPlatformCsvFile);
-
+const { googleCloudPlatformCI } = googleCloudPlatformCINormalizeAll(googleCloudPlatformExtractedData);
 const co2Eq = co2EqRaw.map(entry => co2EqNormalizeItem(entry));
 
 // Debug.
@@ -141,6 +143,10 @@ data.devicesColNamesByKey = devicesColNames;
 data.devices = [...boaviztaDevices, ...ecodiagDevices];
 data.co2EqKeys = co2EqKeys;
 data.co2Eq = co2Eq;
+data.carbonIntensity = [...greenAlgorithmsCI, ...googleCloudPlatformCI];
+data.carbonIntensityKeys = carbonIntensityKeys;
+data.carbonIntensityColNames = props2Arr(greenAlgorithmsCIColNames);
+data.carbonIntensityColNamesByKey = greenAlgorithmsCIColNames;
 
 // We won't use the IT equipment equivalents here, as we're already measuring
 // those.
@@ -185,6 +191,10 @@ generateDevicesFallbackValues(data);
 // 	const d = data.devices[Math.floor(Math.random() * data.devices.length)];
 // 	// console.log(`${d.id} : ${Object.keys(d).length} == ${devicesKeys.length} ?`);
 // 	console.log(d);
+// }
+// for (let i = 0; i < 20; i++) {
+// 	const ci = data.carbonIntensity[Math.floor(Math.random() * data.carbonIntensity.length)];
+// 	console.log(ci);
 // }
 // return;
 

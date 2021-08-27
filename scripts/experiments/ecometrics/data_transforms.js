@@ -50,6 +50,18 @@ const co2EqKeys = [
 	"about"
 ];
 
+// Common columns for carbon intensity data.
+const carbonIntensityKeys = [
+	"country_code",
+	"continent",
+	"country",
+	"region",
+	"city",
+	"carbon_intensity", // Grid carbon intensity (gCO2eq / kWh)
+	"type",
+	"source"
+];
+
 const substitutions = {
 	"boavizta": {
 		"keys": {
@@ -76,6 +88,22 @@ const substitutions = {
 			"screen": "monitor",
 			"wifihub": "router"
 		}
+	},
+	"greenAlgorithms": {
+		"keys": {
+			"location": "country_code",
+			"continentName": "continent",
+			"countryName": "country",
+			"regionName": "region",
+			"carbonIntensity": "carbon_intensity",
+			"Type": "type"
+		}
+	},
+	"googleCloudPlatform": {
+		"keys": {
+			"location": "city",
+			"grid_carbon_intensity_g_co_2eq_k_wh": "carbon_intensity"
+		}
 	}
 };
 
@@ -96,16 +124,17 @@ const arr2Props = (csvLine, keys) => {
 };
 
 /**
- * Sorts device object keys in the correct order.
+ * Sorts object keys in the order specified by given array.
  *
  * The order of keys must be the same for the props2Arr() function to work.
  * @see scripts/experiments/ecometrics/extract.js
  *
- * @param {Object} device : normalized device object.
+ * @param {Object} o : the object whose keys are to be sorted.
+ * @param {Array} orderedKeys : array of keys in the correct order.
  */
-const sortDeviceObjKeys = device => {
+const sortObjectKeys = (o, orderedKeys) => {
 	const orderedObj = {};
-	devicesKeys.forEach(key => orderedObj[key] = device[key]);
+	orderedKeys.forEach(key => orderedObj[key] = o[key]);
 	return orderedObj;
 };
 
@@ -194,7 +223,7 @@ const commonDeviceNormalization = (device, source) => {
 
 	// The order of keys must be the same for the props2Arr() function to work.
 	// @see scripts/experiments/ecometrics/extract.js
-	return sortDeviceObjKeys(normalizedDevice);
+	return sortObjectKeys(normalizedDevice, devicesKeys);
 };
 
 /**
@@ -502,6 +531,165 @@ const co2EqNormalizeItem = input => {
 	return output;
 };
 
+/**
+ * Shared Carbon Intensity (CI) normalizations.
+ */
+const commonCINormalization = (ci, source) => {
+	const normalizedCI = {};
+
+	// Normalize keys.
+	Object.keys(ci).forEach(rawKey => {
+		const key = substitutions[source]['keys'][rawKey] || rawKey;
+		if (carbonIntensityKeys.includes(key)) {
+			normalizedCI[key] = `${ci[rawKey] || ''}`.trim();
+		}
+	});
+
+	// Make sure we're not missing any key + filter out any "N/A" value.
+	carbonIntensityKeys.forEach(key => {
+		if (!(key in normalizedCI) || normalizedCI[key] === 'N/A') {
+			normalizedCI[key] = '';
+		}
+	});
+
+	// The order of keys must be the same for the props2Arr() function to work.
+	// @see scripts/experiments/ecometrics/extract.js
+	return sortObjectKeys(normalizedCI, carbonIntensityKeys);
+};
+
+/**
+ * Normalizes all Green Algorithms Carbon Intensity entries from extracted CSV.
+ *
+ * Example of a single line entry :
+ * US-SC,North America,United States of America,South Carolina,302.63,Region,carbonfootprint (June 2020 v1.4),Figures from 2018 (published in 2020)
+ * @see private/footprint-data/CI_aggregated.csv
+ *
+ * @param {Array} input the extracted CSV data to normalize.
+ * @returns {Object} like {
+ * 	"greenAlgorithmsCI": {Array} of normalized objects.
+ * 	"greenAlgorithmsCIColNames": {Object} Column names mapped by carbonIntensityKeys.
+ * }
+ */
+const greenAlgorithmsCINormalizeAll = input => {
+	const output = {};
+	output.greenAlgorithmsCI = [];
+	output.greenAlgorithmsCIColNames = {};
+
+	// This file has 2 lines for header. We want the 2nd.
+	input.shift();
+	const rawKeys = input.shift();
+
+	// Transform column names in a key/value object.
+	rawKeys.forEach((colName, i) => {
+		const key = substitutions['greenAlgorithms']['keys'][rawKeys[i]] || colName;
+		if (carbonIntensityKeys.includes(key)) {
+			output.greenAlgorithmsCIColNames[key] = colName;
+		}
+	});
+	output.greenAlgorithmsCIColNames = sortObjectKeys(output.greenAlgorithmsCIColNames, carbonIntensityKeys);
+
+	// Transform CSV line items from linear arrays of values to key/value objects.
+	input = input.map(csvLine => arr2Props(csvLine, rawKeys));
+
+	// Filter out the keys we won't use in the "Ecometrics" experiment.
+	// Make sure we have the correct number of keys.
+	input.forEach((ci, i) => {
+		output.greenAlgorithmsCI[i] = commonCINormalization(ci, 'greenAlgorithms');
+	});
+
+	return output;
+};
+
+/**
+ * Normalizes all Google Cloud Platform CI entries from extracted CSV.
+ *
+ * Example of a single line entry :
+ * us-east1,South Carolina,0.27,480,0
+ * @see private/footprint-data/GoogleCloudPlatform-region-carbon-info-2020.csv
+ *
+ * @param {Array} input the extracted CSV data to normalize.
+ * @returns {Object} like {
+ * 	"googleCloudPlatformCI": {Array} of normalized objects.
+ * }
+ */
+const googleCloudPlatformCINormalizeAll = input => {
+	const colNames = input.shift();
+	const rawKeys = colNames.map(colName => slugify(colName, { separator: '_' }));
+
+	// Transform CSV line items from linear arrays of values to key/value objects.
+	input = input.map(csvLine => arr2Props(csvLine, rawKeys));
+
+	// Transform the "Google Cloud Region" and "Location" columns to match the
+	// normalized carbon intensity object format (without spending too much time
+	// on it, in a "good enough for now" way).
+	return {
+		googleCloudPlatformCI: input.map(ci => {
+			const parts = ci.google_cloud_region.split('-');
+			ci = commonCINormalization(ci, 'googleCloudPlatform');
+			ci.type = "Google Cloud Platform location";
+			switch (parts[0]) {
+				case 'southamerica':
+					ci.country_code = 'BR';
+					ci.continent = "South America";
+					ci.country = "Brazil";
+					break;
+				case 'northamerica':
+					ci.country_code = 'CA';
+					ci.continent = "North America";
+					ci.country = "Canada";
+					break;
+				case 'asia':
+					ci.continent = "Asia";
+					break;
+				case 'us':
+					ci.country_code = 'US';
+					ci.continent = "North America";
+					ci.country = "United States of America";
+					switch (parts[1]) {
+						case 'central1':
+							ci.city = '';
+							ci.region = 'Iowa';
+							break;
+						case 'east1':
+							ci.city = '';
+							ci.region = 'South Carolina';
+							break;
+						case 'east4':
+							ci.city = '';
+							ci.region = 'Northern Virginia';
+							break;
+						case 'west1':
+							ci.city = '';
+							ci.region = 'Oregon';
+							break;
+					}
+					break;
+				case 'europe':
+					ci.continent = "Europe";
+					switch (parts[1]) {
+						case 'north1':
+							ci.country_code = 'FI';
+							ci.country = "Finland";
+							ci.city = '';
+							break;
+						case 'west1':
+							ci.country_code = 'BE';
+							ci.country = "Belgium";
+							ci.city = '';
+							break;
+						case 'west4':
+							ci.country_code = 'NL';
+							ci.country = "Netherlands";
+							ci.city = '';
+							break;
+					}
+					break;
+			}
+			return ci;
+		})
+	};
+};
+
 module.exports = {
 	devicesKeys,
 	devicesFromBoaviztaNormalizeAll,
@@ -509,5 +697,8 @@ module.exports = {
 	generateDevicesIds,
 	generateDevicesFallbackValues,
 	co2EqKeys,
-	co2EqNormalizeItem
+	co2EqNormalizeItem,
+	carbonIntensityKeys,
+	greenAlgorithmsCINormalizeAll,
+	googleCloudPlatformCINormalizeAll
 };

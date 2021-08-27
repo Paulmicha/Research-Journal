@@ -12,6 +12,7 @@ export const deviceStore = writable({
 });
 
 export const co2EqStore = writable([]);
+export const carbonIntensityStore = writable([]);
 export const totalsStore = writable({});
 export const randomizedDeviceImgStore = writable([]);
 export const clickedDeviceImgStore = writable({});

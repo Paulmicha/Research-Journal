@@ -222,6 +222,9 @@ initSqlJs().then(SQL => {
 		[ colName ]
 	));
 
+	// TODO carbon intensity ?
+	// Still not big enough data though, so this is not justified for now.
+
 	// Debug.
 	// console.log(data.co2EqKeys);
 	// console.log(data.devicesKeys);

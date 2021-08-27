@@ -58,7 +58,7 @@ const carbonIntensityKeys = [
 	"region",
 	"city",
 	"carbon_intensity", // Grid carbon intensity (gCO2eq / kWh)
-	"type",
+	"known_services",
 	"source"
 ];
 
@@ -412,11 +412,11 @@ const generateDevicesIds = data => {
 		dedup[device.fingerprint] = d;
 	});
 
-	data.deviceFingerprints = Object.keys(dedup);
-	data.deviceFingerprints.sort();
+	const deviceFingerprints = Object.keys(dedup);
+	deviceFingerprints.sort();
 
 	const sortedDevices = [];
-	data.deviceFingerprints.forEach((fingerprint, i) => {
+	deviceFingerprints.forEach((fingerprint, i) => {
 		sortedDevices[i] = dedup[fingerprint];
 
 		// If the items change place in the sorted array, the fingerprint will not
@@ -626,7 +626,7 @@ const googleCloudPlatformCINormalizeAll = input => {
 		googleCloudPlatformCI: input.map(ci => {
 			const parts = ci.google_cloud_region.split('-');
 			ci = commonCINormalization(ci, 'googleCloudPlatform');
-			ci.type = "Google Cloud Platform location";
+			ci.source = "Google Cloud Platform";
 			switch (parts[0]) {
 				case 'southamerica':
 					ci.country_code = 'BR';
@@ -653,6 +653,7 @@ const googleCloudPlatformCINormalizeAll = input => {
 						case 'east1':
 							ci.city = '';
 							ci.region = 'South Carolina';
+							ci.known_services = 'Gitlab';
 							break;
 						case 'east4':
 							ci.city = '';

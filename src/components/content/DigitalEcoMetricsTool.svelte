@@ -1,7 +1,7 @@
 <script>
 	import { route } from '../../stores/route.js';
 	import { randomizeArray } from '../../lib/generic_utils.js';
-	import { deviceStore, co2EqStore, selectedDeviceStore } from '../../stores/ecometrics.js';
+	import { deviceStore, co2EqStore, selectedDeviceStore, carbonIntensityStore } from '../../stores/ecometrics.js';
 	import { preferencesStore } from '../../stores/preferences.js';
 	import LoadingSpinner from '../LoadingSpinner.svelte';
 	import EcoMetricsSelector from '../experiments/EcoMetricsSelector.svelte';
@@ -61,6 +61,9 @@
 
 			// Store randomized CO2 equivalences.
 			co2EqStore.set(randomizeArray(o.data.ecometrics.co2Eq));
+
+			// Store carbon intensity data.
+			carbonIntensityStore.set(o.data.ecometrics.carbonIntensity);
 
 			// Presets from query args (shareable links).
 			if ('s' in o.query && o.query.s.length) {

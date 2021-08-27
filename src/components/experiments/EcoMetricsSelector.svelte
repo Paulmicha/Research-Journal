@@ -1,7 +1,7 @@
 <script>
 	import Select from 'svelte-select';
 	import { route } from '../../stores/route.js';
-	import { deviceStore, selectedDeviceStore } from '../../stores/ecometrics.js';
+	import { deviceStore, selectedDeviceStore, carbonIntensityStore } from '../../stores/ecometrics.js';
 	import { preferencesStore } from '../../stores/preferences.js';
 	import LoadingSpinner from '../LoadingSpinner.svelte';
 	import SidePanel from '../SidePanel.svelte';
@@ -41,6 +41,11 @@
 			shareLink += parts.join(',');
 		}
 	});
+
+	// TODO carbon intensity depends on region -> offer select based on this.
+	// carbonIntensityStore.subscribe(ciList => {
+	// 	console.log(ciList);
+	// });
 
 	/**
 	 * Copy shareable link button click handler.
@@ -346,10 +351,23 @@
 								{#if device.data.subcategory === 'server'}
 									<!--
 										TODO region selector.
-										@see private/footprint-data/CI_aggregated.csv
-										@see private/footprint-data/GoogleCloudPlatform-region-carbon-info-2020.csv
-										@see scripts/experiments/ecometrics/extract.js
+										make a modal for each line, not just servers + distinguish
+										datacenters from electricity grid carbon instensity.
 									-->
+									<div class="inner-form-item">
+										<select>
+											{#each $carbonIntensityStore as ci}
+												<option>
+													{ ci.country_code || '' }
+													{ ci.continent || '' }
+													{ ci.country || '' }
+													{ ci.region || '' }
+													{ ci.city || '' }
+													{ ci.known_services ? '(' + ci.known_services + ')' : '' }
+												</option>
+											{/each}
+										</select>
+									</div>
 									<div class="inner-form-item">
 										<label for="deploys-per-month-{i}" title="on average, during the development phase of the project">Deploys per month</label>
 										<input class="input--s" type="number" min="1" name="deploys_nb"

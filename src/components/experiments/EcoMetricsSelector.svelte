@@ -1,10 +1,14 @@
 <script>
 	import Select from 'svelte-select';
 	import { route } from '../../stores/route.js';
-	import { deviceStore, selectedDeviceStore, carbonIntensityStore } from '../../stores/ecometrics.js';
+	import { deviceStore, selectionStore, carbonIntensityStore } from '../../stores/ecometrics.js';
 	import { preferencesStore } from '../../stores/preferences.js';
 	import LoadingSpinner from '../LoadingSpinner.svelte';
 	import SidePanel from '../SidePanel.svelte';
+	import Modal from '../Modal.svelte';
+
+	// Allows to trigger actions in Modal component.
+	let regionModalMethods;
 
 	// Sharing link reacts to current selection store.
 	let totalNbOfDevices = 0;
@@ -21,8 +25,8 @@
 		hours: 'h'
 	};
 
-	selectedDeviceStore.subscribe(selectedDevices => {
-		if (selectedDevices.length) {
+	selectionStore.subscribe(selection => {
+		if (selection.devices.length) {
 			const parts = [];
 			totalNbOfDevices = 0;
 
@@ -30,7 +34,7 @@
 			// shareLink = 'http://' + $route.host + '/' + $route.path + '?s=';
 			shareLink = 'https://msc.paulmichalet.com/' + $route.path + '?s=';
 
-			selectedDevices.forEach(device => {
+			selection.devices.forEach(device => {
 				const subParts = [];
 				Object.keys(oneLetterPropMap).forEach(k => subParts.push(
 					oneLetterPropMap[k] + device[k]
@@ -183,16 +187,16 @@
 			return;
 		}
 
-		selectedDeviceStore.update(selectedDevices => {
-			selectedDevice.pos = selectedDevices.length;
+		selectionStore.update(selection => {
+			selectedDevice.pos = selection.devices.length;
 			selectedDevice.qty = quantity;
 			selectedDevice.deploys_nb = getDeviceUseDefaultValue(selectedDevice, 'deploys_nb');
 			selectedDevice.deploys_duration = getDeviceUseDefaultValue(selectedDevice, 'deploys_duration');
 			selectedDevice.backups_nb = getDeviceUseDefaultValue(selectedDevice, 'backups_nb');
 			selectedDevice.backups_duration = getDeviceUseDefaultValue(selectedDevice, 'backups_duration');
 			selectedDevice.hours = getDeviceUseDefaultValue(selectedDevice, 'hours');
-			selectedDevices.push(selectedDevice);
-			return selectedDevices;
+			selection.devices.push(selectedDevice);
+			return selection;
 		});
 
 		// TODO when this is called on:select on the <Select /> instance, the reset
@@ -212,18 +216,18 @@
 	 */
 	const removeSelectedDevice = (e, deviceToRemove) => {
 		e.preventDefault();
-		selectedDeviceStore.update(selectedDevices => {
-			selectedDevices.forEach((device, i) => {
+		selectionStore.update(selection => {
+			selection.devices.forEach((device, i) => {
 				if (device.data.id === deviceToRemove.data.id) {
-					selectedDevices.splice(i, 1);
+					selection.devices.splice(i, 1);
 				}
 			});
 			// Update positions to maintain correct numbering of items in list.
-			selectedDevices = [...selectedDevices];
-			selectedDevices.forEach((device, i) => {
-				selectedDevices[i].pos = i;
+			selection.devices = [...selection.devices];
+			selection.devices.forEach((device, i) => {
+				selection.devices[i].pos = i;
 			});
-			return selectedDevices;
+			return selection;
 		});
 	};
 
@@ -241,18 +245,18 @@
 		const newBackupsNb = scope.querySelector('input[name="backups_nb"]').value;
 		const newBackupsDuration = scope.querySelector('input[name="backups_duration"]').value;
 
-		selectedDeviceStore.update(selectedDevices => {
-			selectedDevices.forEach((device, i) => {
+		selectionStore.update(selection => {
+			selection.devices.forEach((device, i) => {
 				if (device.data.id === deviceToUpdate.data.id) {
-					selectedDevices[i].qty = newQty;
-					selectedDevices[i].hours = newHours;
-					selectedDevices[i].deploys_nb = newDeploysNb;
-					selectedDevices[i].deploys_duration = newDeploysDuration;
-					selectedDevices[i].backups_nb = newBackupsNb;
-					selectedDevices[i].backups_duration = newBackupsDuration;
+					selection.devices[i].qty = newQty;
+					selection.devices[i].hours = newHours;
+					selection.devices[i].deploys_nb = newDeploysNb;
+					selection.devices[i].deploys_duration = newDeploysDuration;
+					selection.devices[i].backups_nb = newBackupsNb;
+					selection.devices[i].backups_duration = newBackupsDuration;
 				}
 			});
-			return selectedDevices;
+			return selection;
 		});
 
 		e.target.blur();
@@ -262,10 +266,16 @@
 	 * Empties the whole list of selected devices.
 	 */
 	const clearSelection = e => {
-		selectedDeviceStore.set([]);
+		selectionStore.update(selection => {
+			selection.devices = [];
+			return selection;
+		});
 		resetDeviceSelector();
 	};
 
+	/**
+	 * Toggles the collapsible selection list.
+	 */
 	const toggleEcometricsDeviceSelectionListState = e => {
 		e.preventDefault();
 		preferencesStore.update(prefs => {
@@ -285,24 +295,28 @@
 				placeholder="Search for devices to add to the list..."
 			/>
 		</div>
-		<!-- <div>
-			&times;
+		<div class="location">
+			<p>Default location: { $selectionStore.defaultLocation }</p>
+			<button
+				class="btn btn--s"
+				on:click|preventDefault={regionModalMethods.toggle}
+				title="This will apply to all selected items, unless specified differently on each individual item below"
+			>
+				Location
+			</button>
+			<Modal bind:exposedMethods={regionModalMethods}>
+				<p>test</p>
+			</Modal>
 		</div>
-		<div class="nb">
-			<input type="number" min="1" bind:value={quantity} />
-		</div>
-		<div>
-			<button class="btn" on:click={addSelectedDevice}>Add</button>
-		</div> -->
 	</form>
 {:else}
 	<LoadingSpinner />
 {/if}
 
-{#if $selectedDeviceStore.length}
+{#if $selectionStore.devices.length}
 	<details open={$preferencesStore.ecometricsDeviceSelectionListState}>
 		<summary on:click={e => toggleEcometricsDeviceSelectionListState(e)}>
-			Selection{ $selectedDeviceStore.length ? ` (${totalNbOfDevices} devices)` : '' }
+			Selection{ $selectionStore.devices.length ? ` (${totalNbOfDevices} devices)` : '' }
 		</summary>
 		<form class="full-vw">
 			<table class="selection">
@@ -320,7 +334,7 @@
 					</tr>
 				</thead>
 				<tbody>
-					{#each $selectedDeviceStore as device, i}
+					{#each $selectionStore.devices as device, i}
 						<tr>
 							<!-- <td>{ device.pos }</td> -->
 							<!-- <td>{ device.data.id }</td> -->
@@ -449,15 +463,15 @@
 
 <style>
 	.selector {
-		display: flex;
+		/* display: flex;
 		justify-items: center;
-		align-items: center;
+		align-items: center; */
 		margin-top: calc(var(--space) / 2);
 		margin-bottom: var(--space);
 	}
-	.select {
+	/* .select {
 		flex-grow: 1;
-	}
+	} */
 	.type-icon {
 		display: inline-block;
 		vertical-align: middle;

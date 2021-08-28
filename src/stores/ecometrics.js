@@ -19,19 +19,23 @@ export const clickedDeviceImgStore = writable({});
 
 // Anytime the store changes, update the corresponding local storage value.
 // See https://dev.to/danawoodman/svelte-quick-tip-connect-a-store-to-local-storage-4idi
-const createBrowserSelectedDeviceStore = () => {
-	let defaultVal = [];
-	const storedVal = localStorage.getItem('ecometricsSelection');
-	if (storedVal && storedVal.length) {
-		defaultVal = JSON.parse(storedVal);
-	}
-	const selectedDeviceStore = writable(defaultVal);
-	selectedDeviceStore.subscribe(deviceList => localStorage.setItem(
-		'ecometricsSelection',
-		JSON.stringify(deviceList)
-	));
-	return selectedDeviceStore;
+let defaultSelectionStoreVal = {
+	devices: [],
+	services: [],
+	defaultLocation: ''
 };
-export const selectedDeviceStore = typeof localStorage === 'undefined'
-  ? writable([])
-  : createBrowserSelectedDeviceStore();
+const createBrowserSelectionStore = () => {
+	const storedVal = localStorage.getItem('ecometricsSelectionV2');
+	if (storedVal && storedVal.length) {
+		defaultSelectionStoreVal = JSON.parse(storedVal);
+	}
+	const selectionStore = writable(defaultSelectionStoreVal);
+	selectionStore.subscribe(selection => localStorage.setItem(
+		'ecometricsSelectionV2',
+		JSON.stringify(selection)
+	));
+	return selectionStore;
+};
+export const selectionStore = typeof localStorage === 'undefined'
+  ? writable(defaultSelectionStoreVal)
+  : createBrowserSelectionStore();

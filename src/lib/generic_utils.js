@@ -30,12 +30,16 @@ export const randomizeArray = arr => {
 
 /**
  * Formats number for display.
+ *
+ * Small values (between -10 and +10) are displayed with up to 2 decimal digits.
+ * Bigger values are formatted given international standard conventions ('fr-FR'
+ * by default).
  */
-export const displayNb = n => {
+export const displayNb = (n, intlNbFormat = 'fr-FR') => {
 	let result;
-	if (n > 10) {
+	if (n > 10 || n < -10) {
 		result = parseInt(n);
-		result = new Intl.NumberFormat('fr-FR').format(result);
+		result = new Intl.NumberFormat(intlNbFormat).format(result);
 	} else {
 		result = n.toFixed(2);
 	}

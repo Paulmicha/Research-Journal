@@ -1,7 +1,7 @@
 <script>
 	import { route } from '../../stores/route.js';
 	import { randomizeArray } from '../../lib/generic_utils.js';
-	import { deviceStore, co2EqStore, selectedDeviceStore, carbonIntensityStore } from '../../stores/ecometrics.js';
+	import { deviceStore, co2EqStore, selectionStore, carbonIntensityStore } from '../../stores/ecometrics.js';
 	import { preferencesStore } from '../../stores/preferences.js';
 	import LoadingSpinner from '../LoadingSpinner.svelte';
 	import EcoMetricsSelector from '../experiments/EcoMetricsSelector.svelte';
@@ -108,7 +108,10 @@
 					}
 				});
 
-				selectedDeviceStore.set(devicesToSelect);
+				selectionStore.update(selection => {
+					selection.devices = devicesToSelect;
+					return selection;
+				});
 			}
 		}
 	});
@@ -123,7 +126,7 @@
 	</div>
 {:else}
 	<EcoMetricsSelector />
-	{#if $selectedDeviceStore.length}
+	{#if $selectionStore.devices.length}
 		<Tabs
 			id="metrics"
 			selected={$preferencesStore.ecometricsLastActiveTab || 0}

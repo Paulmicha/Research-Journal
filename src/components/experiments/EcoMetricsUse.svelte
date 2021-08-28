@@ -1,6 +1,6 @@
 <script>
 	import { displayNb } from '../../lib/generic_utils.js';
-	import { selectedDeviceStore, totalsStore } from '../../stores/ecometrics.js';
+	import { selectionStore, totalsStore } from '../../stores/ecometrics.js';
   import EcoMetricsCo2Equivalents from './EcoMetricsCo2Equivalents.svelte';
 
 	let period = 'month';
@@ -17,8 +17,8 @@
 	// };
 
 	// totalsStore.subscribe(totals => {
-	// 	if ($selectedDeviceStore.length) {
-	// 		$selectedDeviceStore.forEach(device => {
+	// 	if ($selectionStore.devices.length) {
+	// 		$selectionStore.devices.forEach(device => {
 	// 			console.log(device);
 	// 		});
 	// 	}
@@ -27,8 +27,8 @@
 
 </script>
 
-{#if $selectedDeviceStore.length}
-	<!-- {#if selectionHasServer($selectedDeviceStore)}
+{#if $selectionStore.devices.length}
+	<!-- {#if selectionHasServer($selectionStore.devices)}
 		<p>TODO server config</p>
 	{/if} -->
 	{#if $totalsStore.kg_co2eq.value}

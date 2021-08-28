@@ -21,20 +21,11 @@
 	}
 
 	// CSS vars inline helper.
-	const styleProps = { pos, zIndex, w, dir, speed, offset, bg, id };
+	const styleProps = { pos, zIndex, w, dir, speed, offset, bg };
 	const inlineCssVars = Object.keys(styleProps)
 		.filter(k => styleProps[k] && styleProps[k].length)
 		.map(k => `--${k}:${styleProps[k]}`)
 		.join('; ');
-
-	/**
-	 * Implements Svelte 'use' callback.
-	 *
-	 * Called when an element is created = mounted in the DOM.
-	 */
-	const init = el => {
-		componentInstanceElement = el;
-	};
 
 	const open = () => {
 		componentInstanceElement.setAttribute('aria-hidden', 'false');
@@ -60,9 +51,8 @@
 	export const exposedMethods = { open, close, toggle };
 </script>
 
-<aside
-	use:init
-	id={id}
+<aside {id}
+	bind:this={componentInstanceElement}
 	aria-hidden="true"
 	class="side-panel side-panel--{dir} fx-shadow rich-text--inverse"
 	style={inlineCssVars}
@@ -98,8 +88,7 @@
 		transition: opacity ease-out var(--speed);
 	}
 	.side-panel.is-on,
-	.side-panel:target,
-	.side-panel[aria-hidden="false"] {
+	.side-panel:target {
 		opacity: 1;
 	}
 
@@ -125,8 +114,7 @@
 		animation: tr-offcanvas-slide-out--ltr var(--speed) forwards;
 	}
 	.side-panel--ltr.is-on,
-	.side-panel--ltr:target,
-	.side-panel--ltr[aria-hidden="false"] {
+	.side-panel--ltr:target {
 		animation: tr-offcanvas-slide-in--ltr var(--speed) forwards;
 	}
 
@@ -146,8 +134,7 @@
 		animation: tr-offcanvas-slide-out--rtl var(--speed) forwards;
 	}
 	.side-panel--rtl.is-on,
-	.side-panel--rtl:target,
-	.side-panel--rtl[aria-hidden="false"] {
+	.side-panel--rtl:target {
 		animation: tr-offcanvas-slide-in--rtl var(--speed) forwards;
 	}
 
@@ -174,8 +161,7 @@
 		animation: tr-offcanvas-slide-out--btt var(--speed) forwards;
 	}
 	.side-panel--btt.is-on,
-	.side-panel--btt:target,
-	.side-panel--btt[aria-hidden="false"] {
+	.side-panel--btt:target {
 		animation: tr-offcanvas-slide-in--btt var(--speed) forwards;
 	}
 

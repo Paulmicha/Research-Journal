@@ -2,7 +2,7 @@
 	import { randomizeArray, displayNb, limitDecimals, getValuePercentInRange } from '../../lib/generic_utils.js';
 	import {
 		deviceStore,
-		selectedDeviceStore,
+		selectionStore,
 		totalsStore,
 		randomizedDeviceImgStore,
 		clickedDeviceImgStore
@@ -127,7 +127,7 @@
 		return randomizeArray(images);
 	};
 
-	selectedDeviceStore.subscribe(selectedDevices => {
+	selectionStore.subscribe(selection => {
 		const labels = [];
 		const datasetCo2Eq = [];
 		const datasetYearlyKwh = [];
@@ -145,8 +145,8 @@
 			"highestKgCo2Value": 0
 		};
 
-		if (selectedDevices.length) {
-			selectedDevices.forEach(device => {
+		if (selection.devices.length) {
+			selection.devices.forEach(device => {
 				let kg_co2eq = 0;
 				labels.push(device.qty + " × " + getDeviceLabel(device));
 
@@ -203,10 +203,10 @@
 			totalsStore.set({});
 		}
 
-		if (selectedDevices.length) {
+		if (selection.devices.length) {
 			randomizedDeviceImgStore.set(
 				getDeviceImgRandomized(
-					selectedDevices,
+					selection.devices,
 					newMinMaxValues.lowestKgCo2Value,
 					newMinMaxValues.highestKgCo2Value
 				)
@@ -225,7 +225,7 @@
 
 </script>
 
-{#if $selectedDeviceStore.length}
+{#if $selectionStore.devices.length}
 
 	<!-- Debug. -->
 	<!-- <pre style="font-size:.75rem">{JSON.stringify(co2EqChartData, null, 2)}</pre> -->

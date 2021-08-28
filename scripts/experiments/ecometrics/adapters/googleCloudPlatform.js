@@ -40,7 +40,7 @@ const googleCloudPlatformCINormalizeAll = input => {
 		googleCloudPlatformCI: input.map(ci => {
 			const parts = ci.google_cloud_region.split('-');
 			ci = commonCINormalization(ci, substitutions);
-			ci.source = "Google Cloud Platform";
+			// ci.source = "Google Cloud Platform"; // TODO match services by intensity on location ?
 			switch (parts[0]) {
 				case 'southamerica':
 					ci.country_code = 'BR';

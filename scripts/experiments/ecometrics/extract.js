@@ -21,6 +21,7 @@
 const fs = require('fs');
 const slugify = require('@sindresorhus/slugify');
 const { write_file } = require('../../fs');
+const { csvToArr, props2Arr } = require('./utils');
 const { devicesKeys, generateDevicesIds, generateDevicesFallbackValues } = require('./entities/device');
 const { devicesFromBoaviztaNormalizeAll } = require('./adapters/boavizta');
 const { devicesFromEcodiagNormalizeAll } = require('./adapters/ecodiag');
@@ -29,48 +30,12 @@ const { googleCloudPlatformCINormalizeAll } = require('./adapters/googleCloudPla
 const { co2EqKeys } = require('./entities/co2Eq');
 const { co2EqNormalizeItem } = require('./adapters/datagir');
 const { carbonIntensityKeys } = require('./entities/carbonIntensity');
+const { commonLocationNormalization } = require('./entities/location');
 const initSqlJs = require('../../../static/sql-wasm.js');
 
 // This "data" var contains everything that will get written.
 // @see static/data/ecometrics.json
 const data = {};
-
-/**
- * Sqlite INSERT format helper.
- */
-const props2Arr = eqObj => {
-	const flattenedValues = [];
-	Object.keys(eqObj).forEach(prop => {
-		if (prop in eqObj) {
-			if (Array.isArray(eqObj[prop]) || typeof(eqObj[prop]) === 'object') {
-				flattenedValues.push(JSON.stringify(eqObj[prop]));
-			} else {
-				flattenedValues.push(eqObj[prop]);
-			}
-		} else {
-			flattenedValues.push('');
-		}
-	});
-	return flattenedValues;
-};
-
-/**
- * Converts given CSV file path to an array of arrays (lines x columns).
- *
- * @param {String} csvFile : CSV file path.
- * @param {String} separator : [optional] character delimiting columns. Defaults
- *  to ','.
- * @returns {Array} array of arrays (lines x columns).
- */
-const csvToArr = (csvFile, separator = ',') => fs.readFileSync(csvFile)
-	.toString() // convert Buffer to string
-	.split('\n') // split string to lines
-	.map(e => e.trim()) // remove white spaces for each line
-	.map(e => e
-		.split(separator) // split each line to array
-		.map(e => e.trim()) // remove white spaces for each column
-	)
-	.filter(e => e != null && e != ''); // remove empty lines
 
 // Data sources.
 const { ecodiagDeviceList } = require('./manual-data/ecodiag.js');
@@ -92,15 +57,31 @@ const co2EqRaw = [
 	...JSON.parse(fs.readFileSync(co2EqManualJsonFile).toString())
 ];
 
-// Aggregate normalized data from all sources.
+// Load raw CSV data as arrays.
 const boaviztaExtractedData = csvToArr(boaviztaCsvFile);
+const greenAlgorithmsExtractedData = csvToArr(greenAlgorithmsCsvFile);
+const googleCloudPlatformExtractedData = csvToArr(googleCloudPlatformCsvFile);
+
+// Aggregate normalized data from all sources.
 const { boaviztaDevices, devicesColNames } = devicesFromBoaviztaNormalizeAll(boaviztaExtractedData);
 const ecodiagDevices = devicesFromEcodiagNormalizeAll(ecodiagDeviceList);
-const greenAlgorithmsExtractedData = csvToArr(greenAlgorithmsCsvFile);
 const { greenAlgorithmsCI, greenAlgorithmsCIColNames } = greenAlgorithmsCINormalizeAll(greenAlgorithmsExtractedData);
-const googleCloudPlatformExtractedData = csvToArr(googleCloudPlatformCsvFile);
 const { googleCloudPlatformCI } = googleCloudPlatformCINormalizeAll(googleCloudPlatformExtractedData);
 const co2Eq = co2EqRaw.map(entry => co2EqNormalizeItem(entry));
+
+// We'll use the data from greenAlgorithms for building our location entites.
+const locations = [];
+greenAlgorithmsExtractedData.forEach((line, i) => {
+	if (i < 1) {
+		return;
+	}
+	locations.push(commonLocationNormalization({
+		"country_code": line[0],
+		"continent": line[1],
+		"country": line[2],
+		"region": line[3]
+	}));
+});
 
 // Debug.
 // console.log(greenAlgorithmsExtractedData);
@@ -109,18 +90,16 @@ const co2Eq = co2EqRaw.map(entry => co2EqNormalizeItem(entry));
 // console.log(boaviztaDevices[0]);
 // console.log(ecodiagDevices[0]);
 // console.log(co2Eq[0]);
+// console.log(locations);
 // return;
 
 // Merge into a single dataset.
-data.devicesKeys = devicesKeys;
-data.devicesColNames = props2Arr(devicesColNames);
+data.locations = locations;
 data.devicesColNamesByKey = devicesColNames;
 data.devices = [...boaviztaDevices, ...ecodiagDevices];
 data.co2EqKeys = co2EqKeys;
 data.co2Eq = co2Eq;
 data.carbonIntensity = [...greenAlgorithmsCI, ...googleCloudPlatformCI];
-data.carbonIntensityKeys = carbonIntensityKeys;
-data.carbonIntensityColNames = props2Arr(greenAlgorithmsCIColNames);
 data.carbonIntensityColNamesByKey = greenAlgorithmsCIColNames;
 
 // We won't use the IT equipment equivalents here, as we're already measuring
@@ -162,16 +141,16 @@ generateDevicesFallbackValues(data);
 // });
 
 // Debug.
-for (let i = 0; i < 20; i++) {
-	const d = data.devices[Math.floor(Math.random() * data.devices.length)];
-	// console.log(`${d.id} : ${Object.keys(d).length} == ${devicesKeys.length} ?`);
-	console.log(d);
-}
-for (let i = 0; i < 20; i++) {
-	const ci = data.carbonIntensity[Math.floor(Math.random() * data.carbonIntensity.length)];
-	console.log(ci);
-}
-return;
+// for (let i = 0; i < 20; i++) {
+// 	const d = data.devices[Math.floor(Math.random() * data.devices.length)];
+// 	// console.log(`${d.id} : ${Object.keys(d).length} == ${devicesKeys.length} ?`);
+// 	console.log(d);
+// }
+// for (let i = 0; i < 20; i++) {
+// 	const ci = data.carbonIntensity[Math.floor(Math.random() * data.carbonIntensity.length)];
+// 	console.log(ci);
+// }
+// return;
 
 // Write as sqlite file.
 initSqlJs().then(SQL => {
@@ -185,14 +164,14 @@ initSqlJs().then(SQL => {
 
 	// TODO props2Arr() needs to sync the correct order (ecodiag devices have
 	// their columns mismatched) !
-	db.run(`CREATE TABLE devices (${ data.devicesKeys.join(', ') });`);
+	db.run(`CREATE TABLE devices (${ devicesKeys.join(', ') });`);
 	data.devices.forEach(device => db.run(
-		`INSERT INTO devices VALUES (${ data.devicesKeys.map(c => '?').join(',') })`,
+		`INSERT INTO devices VALUES (${ devicesKeys.map(c => '?').join(',') })`,
 		props2Arr(device)
 	));
 
 	db.run(`CREATE TABLE devicesCols (title);`);
-	data.devicesColNames.forEach(colName => db.run(
+	props2Arr(devicesColNames).forEach(colName => db.run(
 		`INSERT INTO devicesCols VALUES (?)`,
 		[ colName ]
 	));
@@ -202,8 +181,8 @@ initSqlJs().then(SQL => {
 
 	// Debug.
 	// console.log(data.co2EqKeys);
-	// console.log(data.devicesKeys);
-	// console.log(data.devicesColNames);
+	// console.log(devicesKeys);
+	// console.log(props2Arr(devicesColNames));
 	// const stmt = db.prepare("SELECT * FROM co2Eq");
 	// const stmt = db.prepare("SELECT * FROM devices");
 	// stmt.bind();

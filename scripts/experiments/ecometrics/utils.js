@@ -3,6 +3,26 @@
  * Contains shared, generic utilities for data transformation.
  */
 
+const fs = require('fs');
+
+/**
+ * Converts given CSV file path to an array of arrays (lines x columns).
+ *
+ * @param {String} csvFile : CSV file path.
+ * @param {String} separator : [optional] character delimiting columns. Defaults
+ *  to ','.
+ * @returns {Array} array of arrays (lines x columns).
+ */
+const csvToArr = (csvFile, separator = ',') => fs.readFileSync(csvFile)
+	.toString() // convert Buffer to string
+	.split('\n') // split string to lines
+	.map(e => e.trim()) // remove white spaces for each line
+	.map(e => e
+		.split(separator) // split each line to array
+		.map(e => e.trim()) // remove white spaces for each column
+	)
+	.filter(e => e != null && e != ''); // remove empty lines
+
 /**
  * CSV extracted data helper.
  *
@@ -17,6 +37,25 @@ const arr2Props = (csvLine, keys) => {
 		obj[keys[i]] = value;
 	});
 	return obj;
+};
+
+/**
+ * Sqlite INSERT format helper.
+ */
+const props2Arr = eqObj => {
+	const flattenedValues = [];
+	Object.keys(eqObj).forEach(prop => {
+		if (prop in eqObj) {
+			if (Array.isArray(eqObj[prop]) || typeof(eqObj[prop]) === 'object') {
+				flattenedValues.push(JSON.stringify(eqObj[prop]));
+			} else {
+				flattenedValues.push(eqObj[prop]);
+			}
+		} else {
+			flattenedValues.push('');
+		}
+	});
+	return flattenedValues;
 };
 
 /**
@@ -52,7 +91,9 @@ const cyrb53 = (str, seed = 0) => {
 };
 
 module.exports = {
+	csvToArr,
 	arr2Props,
+	props2Arr,
 	sortObjectKeys,
 	cyrb53
 };

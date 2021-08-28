@@ -8,11 +8,11 @@ const { sortObjectKeys } = require('../utils');
 
 // Common columns for carbon intensity data.
 const carbonIntensityKeys = [
-	"id",
-	"location", // n:1 entity reference to a unique "location" entity
+	// "id",
+	"location", // n:1 entity reference to a unique "location" entity (TODO)
 	"carbon_intensity", // Grid carbon intensity (gCO2eq / kWh)
-	"known_services",
-	"source"
+	"known_services"
+	// "source"
 ];
 
 /**

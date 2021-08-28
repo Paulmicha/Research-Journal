@@ -1,0 +1,24 @@
+[
+	{
+		"id": 12345,
+		"name": {
+			"fr": "h sur Netflix"
+		},
+		"emoji": "📺",
+		"total": 0.036,
+		"default": true,
+		"defaultEmbed": true,
+		"about": "Powered by the global average electricity mix, streaming a 30-minute show on Netflix in 2019 released around 0.018kgCO2e (<a href='https://www.carbonbrief.org/factcheck-what-is-the-carbon-footprint-of-streaming-video-on-netflix'>source</a>)"
+	},
+	{
+		"id": 12346,
+		"name": {
+			"fr": "tree-month"
+		},
+		"emoji": "🌳",
+		"total": 0.917,
+		"default": true,
+		"defaultEmbed": true,
+		"about": "This represents the number of months a mature tree needs to absorb a given quantity of CO2. While the amount of CO2 sequestered by a tree per unit of time depends on a number of factors, such as its species, size, or environment, it was estimated that a mature tree sequesters, on average, ≈11 kg of CO2 per year, giving the multiplier in tree-months a value close to 1 kg of CO2 per month (0.92 kg). (<a href='https://onlinelibrary.wiley.com/doi/10.1002/advs.202100707'>source</a>)"
+	}
+]

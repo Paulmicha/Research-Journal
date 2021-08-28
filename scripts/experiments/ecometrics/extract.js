@@ -21,19 +21,19 @@
 const fs = require('fs');
 const slugify = require('@sindresorhus/slugify');
 const { write_file } = require('../../fs');
-const {
-	devicesKeys,
-	devicesFromBoaviztaNormalizeAll,
-	devicesFromEcodiagNormalizeAll,
-	generateDevicesIds,
-	generateDevicesFallbackValues,
-	co2EqKeys,
-	co2EqNormalizeItem,
-	carbonIntensityKeys,
-	greenAlgorithmsCINormalizeAll,
-	googleCloudPlatformCINormalizeAll
-} = require('./data_transforms');
+const { devicesKeys, generateDevicesIds, generateDevicesFallbackValues } = require('./entities/device');
+const { devicesFromBoaviztaNormalizeAll } = require('./adapters/boavizta');
+const { devicesFromEcodiagNormalizeAll } = require('./adapters/ecodiag');
+const { greenAlgorithmsCINormalizeAll } = require('./adapters/greenAlgorithms');
+const { googleCloudPlatformCINormalizeAll } = require('./adapters/googleCloudPlatform');
+const { co2EqKeys } = require('./entities/co2Eq');
+const { co2EqNormalizeItem } = require('./adapters/datagir');
+const { carbonIntensityKeys } = require('./entities/carbonIntensity');
 const initSqlJs = require('../../../static/sql-wasm.js');
+
+// This "data" var contains everything that will get written.
+// @see static/data/ecometrics.json
+const data = {};
 
 /**
  * Sqlite INSERT format helper.
@@ -73,8 +73,9 @@ const csvToArr = (csvFile, separator = ',') => fs.readFileSync(csvFile)
 	.filter(e => e != null && e != ''); // remove empty lines
 
 // Data sources.
-const { ecodiagDeviceList } = require('./ecodiag/devices.js');
+const { ecodiagDeviceList } = require('./manual-data/ecodiag.js');
 const datagirJsonFile = 'private/co2-eq/equivalents.json';
+const co2EqManualJsonFile = 'scripts/experiments/ecometrics/manual-data/co2-equivalents.json';
 const boaviztaCsvFile = 'private/footprint-data/boavizta-data-us.csv';
 const greenAlgorithmsCsvFile = 'private/footprint-data/CI_aggregated.csv';
 const googleCloudPlatformCsvFile = 'private/footprint-data/GoogleCloudPlatform-region-carbon-info-2020.csv';
@@ -85,39 +86,13 @@ if (!fs.existsSync(boaviztaCsvFile) || !fs.existsSync(datagirJsonFile)) {
 	return;
 }
 
-// Load the CO2 equivalences Json file as array.
-const co2EqRaw = JSON.parse(fs.readFileSync(datagirJsonFile).toString());
-
-// Manually include average Netflix emissions.
-// See https://www.carbonbrief.org/factcheck-what-is-the-carbon-footprint-of-streaming-video-on-netflix
-co2EqRaw.push({
-	"id": 12345,
-	"name": {
-		"fr": "h sur Netflix"
-	},
-	"emoji": "📺",
-	"total": 0.036,
-	"default": true,
-	"defaultEmbed": true,
-	"about": "Powered by the global average electricity mix, streaming a 30-minute show on Netflix in 2019 released around 0.018kgCO2e (<a href='https://www.carbonbrief.org/factcheck-what-is-the-carbon-footprint-of-streaming-video-on-netflix'>source</a>)"
-});
-
-// Manually include the tree-month unit.
-// See https://onlinelibrary.wiley.com/doi/10.1002/advs.202100707 (http://green-algorithms.org/)
-co2EqRaw.push({
-	"id": 12346,
-	"name": {
-		"fr": "tree-month"
-	},
-	"emoji": "🌳",
-	"total": 0.92,
-	"default": true,
-	"defaultEmbed": true,
-	"about": "This represents the number of months a mature tree needs to absorb a given quantity of CO2. While the amount of CO2 sequestered by a tree per unit of time depends on a number of factors, such as its species, size, or environment, it was estimated that a mature tree sequesters, on average, ≈11 kg of CO2 per year, giving the multiplier in tree-months a value close to 1 kg of CO2 per month (0.92 kg). (<a href='https://onlinelibrary.wiley.com/doi/10.1002/advs.202100707'>source</a>)"
-});
+// Load the CO2 equivalences Json files into a single array.
+const co2EqRaw = [
+	...JSON.parse(fs.readFileSync(datagirJsonFile).toString()),
+	...JSON.parse(fs.readFileSync(co2EqManualJsonFile).toString())
+];
 
 // Aggregate normalized data from all sources.
-const data = {};
 const boaviztaExtractedData = csvToArr(boaviztaCsvFile);
 const { boaviztaDevices, devicesColNames } = devicesFromBoaviztaNormalizeAll(boaviztaExtractedData);
 const ecodiagDevices = devicesFromEcodiagNormalizeAll(ecodiagDeviceList);
@@ -187,16 +162,16 @@ generateDevicesFallbackValues(data);
 // });
 
 // Debug.
-// for (let i = 0; i < 20; i++) {
-// 	const d = data.devices[Math.floor(Math.random() * data.devices.length)];
-// 	// console.log(`${d.id} : ${Object.keys(d).length} == ${devicesKeys.length} ?`);
-// 	console.log(d);
-// }
-// for (let i = 0; i < 20; i++) {
-// 	const ci = data.carbonIntensity[Math.floor(Math.random() * data.carbonIntensity.length)];
-// 	console.log(ci);
-// }
-// return;
+for (let i = 0; i < 20; i++) {
+	const d = data.devices[Math.floor(Math.random() * data.devices.length)];
+	// console.log(`${d.id} : ${Object.keys(d).length} == ${devicesKeys.length} ?`);
+	console.log(d);
+}
+for (let i = 0; i < 20; i++) {
+	const ci = data.carbonIntensity[Math.floor(Math.random() * data.carbonIntensity.length)];
+	console.log(ci);
+}
+return;
 
 // Write as sqlite file.
 initSqlJs().then(SQL => {

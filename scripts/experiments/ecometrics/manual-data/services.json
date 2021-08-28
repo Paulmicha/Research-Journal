@@ -1,0 +1,17 @@
+[
+	{
+		"name": "Gitlab",
+		"cloud_provider": "Google Cloud Platform",
+		"locations": [
+			{ "main": "us-east1" }
+		]
+	},
+	{
+		"name": "Github",
+		"cloud_provider": "Github",
+		"locations": [
+			"northern Virginia",
+			"Seattle"
+		]
+	}
+]

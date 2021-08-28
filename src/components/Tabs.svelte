@@ -2,6 +2,10 @@
 	import { setContext, createEventDispatcher } from 'svelte';
 	import TabContent from './TabContent.svelte';
 
+	// TODO combine all A11Y features from :
+	// https://codepen.io/heydon/pen/veeaEa/
+	// https://github.com/nico3333fr/van11y-accessible-tab-panel-aria
+
 	export let id = Math.random().toString(36).substr(2, 9);
 	export let items = [];
 	export let selected = 0;
@@ -64,7 +68,7 @@
 		<div class="full-vw--padded">
 			<ul role="tablist">
 				{#each items as item, i}
-					<li class="tablist-item { selected === i ? 'is-on' : 'is-off' }">
+					<li role="presentation" class="tablist-item { selected === i ? 'is-on' : 'is-off' }">
 						<a
 							id="{ id }-{ i }-label"
 							role="tab"

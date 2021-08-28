@@ -1,127 +1,66 @@
 <script>
 	import Select from 'svelte-select';
-	import { route } from '../../stores/route.js';
 	import { deviceStore, selectionStore, carbonIntensityStore } from '../../stores/ecometrics.js';
 	import { preferencesStore } from '../../stores/preferences.js';
+	import { getDeviceUseDefaultValue } from '../../lib/ecometrics/selection.js';
+	import EcoMetricsShareLink from './EcoMetricsShareLink.svelte';
 	import LoadingSpinner from '../LoadingSpinner.svelte';
-	import SidePanel from '../SidePanel.svelte';
-	import Modal from '../Modal.svelte';
+	import Tooltip from '../Tooltip.svelte';
 
-	// Allows to trigger actions in Modal component.
-	let regionModalMethods;
-
-	// Sharing link reacts to current selection store.
+	let selectedItem;
+	let selectOptions = [];
 	let totalNbOfDevices = 0;
-	let shareLink = '';
-	let shareableLinkInput;
-	let toasterMethods;
+	let totalNbOfServices = 0;
 
-	const oneLetterPropMap = {
-		qty: 'q',
-		deploys_nb: 'd',
-		deploys_duration: 'u',
-		backups_nb: 'b',
-		backups_duration: 'r',
-		hours: 'h'
-	};
+	let regionTooltipId;
+	let regionTooltipTrigger;
+	let regionTooltipMethods;
 
 	selectionStore.subscribe(selection => {
 		if (selection.devices.length) {
-			const parts = [];
 			totalNbOfDevices = 0;
-
-			// TODO reverse proxy... ?
-			// shareLink = 'http://' + $route.host + '/' + $route.path + '?s=';
-			shareLink = 'https://msc.paulmichalet.com/' + $route.path + '?s=';
-
 			selection.devices.forEach(device => {
-				const subParts = [];
-				Object.keys(oneLetterPropMap).forEach(k => subParts.push(
-					oneLetterPropMap[k] + device[k]
-				));
-				parts.push(`${device.data.id}:${subParts.join(':')}`);
 				totalNbOfDevices += parseInt(device.qty);
 			});
-			shareLink += parts.join(',');
 		}
+		totalNbOfServices = selection.services.length;
 	});
-
-	// TODO carbon intensity depends on region -> offer select based on this.
-	// carbonIntensityStore.subscribe(ciList => {
-	// 	console.log(ciList);
-	// });
-
-	/**
-	 * Copy shareable link button click handler.
-	 */
-	const copyShareableLink = e => {
-		e.preventDefault();
-		shareableLinkInput.focus();
-    shareableLinkInput.select();
-    try {
-      document.execCommand('copy');
-			toasterMethods.open();
-			setTimeout(toasterMethods.close, 3000);
-    } catch (err) {
-			alert('Something prevents the "copy" action. You will need to copy the link manually.');
-			shareableLinkInput.classList.remove('u-sr-only');
-		}
-	};
-
-	// Define the search filters by "keys" (the rows' columns).
-	// @see static/data/ecometrics.json
-	// @see static/data/ecometrics.sqlite (alternative impl. to compare later on)
-	// ["manufacturer","name","category","subcategory","kg_co_2eq_total","use","yearly_tec_k_wh","lifetime","use_location","date","sources","error","manufacturing","weight","assembly_location","screen_size","server_type","hdd_ssd","ram","cpu","u"]
-	let selectedDevice;
-	let selectOptions = [];
-	const searchKeys = ['name'];
-
-	// TODO deprecated (not needed anymore since the removal of input + btn "add").
-	// Contains the current quantity value once the selection is made when adding
-	// to the list of selected devices.
-	let quantity = 1;
 
 	/**
 	 * Populates the multi-select field items.
 	 */
-	const getSelectOptions = devices => {
-		devices.forEach(device => {
-			searchKeys.forEach(key => {
-				if (key in device) {
-					let value = device[key];
+	const getSelectOptions = sources => {
+		sources.forEach(source => {
+			let value = source[key];
 
-					value = value.trim();
-					if (!value.length) {
-						return;
-					}
+			value = value.trim();
+			if (!value.length) {
+				return;
+			}
 
-					// Special : manufacturer will be concatenated with the device name.
-					if (key === 'name') {
-						if ('manufacturer' in device && device.manufacturer.trim().length) {
-							value = `${device.manufacturer.trim()} ${value}`;
-						}
-						// if ('category' in device && device.category.trim().length) {
-						// 	value = `${value} (${device.category.trim()})`;
-						// }
-					}
+			// Special : manufacturer will be concatenated with the source name.
+			if ('manufacturer' in source && source.manufacturer.trim().length) {
+				value = `${source.manufacturer.trim()} ${value}`;
+			}
+			// if ('category' in source && source.category.trim().length) {
+			// 	value = `${value} (${source.category.trim()})`;
+			// }
 
-					// Remove special characters.
-					// value = slugify(value, { lowercase: false, separator: ' ' });
+			// Remove special characters.
+			// value = slugify(value, { lowercase: false, separator: ' ' });
 
-					// TODO figure out simplest way to make this case insensitive.
-					// const valCaseInsensitive = slugify(value, { separator: ' ' });
+			// TODO figure out simplest way to make this case insensitive.
+			// const valCaseInsensitive = slugify(value, { separator: ' ' });
 
-					// Format the displayed option text.
-					// const label = `${value} <span style="color:grey">(${key.replaceAll('_', ' ')})</span>`;
-					const label = value;
+			// Format the displayed option text.
+			// const label = `${value} <span style="color:grey">(${key.replaceAll('_', ' ')})</span>`;
+			const label = value;
 
-					// Other props not used by the Select component are kept in the bound
-					// "selectedValue" -> attach our devices data to easily get it back
-					// upon selection.
-					// @see addSelectedDevice()
-					selectOptions.push({ key, value, label, data: device });
-				}
-			});
+			// Other props not used by the Select component are kept in the bound
+			// "selectedValue" -> attach our sources data to easily get it back
+			// upon selection.
+			// @see addSelectedDevice()
+			selectOptions.push({ key, value, label, data: source });
 		});
 
 		// Remove duplicates.
@@ -141,41 +80,7 @@
 	 */
 	const resetDeviceSelector = () => {
 		quantity = 1;
-		selectedDevice = null;
-	};
-
-	/**
-	 * Gets use stats defaults per device.
-	 */
-	const getDeviceUseDefaultValue = (device, use) => {
-		switch (use) {
-			case "hours":
-				switch (device.data.subcategory) {
-					case 'router':
-					case 'server':
-						return 24;
-					case 'smartphone':
-						return 2;
-					case 'ipphone':
-						return 1;
-					default:
-						return 6;
-				}
-			case "deploys_nb":
-				if (device.data.subcategory !== 'server') {
-					return 0;
-				}
-				return 4;
-			case "deploys_duration":
-				if (device.data.subcategory !== 'server') {
-					return 0;
-				}
-				return 120;
-			case "backups_nb":
-			case "backups_duration":
-				return 0;
-		}
-		return 6;
+		selectedItem = null;
 	};
 
 	/**
@@ -183,19 +88,19 @@
 	 */
 	const addSelectedDevice = async () => {
 		// e.preventDefault();
-		if (!selectedDevice) {
+		if (!selectedItem) {
 			return;
 		}
 
 		selectionStore.update(selection => {
-			selectedDevice.pos = selection.devices.length;
-			selectedDevice.qty = quantity;
-			selectedDevice.deploys_nb = getDeviceUseDefaultValue(selectedDevice, 'deploys_nb');
-			selectedDevice.deploys_duration = getDeviceUseDefaultValue(selectedDevice, 'deploys_duration');
-			selectedDevice.backups_nb = getDeviceUseDefaultValue(selectedDevice, 'backups_nb');
-			selectedDevice.backups_duration = getDeviceUseDefaultValue(selectedDevice, 'backups_duration');
-			selectedDevice.hours = getDeviceUseDefaultValue(selectedDevice, 'hours');
-			selection.devices.push(selectedDevice);
+			selectedItem.pos = selection.devices.length;
+			selectedItem.qty = quantity;
+			selectedItem.deploys_nb = getDeviceUseDefaultValue(selectedItem, 'deploys_nb');
+			selectedItem.deploys_duration = getDeviceUseDefaultValue(selectedItem, 'deploys_duration');
+			selectedItem.backups_nb = getDeviceUseDefaultValue(selectedItem, 'backups_nb');
+			selectedItem.backups_duration = getDeviceUseDefaultValue(selectedItem, 'backups_duration');
+			selectedItem.hours = getDeviceUseDefaultValue(selectedItem, 'hours');
+			selection.devices.push(selectedItem);
 			return selection;
 		});
 
@@ -203,7 +108,7 @@
 		// will not work immediately. Find better workaround than delaying.
 		// resetDeviceSelector();
 		let failsafe = 99;
-		while (selectedDevice && failsafe > 0) {
+		while (selectedItem && failsafe > 0) {
 			await new Promise(resolve => setTimeout(resetDeviceSelector, 150));
 			failsafe--;
 		}
@@ -290,7 +195,7 @@
 	<form class="selector">
 		<div class="select">
 			<Select items={getSelectOptions($deviceStore.devices)}
-				bind:selectedValue={selectedDevice}
+				bind:selectedValue={selectedItem}
 				on:select={addSelectedDevice}
 				placeholder="Search for devices to add to the list..."
 			/>
@@ -299,14 +204,22 @@
 			<p>Default location: { $selectionStore.defaultLocation }</p>
 			<button
 				class="btn btn--s"
-				on:click|preventDefault={regionModalMethods.toggle}
+				bind:this={regionTooltipTrigger}
+				aria-describedby={regionTooltipId}
+				on:click|preventDefault={regionTooltipMethods.toggle}
 				title="This will apply to all selected items, unless specified differently on each individual item below"
 			>
 				Location
 			</button>
-			<Modal bind:exposedMethods={regionModalMethods}>
-				<p>test</p>
-			</Modal>
+			{#if regionTooltipTrigger}
+				<Tooltip
+					trigger={regionTooltipTrigger}
+					bind:id={regionTooltipId}
+					bind:exposedMethods={regionTooltipMethods}
+				>
+					<p>test</p>
+				</Tooltip>
+			{/if}
 		</div>
 	</form>
 {:else}
@@ -433,30 +346,10 @@
 			</table>
 			<div class="bottom-zone">
 				<button class="btn btn--s" on:click={clearSelection}>Clear selection</button>
-				<button class="btn btn--s"
-					on:click={copyShareableLink}
-					title="This link contains the current selection. Opening it will preset this page with this list."
-				>
-					Copy shareable link
-				</button>
-				(to send this list to someone)
-				<input
-					class="u-sr-only"
-					type="text"
-					aria-hidden="true"
-					bind:this={shareableLinkInput}
-					value="{shareLink}"
-				/>
+				<EcoMetricsShareLink />
 			</div>
 		</form>
 	</details>
-
-	<SidePanel bind:exposedMethods={toasterMethods} id="toaster" dir="btt" bg="mediumseagreen">
-		<div class="u-center">
-			<strong>Link copied to clipboard.</strong>
-		</div>
-	</SidePanel>
-
 {:else}
 	<p>↑ Please select one or more devices.</p>
 {/if}

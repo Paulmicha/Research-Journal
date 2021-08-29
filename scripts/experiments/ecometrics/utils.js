@@ -70,6 +70,13 @@ const props2Arr = eqObj => {
 const sortObjectKeys = (o, orderedKeys) => {
 	const orderedObj = {};
 	orderedKeys.forEach(key => orderedObj[key] = o[key]);
+
+	// Keep our custom postprocess data.
+	// @see postProcess()
+	if ('postprocess' in o) {
+		orderedObj.postprocess = o.postprocess;
+	}
+
 	return orderedObj;
 };
 
@@ -95,10 +102,11 @@ const cyrb53 = (str, seed = 0) => {
  */
 const postProcess = (objects, callback) => objects.map(object => {
 	if (!('postprocess' in object)) {
-		return;
+		return object;
 	}
 	object.postprocess.forEach(pp => callback(object, pp));
 	delete object.postprocess;
+	return object;
 });
 
 module.exports = {

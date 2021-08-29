@@ -95,8 +95,9 @@ const { greenAlgorithmsCI, greenAlgorithmsCIColNames } = greenAlgorithmsCINormal
 const { googleCloudPlatformCI } = googleCloudPlatformCINormalizeAll(googleCloudPlatformExtractedData);
 
 // Debug.
-// console.log(locations);
-// return;
+// console.log(services);
+console.log(postProcess(services, servicePostprocess));
+return;
 
 // Merge into a single dataset.
 data.locations = locations;

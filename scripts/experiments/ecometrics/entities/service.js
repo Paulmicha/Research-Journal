@@ -58,18 +58,17 @@ const serviceNormalizeItem = service => {
 		}
 	});
 
+	// Generate the ID.
+	service.id = generateServiceID(service);
+
 	// Other services' entity references.
 	if (service.services.length) {
-		service.services = service.services.map(service => {
-			return { id: generateServiceID(service) };
-		});
+		service.services = service.services.map(service => generateServiceID(service));
 	}
 
 	// Location entity references.
 	if (service.locations.length) {
-		service.locations = service.locations.map(loc => {
-			return { id: generateLocationID(loc) };
-		});
+		service.locations = service.locations.map(loc => generateLocationID(loc));
 	} else {
 		// When a service uses 1 or more other services which have at least 1
 		// location, use those automatically. This requires post-processing.
@@ -103,6 +102,7 @@ const serviceNormalizeItem = service => {
  * @param {Objects} postprocess : the post processing details
  */
 const servicePostprocess = (service, postprocess) => {
+	console.log("servicePostprocess()");
 	console.log(service);
 	console.log(postprocess);
 }

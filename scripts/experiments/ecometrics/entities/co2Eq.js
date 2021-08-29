@@ -1,6 +1,6 @@
 /**
  * @file
- * Loosely defines our main entities props for the Ecometrics experiment.
+ * Loosely defines our main entities for the Ecometrics experiment.
  */
 
 // This flattens the datagir data, almost used "as is".

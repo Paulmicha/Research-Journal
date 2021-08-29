@@ -1,17 +1,17 @@
 /**
  * @file
- * Loosely defines our main entities props for the Ecometrics experiment.
+ * Loosely defines our main entities for the Ecometrics experiment.
  */
 
 const slugify = require('@sindresorhus/slugify');
 const { sortObjectKeys } = require('../utils');
+const { generateLocationID } = require('./location');
 
 // Common columns for carbon intensity data.
 const carbonIntensityKeys = [
 	// "id",
-	"location", // n:1 entity reference to a unique "location" entity (TODO)
+	"location", // n:1 entity reference to a unique "location" entity
 	"carbon_intensity", // Grid carbon intensity (gCO2eq / kWh)
-	"known_services"
 	// "source"
 ];
 
@@ -35,6 +35,11 @@ const commonCINormalization = (ci, substitutions) => {
 			normalizedCI[key] = '';
 		}
 	});
+
+	// Reference location entity. This can only work with objects having 1 or more
+	// keys and values in common with location objects (i.e. "continent",
+	// "country", "region", "city").
+	normalizedCI.location = generateLocationID(ci);
 
 	// The order of keys must be the same for the props2Arr() function to work.
 	// @see scripts/experiments/ecometrics/extract.js

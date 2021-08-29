@@ -1,6 +1,6 @@
 /**
  * @file
- * Loosely defines our main entities props for the Ecometrics experiment.
+ * Loosely defines our main entities for the Ecometrics experiment.
  */
 
 const slugify = require('@sindresorhus/slugify');
@@ -24,7 +24,7 @@ const locationKeys = [
  * @return {String} : hopefully stable-ish value to be transformed into a hash.
  */
 const getFingerprint = location => slugify(
-	`${location.continent} ${location.country} ${location.region} ${location.city}`,
+	`${location.continent || ''} ${location.country || ''} ${location.region || ''} ${location.city || ''}`,
 	{ separator: '_' }
 );
 
@@ -38,7 +38,7 @@ const generateLocationID = location => `${cyrb53(getFingerprint(location))}`.sub
 /**
  * Shared location normalizations.
  */
-const commonLocationNormalization = location => {
+const locationNormalizeItem = location => {
 	const normalized = {...location};
 
 	// Make sure we're not missing any key + filter out any "Any" value.
@@ -56,5 +56,6 @@ const commonLocationNormalization = location => {
 
 module.exports = {
 	locationKeys,
-	commonLocationNormalization
+	locationNormalizeItem,
+	generateLocationID
 };

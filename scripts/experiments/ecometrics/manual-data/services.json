@@ -1,17 +1,46 @@
 [
 	{
-		"name": "Gitlab",
-		"cloud_provider": "Google Cloud Platform",
+		"type": "cloud provider",
+		"name": "Google Cloud Platform",
 		"locations": [
-			{ "main": "us-east1" }
+			{
+				"continent": "North America",
+				"country": "United States of America",
+				"region": "South Carolina"
+			}
+		],
+		"postprocess": [
+			{
+				"operation": "append",
+				"dataset": "googleCloudPlatformCI",
+				"to": "locations"
+			}
 		]
 	},
 	{
+		"type": "saas",
+		"name": "Gitlab",
+		"services": [
+			{
+				"type": "cloud provider",
+				"name": "Google Cloud Platform"
+			}
+		]
+	},
+	{
+		"type": "saas",
 		"name": "Github",
-		"cloud_provider": "Github",
 		"locations": [
-			"northern Virginia",
-			"Seattle"
+			{
+				"continent": "North America",
+				"country": "United States of America",
+				"region": "Virginia"
+			},
+			{
+				"continent": "North America",
+				"country": "United States of America",
+				"region": "Washington"
+			}
 		]
 	}
 ]

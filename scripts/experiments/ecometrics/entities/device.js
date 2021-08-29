@@ -1,6 +1,6 @@
 /**
  * @file
- * Loosely defines our main entities props for the Ecometrics experiment.
+ * Loosely defines our main entities for the Ecometrics experiment.
  */
 
 const slugify = require('@sindresorhus/slugify');
@@ -46,7 +46,7 @@ const devicesKeys = [
  * @param {Object} device : normalized device object.
  * @return {String} : hopefully stable-ish value to be transformed into a hash.
  */
-const getDeviceFingerprint = device => slugify(
+const getFingerPrint = device => slugify(
 	`${device.manufacturer} ${device.subcategory} ${device.name}`,
 	{ separator: '_' }
 );
@@ -54,7 +54,7 @@ const getDeviceFingerprint = device => slugify(
 /**
  * Determines the screen size of given device.
  */
-const getDeviceScreenSize = device => {
+const getScreenSize = device => {
 	if (device.screen_size.length) {
 		return device.screen_size;
 	}
@@ -97,7 +97,7 @@ const commonDeviceNormalization = (device, substitutions) => {
 
 	// Determine screensize (if applicable).
 	if (!normalizedDevice.screen_size.length) {
-		normalizedDevice.screen_size = getDeviceScreenSize(normalizedDevice);
+		normalizedDevice.screen_size = getScreenSize(normalizedDevice);
 	}
 
 	// The order of keys must be the same for the props2Arr() function to work.
@@ -108,7 +108,7 @@ const commonDeviceNormalization = (device, substitutions) => {
 /**
 * Generates unique numerical device IDs.
 *
-* @see getDeviceFingerprint()
+* @see getFingerPrint()
 *
 * @param {Object} data : whole ecometrics dataset, where data.devices contains
 *   the list of every aggregated devices' objects.
@@ -117,7 +117,7 @@ const generateDevicesIds = data => {
 	// Associates fingerprints to every data.devices, drop the ones which don't
 	// have enough data to get one (presumably inexploitable).
 	data.devices
-		.map(device => device.fingerprint = getDeviceFingerprint(device))
+		.map(device => device.fingerprint = getFingerPrint(device))
 		.filter(device => device.fingerprint && device.fingerprint.length);
 
 	// Prevent duplicates.
@@ -189,7 +189,7 @@ const generateDevicesFallbackValues = data => {
 		// size.
 		if (device.subcategory in averages) {
 			let noneMatched = true;
-			const incompleteDeviceScreenSize = getDeviceScreenSize(device);
+			const incompleteDeviceScreenSize = getScreenSize(device);
 
 			averages[device.subcategory].forEach(averageDevice => {
 				if (!incompleteDeviceScreenSize.length) {
@@ -201,7 +201,7 @@ const generateDevicesFallbackValues = data => {
 							// console.log("fallback: " + device.name + " -> " + averageDevice.name + `(${device.yearly_kwh})`);
 						}
 					});
-				} else if (incompleteDeviceScreenSize === getDeviceScreenSize(averageDevice)) {
+				} else if (incompleteDeviceScreenSize === getScreenSize(averageDevice)) {
 					device.yearly_kwh = averageDevice.yearly_kwh;
 					// Debug.
 					// console.log("fallback: " + device.name + " -> " + averageDevice.name + `(${device.yearly_kwh})`);

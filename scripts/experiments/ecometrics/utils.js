@@ -90,10 +90,22 @@ const cyrb53 = (str, seed = 0) => {
 	return 4294967296 * (2097151 & h2) + (h1>>>0);
 };
 
+/**
+ * Cycles through given objects to look for pp and runs given callback.
+ */
+const postProcess = (objects, callback) => objects.map(object => {
+	if (!('postprocess' in object)) {
+		return;
+	}
+	object.postprocess.forEach(pp => callback(object, pp));
+	delete object.postprocess;
+});
+
 module.exports = {
 	csvToArr,
 	arr2Props,
 	props2Arr,
 	sortObjectKeys,
-	cyrb53
+	cyrb53,
+	postProcess
 };

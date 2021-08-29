@@ -21,7 +21,7 @@
 const fs = require('fs');
 const slugify = require('@sindresorhus/slugify');
 const { write_file } = require('../../fs');
-const { csvToArr, props2Arr } = require('./utils');
+const { csvToArr, props2Arr, postProcess } = require('./utils');
 const { devicesKeys, generateDevicesIds, generateDevicesFallbackValues } = require('./entities/device');
 const { devicesFromBoaviztaNormalizeAll } = require('./adapters/boavizta');
 const { devicesFromEcodiagNormalizeAll } = require('./adapters/ecodiag');
@@ -30,7 +30,8 @@ const { googleCloudPlatformCINormalizeAll } = require('./adapters/googleCloudPla
 const { co2EqKeys } = require('./entities/co2Eq');
 const { co2EqNormalizeItem } = require('./adapters/datagir');
 const { carbonIntensityKeys } = require('./entities/carbonIntensity');
-const { commonLocationNormalization } = require('./entities/location');
+const { locationNormalizeItem } = require('./entities/location');
+const { serviceNormalizeItem, servicePostprocess } = require('./entities/service');
 const initSqlJs = require('../../../static/sql-wasm.js');
 
 // This "data" var contains everything that will get written.
@@ -41,6 +42,7 @@ const data = {};
 const { ecodiagDeviceList } = require('./manual-data/ecodiag.js');
 const datagirJsonFile = 'private/co2-eq/equivalents.json';
 const co2EqManualJsonFile = 'scripts/experiments/ecometrics/manual-data/co2-equivalents.json';
+const servicesManualJsonFile = 'scripts/experiments/ecometrics/manual-data/services.json';
 const boaviztaCsvFile = 'private/footprint-data/boavizta-data-us.csv';
 const greenAlgorithmsCsvFile = 'private/footprint-data/CI_aggregated.csv';
 const googleCloudPlatformCsvFile = 'private/footprint-data/GoogleCloudPlatform-region-carbon-info-2020.csv';
@@ -51,31 +53,32 @@ if (!fs.existsSync(boaviztaCsvFile) || !fs.existsSync(datagirJsonFile)) {
 	return;
 }
 
-// Load the CO2 equivalences Json files into a single array.
-const co2EqRaw = [
+// Load raw JSON manual data.
+const servicesRaw = JSON.parse(fs.readFileSync(servicesManualJsonFile).toString());
+
+// Load raw CO2 equivalences Json files into a single array.
+let co2EqRaw = [
 	...JSON.parse(fs.readFileSync(datagirJsonFile).toString()),
 	...JSON.parse(fs.readFileSync(co2EqManualJsonFile).toString())
 ];
+
+// We won't use the IT equipment equivalents here, as we're already measuring
+// those.
+const co2EqExcludedIds = ['27002', '27006', '27010'];
+co2EqRaw = co2EqRaw.filter(eq => !co2EqExcludedIds.includes(eq.id));
 
 // Load raw CSV data as arrays.
 const boaviztaExtractedData = csvToArr(boaviztaCsvFile);
 const greenAlgorithmsExtractedData = csvToArr(greenAlgorithmsCsvFile);
 const googleCloudPlatformExtractedData = csvToArr(googleCloudPlatformCsvFile);
 
-// Aggregate normalized data from all sources.
-const { boaviztaDevices, devicesColNames } = devicesFromBoaviztaNormalizeAll(boaviztaExtractedData);
-const ecodiagDevices = devicesFromEcodiagNormalizeAll(ecodiagDeviceList);
-const { greenAlgorithmsCI, greenAlgorithmsCIColNames } = greenAlgorithmsCINormalizeAll(greenAlgorithmsExtractedData);
-const { googleCloudPlatformCI } = googleCloudPlatformCINormalizeAll(googleCloudPlatformExtractedData);
-const co2Eq = co2EqRaw.map(entry => co2EqNormalizeItem(entry));
-
-// We'll use the data from greenAlgorithms for building our location entites.
+// We'll use the data from greenAlgorithms for building our location entities.
 const locations = [];
 greenAlgorithmsExtractedData.forEach((line, i) => {
 	if (i < 1) {
 		return;
 	}
-	locations.push(commonLocationNormalization({
+	locations.push(locationNormalizeItem({
 		"country_code": line[0],
 		"continent": line[1],
 		"country": line[2],
@@ -83,18 +86,21 @@ greenAlgorithmsExtractedData.forEach((line, i) => {
 	}));
 });
 
+// Aggregate normalized data from all sources.
+const co2Eq = co2EqRaw.map(entry => co2EqNormalizeItem(entry));
+const services = servicesRaw.map(entry => serviceNormalizeItem(entry));
+const { boaviztaDevices, devicesColNames } = devicesFromBoaviztaNormalizeAll(boaviztaExtractedData);
+const ecodiagDevices = devicesFromEcodiagNormalizeAll(ecodiagDeviceList);
+const { greenAlgorithmsCI, greenAlgorithmsCIColNames } = greenAlgorithmsCINormalizeAll(greenAlgorithmsExtractedData);
+const { googleCloudPlatformCI } = googleCloudPlatformCINormalizeAll(googleCloudPlatformExtractedData);
+
 // Debug.
-// console.log(greenAlgorithmsExtractedData);
-// console.log(googleCloudPlatformExtractedData);
-// console.log(devicesColNames);
-// console.log(boaviztaDevices[0]);
-// console.log(ecodiagDevices[0]);
-// console.log(co2Eq[0]);
 // console.log(locations);
 // return;
 
 // Merge into a single dataset.
 data.locations = locations;
+data.services = postProcess(services, servicePostprocess);
 data.devicesColNamesByKey = devicesColNames;
 data.devices = [...boaviztaDevices, ...ecodiagDevices];
 data.co2EqKeys = co2EqKeys;
@@ -102,43 +108,9 @@ data.co2Eq = co2Eq;
 data.carbonIntensity = [...greenAlgorithmsCI, ...googleCloudPlatformCI];
 data.carbonIntensityColNamesByKey = greenAlgorithmsCIColNames;
 
-// We won't use the IT equipment equivalents here, as we're already measuring
-// those.
-const co2EqExcludedIds = ['27002', '27006', '27010'];
-data.co2Eq = data.co2Eq.filter(eq => !co2EqExcludedIds.includes(eq.id));
-
-// Assign numerical IDs to devices for selection presets shareable by URL.
+// TODO use the post-processing as in data.services.
 generateDevicesIds(data);
-
-// console.log('before');
-// console.log(data.devices.length);
-
-// Associate fallback values when some metrics are missing based on averages.
 generateDevicesFallbackValues(data);
-
-// console.log('after');
-// console.log(data.devices.length);
-
-// Make sure there are no more devices without a power consumption estimate :
-// data.devices.forEach(device => {
-// 	if (!device.yearly_kwh.length) {
-// 		console.log(device);
-// 	}
-// 	console.log(`${device.name} : ${device.yearly_kwh}`);
-// });
-
-// Preprocess distinct values.
-// data.devicesDistinctValues = {
-// 	"category": [],
-// 	"subcategory": []
-// };
-// Object.keys(data.devicesDistinctValues).forEach(key => {
-// 	data.devices.forEach(device => {
-// 		if (device[key].length && !data.devicesDistinctValues[key].includes(device[key])) {
-// 			data.devicesDistinctValues[key].push(device[key]);
-// 		}
-// 	});
-// });
 
 // Debug.
 // for (let i = 0; i < 20; i++) {
@@ -150,7 +122,11 @@ generateDevicesFallbackValues(data);
 // 	const ci = data.carbonIntensity[Math.floor(Math.random() * data.carbonIntensity.length)];
 // 	console.log(ci);
 // }
-// return;
+for (let i = 0; i < 20; i++) {
+	const s = data.services[Math.floor(Math.random() * data.services.length)];
+	console.log(s);
+}
+return;
 
 // Write as sqlite file.
 initSqlJs().then(SQL => {
@@ -176,8 +152,8 @@ initSqlJs().then(SQL => {
 		[ colName ]
 	));
 
-	// TODO carbon intensity ?
-	// Still not big enough data though, so this is not justified for now.
+	// TODO store other entities for the SQLite experiment ?
+	// Still not "big enough" data, so this is not justified for now.
 
 	// Debug.
 	// console.log(data.co2EqKeys);

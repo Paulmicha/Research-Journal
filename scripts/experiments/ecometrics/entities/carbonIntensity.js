@@ -23,9 +23,15 @@ const commonCINormalization = (ci, substitutions) => {
 
 	// Normalize keys.
 	Object.keys(ci).forEach(rawKey => {
-		const key = substitutions['keys'][rawKey] || rawKey;
+		const key = substitutions.keys[rawKey] || rawKey;
 		if (carbonIntensityKeys.includes(key)) {
 			normalizedCI[key] = `${ci[rawKey] || ''}`.trim();
+		}
+		// We need to obtain correct keys for generateLocationID() below on the
+		// original object.
+		if (rawKey in substitutions.keys) {
+			ci[substitutions.keys[rawKey]] = ci[rawKey];
+			delete ci[rawKey];
 		}
 	});
 
@@ -42,7 +48,6 @@ const commonCINormalization = (ci, substitutions) => {
 	normalizedCI.location = generateLocationID(ci);
 
 	// The order of keys must be the same for the props2Arr() function to work.
-	// @see scripts/experiments/ecometrics/extract.js
 	return sortObjectKeys(normalizedCI, carbonIntensityKeys);
 };
 

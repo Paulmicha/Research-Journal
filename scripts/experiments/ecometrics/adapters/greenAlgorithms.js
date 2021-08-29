@@ -41,7 +41,7 @@ const greenAlgorithmsCINormalizeAll = input => {
 
 	// Transform column names in a key/value object.
 	rawKeys.forEach((colName, i) => {
-		const key = substitutions['keys'][rawKeys[i]] || colName;
+		const key = substitutions.keys[rawKeys[i]] || colName;
 		if (carbonIntensityKeys.includes(key)) {
 			output.greenAlgorithmsCIColNames[key] = colName;
 		}

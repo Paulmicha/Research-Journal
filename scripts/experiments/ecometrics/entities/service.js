@@ -76,11 +76,7 @@ const serviceNormalizeItem = service => {
 			if (!('postprocess' in service)) {
 				service.postprocess = [];
 			}
-			service.postprocess.push({
-				operation: 'append',
-				from: 'services.locations',
-				to: 'locations'
-			});
+			service.postprocess.push('merge locations from services');
 		} else {
 			// By default, always associate the "World" location to at least have an
 			// estimate (albeit really approximative) carbon intensity value.
@@ -94,21 +90,51 @@ const serviceNormalizeItem = service => {
 };
 
 /**
- * TODO Implements postProcess callback.
+ * Executes all post-processing operations manually set in the source dataset.
  *
- * @see postProcess() in scripts/experiments/ecometrics/utils.js
+ * @see scripts/experiments/ecometrics/manual-data/services.json
  *
- * @param {Object} service : the entity
- * @param {Objects} postprocess : the post processing details
+ * @param {Object} data : whole ecometrics dataset, where data.services contains
+ *   the list of all processed service entities.
+ * @param {Array} googleCloudPlatformCI : carbonIntensity entities from the
+ *   processed googleCloudPlatform dataset.
  */
-const servicePostprocess = (service, postprocess) => {
-	console.log("servicePostprocess()");
-	console.log(service);
-	console.log(postprocess);
+const servicesPostprocess = (data, googleCloudPlatformCI) => {
+	data.services = data.services.map(service => {
+		if (!('postprocess' in service)) {
+			return service;
+		}
+		service.postprocess.forEach(op => {
+			switch (op) {
+				case 'append googleCloudPlatformCI locations':
+					googleCloudPlatformCI.forEach(ci => {
+						if (!service.locations.includes(ci.location)) {
+							service.locations.push(ci.location);
+						}
+					});
+					break;
+				case 'merge locations from services':
+					service.services.forEach(sid => {
+						data.services.forEach(entity => {
+							if (entity.id === sid) {
+								entity.locations.forEach(lid => {
+									if (!service.locations.includes(lid)) {
+										service.locations.push(lid);
+									}
+								});
+							}
+						});
+					});
+					break;
+			}
+		});
+		delete service.postprocess;
+		return service;
+	});
 }
 
 module.exports = {
 	serviceKeys,
 	serviceNormalizeItem,
-	servicePostprocess
+	servicesPostprocess
 };

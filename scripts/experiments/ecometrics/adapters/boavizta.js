@@ -40,12 +40,12 @@ const devicesFromBoaviztaNormalizeAll = input => {
 	const rawKeys = colNames.map(colName => slugify(colName, { separator: '_' }));
 
 	// Filter out column we won't use in the "Ecometrics" experiment.
-	const keys = rawKeys.map(rawKey => substitutions['keys'][rawKey] || rawKey)
+	const keys = rawKeys.map(rawKey => substitutions.keys[rawKey] || rawKey)
 		.filter(key => devicesKeys.includes(key));
 
 	// Transform column names in a key/value object.
 	colNames.forEach((colName, i) => {
-		const key = substitutions['keys'][rawKeys[i]];
+		const key = substitutions.keys[rawKeys[i]];
 		if (devicesKeys.includes(key)) {
 			output.devicesColNames[key] = colName;
 		}

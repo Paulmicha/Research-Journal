@@ -9,13 +9,7 @@
 				"region": "South Carolina"
 			}
 		],
-		"postprocess": [
-			{
-				"operation": "append",
-				"dataset": "googleCloudPlatformCI",
-				"to": "locations"
-			}
-		]
+		"postprocess": ["append googleCloudPlatformCI locations"]
 	},
 	{
 		"type": "saas",

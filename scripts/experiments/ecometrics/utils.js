@@ -13,7 +13,7 @@ const fs = require('fs');
  *  to ','.
  * @returns {Array} array of arrays (lines x columns).
  */
-const csvToArr = (csvFile, separator = ',') => fs.readFileSync(csvFile)
+const csv2Arr = (csvFile, separator = ',') => fs.readFileSync(csvFile)
 	.toString() // convert Buffer to string
 	.split('\n') // split string to lines
 	.map(e => e.trim()) // remove white spaces for each line
@@ -61,6 +61,9 @@ const props2Arr = eqObj => {
 /**
  * Sorts object keys in the order specified by given array.
  *
+ * This will also strip the object of any keys that are not in given list,
+ * except 'postprocess'.
+ *
  * The order of keys must be the same for the props2Arr() function to work.
  * @see scripts/experiments/ecometrics/extract.js
  *
@@ -71,8 +74,8 @@ const sortObjectKeys = (o, orderedKeys) => {
 	const orderedObj = {};
 	orderedKeys.forEach(key => orderedObj[key] = o[key]);
 
-	// Keep our custom postprocess data.
-	// @see postProcess()
+	// Keep custom postprocess data (this extra temporary key will be stripped
+	// during post processing).
 	if ('postprocess' in o) {
 		orderedObj.postprocess = o.postprocess;
 	}
@@ -97,23 +100,10 @@ const cyrb53 = (str, seed = 0) => {
 	return 4294967296 * (2097151 & h2) + (h1>>>0);
 };
 
-/**
- * Cycles through given objects to look for pp and runs given callback.
- */
-const postProcess = (objects, callback) => objects.map(object => {
-	if (!('postprocess' in object)) {
-		return object;
-	}
-	object.postprocess.forEach(pp => callback(object, pp));
-	delete object.postprocess;
-	return object;
-});
-
 module.exports = {
-	csvToArr,
+	csv2Arr,
 	arr2Props,
 	props2Arr,
 	sortObjectKeys,
-	cyrb53,
-	postProcess
+	cyrb53
 };

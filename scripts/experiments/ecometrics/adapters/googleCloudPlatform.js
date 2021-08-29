@@ -39,8 +39,6 @@ const googleCloudPlatformCINormalizeAll = input => {
 	return {
 		googleCloudPlatformCI: input.map(ci => {
 			const parts = ci.google_cloud_region.split('-');
-			ci = commonCINormalization(ci, substitutions);
-			// ci.source = "Google Cloud Platform"; // TODO match services by intensity on location ?
 			switch (parts[0]) {
 				case 'southamerica':
 					ci.country_code = 'BR';
@@ -61,20 +59,20 @@ const googleCloudPlatformCINormalizeAll = input => {
 					ci.country = "United States of America";
 					switch (parts[1]) {
 						case 'central1':
-							ci.city = '';
+							ci.location = '';
 							ci.region = 'Iowa';
 							break;
 						case 'east1':
-							ci.city = '';
+							ci.location = '';
 							ci.region = 'South Carolina';
 							ci.known_services = 'Gitlab';
 							break;
 						case 'east4':
-							ci.city = '';
+							ci.location = '';
 							ci.region = 'Northern Virginia';
 							break;
 						case 'west1':
-							ci.city = '';
+							ci.location = '';
 							ci.region = 'Oregon';
 							break;
 					}
@@ -85,22 +83,22 @@ const googleCloudPlatformCINormalizeAll = input => {
 						case 'north1':
 							ci.country_code = 'FI';
 							ci.country = "Finland";
-							ci.city = '';
+							ci.location = '';
 							break;
 						case 'west1':
 							ci.country_code = 'BE';
 							ci.country = "Belgium";
-							ci.city = '';
+							ci.location = '';
 							break;
 						case 'west4':
 							ci.country_code = 'NL';
 							ci.country = "Netherlands";
-							ci.city = '';
+							ci.location = '';
 							break;
 					}
 					break;
 			}
-			return ci;
+			return commonCINormalization(ci, substitutions);
 		})
 	};
 };

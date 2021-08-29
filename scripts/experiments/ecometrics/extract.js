@@ -21,8 +21,8 @@
 const fs = require('fs');
 const slugify = require('@sindresorhus/slugify');
 const { write_file } = require('../../fs');
-const { csvToArr, props2Arr, postProcess } = require('./utils');
-const { devicesKeys, generateDevicesIds, generateDevicesFallbackValues } = require('./entities/device');
+const { csv2Arr, props2Arr } = require('./utils');
+const { devicesKeys, devicesPostprocess } = require('./entities/device');
 const { devicesFromBoaviztaNormalizeAll } = require('./adapters/boavizta');
 const { devicesFromEcodiagNormalizeAll } = require('./adapters/ecodiag');
 const { greenAlgorithmsCINormalizeAll } = require('./adapters/greenAlgorithms');
@@ -30,8 +30,8 @@ const { googleCloudPlatformCINormalizeAll } = require('./adapters/googleCloudPla
 const { co2EqKeys } = require('./entities/co2Eq');
 const { co2EqNormalizeItem } = require('./adapters/datagir');
 const { carbonIntensityKeys } = require('./entities/carbonIntensity');
-const { locationNormalizeItem } = require('./entities/location');
-const { serviceNormalizeItem, servicePostprocess } = require('./entities/service');
+const { locationNormalizeItem, locationExists } = require('./entities/location');
+const { serviceNormalizeItem, servicesPostprocess } = require('./entities/service');
 const initSqlJs = require('../../../static/sql-wasm.js');
 
 // This "data" var contains everything that will get written.
@@ -68,9 +68,9 @@ const co2EqExcludedIds = ['27002', '27006', '27010'];
 co2EqRaw = co2EqRaw.filter(eq => !co2EqExcludedIds.includes(eq.id));
 
 // Load raw CSV data as arrays.
-const boaviztaExtractedData = csvToArr(boaviztaCsvFile);
-const greenAlgorithmsExtractedData = csvToArr(greenAlgorithmsCsvFile);
-const googleCloudPlatformExtractedData = csvToArr(googleCloudPlatformCsvFile);
+const boaviztaExtractedData = csv2Arr(boaviztaCsvFile);
+const greenAlgorithmsExtractedData = csv2Arr(greenAlgorithmsCsvFile);
+const googleCloudPlatformExtractedData = csv2Arr(googleCloudPlatformCsvFile);
 
 // We'll use the data from greenAlgorithms for building our location entities.
 const locations = [];
@@ -78,12 +78,33 @@ greenAlgorithmsExtractedData.forEach((line, i) => {
 	if (i < 1) {
 		return;
 	}
-	locations.push(locationNormalizeItem({
+	const locationBlueprint = {
 		"country_code": line[0],
 		"continent": line[1],
 		"country": line[2],
 		"region": line[3]
-	}));
+	};
+	if (!locationExists(locationBlueprint, locations)) {
+		locations.push(locationNormalizeItem(locationBlueprint));
+	}
+	// Debug.
+	// else {
+	// 	console.log("Found duplicate location in greenAlgorithms dataset :");
+	// 	console.log(locationBlueprint);
+	// 	console.log(`from line ${i} :`);
+	// 	console.log(line);
+	// }
+});
+
+// Locations can also come from services, which reference them.
+servicesRaw.forEach(s => {
+	if ('locations' in s && s.locations.length) {
+		s.locations.forEach(locationBlueprint => {
+			if (!locationExists(locationBlueprint, locations)) {
+				locations.push(locationNormalizeItem(locationBlueprint));
+			}
+		});
+	}
 });
 
 // Aggregate normalized data from all sources.
@@ -94,14 +115,9 @@ const ecodiagDevices = devicesFromEcodiagNormalizeAll(ecodiagDeviceList);
 const { greenAlgorithmsCI, greenAlgorithmsCIColNames } = greenAlgorithmsCINormalizeAll(greenAlgorithmsExtractedData);
 const { googleCloudPlatformCI } = googleCloudPlatformCINormalizeAll(googleCloudPlatformExtractedData);
 
-// Debug.
-// console.log(services);
-console.log(postProcess(services, servicePostprocess));
-return;
-
 // Merge into a single dataset.
 data.locations = locations;
-data.services = postProcess(services, servicePostprocess);
+data.services = services;
 data.devicesColNamesByKey = devicesColNames;
 data.devices = [...boaviztaDevices, ...ecodiagDevices];
 data.co2EqKeys = co2EqKeys;
@@ -109,11 +125,13 @@ data.co2Eq = co2Eq;
 data.carbonIntensity = [...greenAlgorithmsCI, ...googleCloudPlatformCI];
 data.carbonIntensityColNamesByKey = greenAlgorithmsCIColNames;
 
-// TODO use the post-processing as in data.services.
-generateDevicesIds(data);
-generateDevicesFallbackValues(data);
+// Post-processing (allows dealing with entity references).
+devicesPostprocess(data);
+servicesPostprocess(data, googleCloudPlatformCI);
 
 // Debug.
+// console.log("");
+// console.log("random checks after postprocessing :");
 // for (let i = 0; i < 20; i++) {
 // 	const d = data.devices[Math.floor(Math.random() * data.devices.length)];
 // 	// console.log(`${d.id} : ${Object.keys(d).length} == ${devicesKeys.length} ?`);
@@ -123,11 +141,8 @@ generateDevicesFallbackValues(data);
 // 	const ci = data.carbonIntensity[Math.floor(Math.random() * data.carbonIntensity.length)];
 // 	console.log(ci);
 // }
-for (let i = 0; i < 20; i++) {
-	const s = data.services[Math.floor(Math.random() * data.services.length)];
-	console.log(s);
-}
-return;
+// console.log(data.services);
+// return;
 
 // Write as sqlite file.
 initSqlJs().then(SQL => {

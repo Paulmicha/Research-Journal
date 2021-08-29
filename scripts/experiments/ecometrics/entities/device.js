@@ -74,7 +74,7 @@ const commonDeviceNormalization = (device, substitutions) => {
 
 	// Normalize keys.
 	Object.keys(device).forEach(rawKey => {
-		const key = substitutions['keys'][rawKey] || rawKey;
+		const key = substitutions.keys[rawKey] || rawKey;
 		if (devicesKeys.includes(key)) {
 			normalizedDevice[key] = `${device[rawKey] || ''}`.trim();
 		}
@@ -227,9 +227,13 @@ const generateDevicesFallbackValues = data => {
 	});
 };
 
+const devicesPostprocess = data => {
+	generateDevicesIds(data);
+	generateDevicesFallbackValues(data);
+};
+
 module.exports = {
 	devicesKeys,
 	commonDeviceNormalization,
-	generateDevicesIds,
-	generateDevicesFallbackValues
+	devicesPostprocess
 };

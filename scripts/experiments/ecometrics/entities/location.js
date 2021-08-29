@@ -54,8 +54,32 @@ const locationNormalizeItem = location => {
 	return sortObjectKeys(normalized, locationKeys);
 };
 
+/**
+ * Determines if a location already has a corresponding entity.
+ *
+ * @param {Object} locationBlueprint object that must represent exactly how the
+ *   hypothetical location would be given an ID (i.e. : continent, country,
+ *   region, city).
+ * @param {Array} existingLocations list of all the existing location entities.
+ * @returns {Boolean}
+ */
+const locationExists = (locationBlueprint, existingLocations) => {
+	if (!existingLocations.length) {
+		return false;
+	}
+	const lid = generateLocationID(locationBlueprint);
+	for (let i = 0; i < existingLocations.length; i++) {
+		const location = existingLocations[i];
+		if (location.id == lid) {
+			return true;
+		}
+	}
+	return false;
+};
+
 module.exports = {
 	locationKeys,
 	locationNormalizeItem,
-	generateLocationID
+	generateLocationID,
+	locationExists
 };

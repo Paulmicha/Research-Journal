@@ -46,6 +46,8 @@ const locationNormalizeItem = location => {
 		if (!(key in normalized) || normalized[key] === 'Any') {
 			normalized[key] = '';
 		}
+		// Filter out erroneous characters.
+		normalized[key] = normalized[key].replace('"', '');
 	});
 
 	// Generate location ID.

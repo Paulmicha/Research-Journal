@@ -1,5 +1,4 @@
 <script>
-	import { randomizeArray, displayNb, limitDecimals, getValuePercentInRange } from '../../lib/generic_utils.js';
 	import {
 		deviceStore,
 		selectionStore,
@@ -7,6 +6,8 @@
 		randomizedDeviceImgStore,
 		clickedDeviceImgStore
 	} from '../../stores/ecometrics.js';
+	import { randomizeArray, displayNb, limitDecimals, getValuePercentInRange } from '../../lib/generic_utils.js';
+	import { getDeviceLabel, getDeviceInfo, getDeviceImg } from '../../lib/ecometrics/device.js';
 	import SidePanel from '../SidePanel.svelte';
 	import Chart from 'svelte-frappe-charts';
   import EcoMetricsCo2Equivalents from './EcoMetricsCo2Equivalents.svelte';
@@ -21,74 +22,19 @@
 	};
 
 	/**
-	 * Formats given device label.
-	 *
-	 * @param {Object} device : the device.
-	 * @return {String} : the formatted label.
-	 */
-	const getDeviceLabel = device =>  device.data.manufacturer + ' ' + device.data.name;
-
-	/**
-	 * Formats given device info for the side panel details.
-	 *
-	 * @param {Object} device : the device.
-	 * @return {Array} of Objects like { label: "Title of value", value: "The value" }.
-	 */
-	const getDeviceInfo = device =>  {
-		if (!$deviceStore || !$deviceStore.devicesColNames) {
-			return '';
-		}
-
-		let info = [];
-		const keysToRender = [
-			"manufacturer",
-			"category",
-			"subcategory",
-			"kg_co2eq",
-			"yearly_kwh",
-			"use_percent",
-			"manufacturing_percent",
-			"lifetime",
-			"date",
-			"error_percent",
-			"screen_size",
-			"age"
-		];
-
-		keysToRender.forEach(key => {
-			if (device.data[key].length) {
-				info.push({
-					label: $deviceStore.devicesColNames[key] || key,
-					value: device.data[key]
-				});
-			}
-		});
-
-		return info;
-	};
-
-	/**
-	 * Returns device SVG code according to its type (subcategory).
-	 */
-	const getDeviceImg = device => {
-		if (!$deviceStore || !$deviceStore.devicesIcons) {
-			return '';
-		}
-		if (!(device.data.subcategory in $deviceStore.devicesIcons)) {
-			return $deviceStore.devicesIcons.box;
-		}
-		return $deviceStore.devicesIcons[device.data.subcategory];
-	};
-
-	/**
 	 * Returns 1 scaled image per quantity of device as array of objects.
+	 *
+   * @param {Object} device : the device entity object.
+   * @param {Number} lowestKgCo2Value
+   * @param {Number} highestKgCo2Value
+	 * @returns {Array} list of objects for all icons (SVG markup, scale, entity).
 	 */
 	const getDeviceImgRepeated = (device, lowestKgCo2Value, highestKgCo2Value) => {
 		const deviceImgs = [];
 		const minSize = 3; // in rem
 		const maxSize = 12; // in rem
 		const svg = getDeviceImg(device);
-		const value = device.data.kg_co2eq;
+		const value = device.kg_co2eq;
 
 		// When only 1 device is selected, use median value.
 		let scale = ((maxSize - minSize) / 2).toFixed(2);
@@ -98,7 +44,7 @@
 		}
 
 		// debug.
-		// console.log(device.data.kg_co2eq + ' / ' + highestKgCo2Value + ' , s = ' + scale);
+		// console.log(device.kg_co2eq + ' / ' + highestKgCo2Value + ' , s = ' + scale);
 
 		for (let i = 1; i <= device.qty; i++) {
 			deviceImgs.push({
@@ -150,16 +96,16 @@
 				let kg_co2eq = 0;
 				labels.push(device.qty + " × " + getDeviceLabel(device));
 
-				if (device.data.kg_co2eq && !isNaN(parseInt(device.data.kg_co2eq))) {
-					kg_co2eq = parseInt(device.data.kg_co2eq);
+				if (device.kg_co2eq && !isNaN(parseInt(device.kg_co2eq))) {
+					kg_co2eq = parseInt(device.kg_co2eq);
 					datasetCo2Eq.push(limitDecimals(kg_co2eq * device.qty, 2));
 				} else {
 					datasetCo2Eq.push(kg_co2eq);
 					datasetCo2EqMissing++;
 				}
 
-				if (device.data.yearly_kwh && !isNaN(parseInt(device.data.yearly_kwh))) {
-					datasetYearlyKwh.push(limitDecimals(device.data.yearly_kwh * device.qty, 2));
+				if (device.yearly_kwh && !isNaN(parseInt(device.yearly_kwh))) {
+					datasetYearlyKwh.push(limitDecimals(device.yearly_kwh * device.qty, 2));
 				} else {
 					datasetYearlyKwh.push(0);
 					datasetYearlyKwhMissing++;

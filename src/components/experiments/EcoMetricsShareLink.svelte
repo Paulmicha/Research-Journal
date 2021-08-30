@@ -25,7 +25,7 @@
 				Object.keys(selectionOneLetterPropMap).forEach(k => subParts.push(
 					selectionOneLetterPropMap[k] + device[k]
 				));
-				parts.push(`${device.data.id}:${subParts.join(':')}`);
+				parts.push(`${device.id}:${subParts.join(':')}`);
 			});
 			shareLink += parts.join(',');
 		}

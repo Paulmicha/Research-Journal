@@ -56,6 +56,12 @@
 			});
 			serviceEntityStore.set(servicesById);
 
+			// Preset the default location to "World".
+			selectionStore.update(selection => {
+				selection.defaultLocation = locationsById['10401578'];
+				return selection;
+			});
+
 			// Presets from query args (shareable links).
 			if ('s' in o.query && o.query.s.length) {
 				let pos = 0;

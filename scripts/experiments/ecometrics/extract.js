@@ -74,10 +74,11 @@ const googleCloudPlatformExtractedData = csv2Arr(googleCloudPlatformCsvFile);
 
 // We'll use the data from greenAlgorithms for building our location entities.
 const locations = [];
-// The first line contains the labels, so we start at 1.
-for (let i = 1; i < greenAlgorithmsExtractedData.length; i++) {
+// The first 2 lines contain labels, so we start at 2.
+for (let i = 2; i < greenAlgorithmsExtractedData.length; i++) {
 	const line = greenAlgorithmsExtractedData[i];
 	const locationBlueprint = {
+		"country_code": line[0],
 		"continent": line[1],
 		"country": line[2],
 		"region": line[3]

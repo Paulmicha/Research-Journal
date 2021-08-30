@@ -27,7 +27,7 @@
 
 </script>
 
-{#if $selectionStore.devices.length}
+{#if $selectionStore.device.length || $selectionStore.service.length}
 	<!-- {#if selectionHasServer($selectionStore.devices)}
 		<p>TODO server config</p>
 	{/if} -->

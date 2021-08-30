@@ -63,6 +63,7 @@
 			});
 
 			// Presets from query args (shareable links).
+			// TODO (wip) services
 			if ('s' in o.query && o.query.s.length) {
 				let pos = 0;
 				const devicesToSelect = [];
@@ -106,7 +107,7 @@
 				});
 
 				selectionStore.update(selection => {
-					selection.devices = devicesToSelect;
+					selection.device = devicesToSelect;
 					return selection;
 				});
 			}
@@ -123,7 +124,7 @@
 	</div>
 {:else}
 	<EcoMetricsSelector />
-	{#if $selectionStore.devices.length}
+	{#if $selectionStore.device.length || $selectionStore.service.length}
 		<Tabs
 			id="metrics"
 			selected={$preferencesStore.ecometricsLastActiveTab || 0}

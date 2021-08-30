@@ -13,14 +13,14 @@
 
 		// TODO includes services.
 		// @see src/components/experiments/EcoMetricsUse.svelte
-		if (selection.devices.length) {
+		if (selection.device.length) {
 			const parts = [];
 
 			// TODO reverse proxy... ?
 			// shareLink = 'http://' + $route.host + '/' + $route.path + '?s=';
 			shareLink = 'https://msc.paulmichalet.com/' + $route.path + '?s=';
 
-			selection.devices.forEach(device => {
+			selection.device.forEach(device => {
 				const subParts = [];
 				Object.keys(selectionOneLetterPropMap).forEach(k => subParts.push(
 					selectionOneLetterPropMap[k] + device[k]
@@ -48,7 +48,7 @@
 	};
 </script>
 
-{#if $selectionStore.devices.length || $selectionStore.services.length}
+{#if $selectionStore.device.length || $selectionStore.service.length}
 	<button class="btn btn--s"
 		on:click|preventDefault={copyShareableLink}
 		title="This link contains the current selection. Opening it will preset this page with this list."

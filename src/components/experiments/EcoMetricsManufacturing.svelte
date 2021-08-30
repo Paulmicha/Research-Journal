@@ -73,6 +73,7 @@
 		return randomizeArray(images);
 	};
 
+	// TODO (wip) services.
 	selectionStore.subscribe(selection => {
 		const labels = [];
 		const datasetCo2Eq = [];
@@ -91,8 +92,8 @@
 			"highestKgCo2Value": 0
 		};
 
-		if (selection.devices.length) {
-			selection.devices.forEach(device => {
+		if (selection.device.length) {
+			selection.device.forEach(device => {
 				let kg_co2eq = 0;
 				labels.push(device.selectionSettings.qty + " × " + getDeviceLabel(device));
 
@@ -149,10 +150,10 @@
 			totalsStore.set({});
 		}
 
-		if (selection.devices.length) {
+		if (selection.device.length) {
 			randomizedDeviceImgStore.set(
 				getDeviceImgRandomized(
-					selection.devices,
+					selection.device,
 					newMinMaxValues.lowestKgCo2Value,
 					newMinMaxValues.highestKgCo2Value
 				)
@@ -171,7 +172,7 @@
 
 </script>
 
-{#if $selectionStore.devices.length}
+{#if $selectionStore.device.length || $selectionStore.service.length}
 
 	<!-- Debug. -->
 	<!-- <pre style="font-size:.75rem">{JSON.stringify(co2EqChartData, null, 2)}</pre> -->

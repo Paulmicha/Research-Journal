@@ -1,20 +1,18 @@
 <script>
-	import Select from 'svelte-select';
 	import {
 		deviceStore,
 		selectionStore,
-		locationEntityStore,
-		serviceEntityStore
+		locationEntityStore
 	} from '../../stores/ecometrics.js';
 	import { preferencesStore } from '../../stores/preferences.js';
-	import { getSelectedItemUseDefaultValue } from '../../lib/ecometrics/selection.js';
 	import { getLocationLabel } from '../../lib/ecometrics/location.js';
-	import { clearSelection, removeSelectedItem } from '../../lib/ecometrics/selection.js';
+	import { clearSelection, removeSelectedItem, updateSelectedItem } from '../../lib/ecometrics/selection.js';
 	import LoadingSpinner from '../LoadingSpinner.svelte';
 	import Tooltip from '../Tooltip.svelte';
 	import EcoMetricsShareLink from './EcoMetricsShareLink.svelte';
 	import EcoMetricsSelectMain from './EcoMetricsSelectMain.svelte';
 	import EcoMetricsSelectLocation from './EcoMetricsSelectLocation.svelte';
+	import EcoMetricsSelectionSettings from './EcoMetricsSelectionSettings.svelte';
 
 	let totalNbOfDevices = 0;
 	let totalNbOfServices = 0;
@@ -24,13 +22,13 @@
 
 	// Automatically update the totals whenever current selection changes.
 	selectionStore.subscribe(selection => {
-		if (selection.devices.length) {
+		if (selection.device.length) {
 			totalNbOfDevices = 0;
-			selection.devices.forEach(device => {
+			selection.device.forEach(device => {
 				totalNbOfDevices += parseInt(device.selectionSettings.qty);
 			});
 		}
-		totalNbOfServices = selection.services.length;
+		totalNbOfServices = selection.service.length;
 	});
 
 	/**
@@ -42,37 +40,6 @@
 			return selection;
 		});
 		regionTooltipMethods.close();
-	};
-
-	/**
-	 * Updates selected device.
-	 */
-	const updateSelectedDevice = (e, deviceToUpdate) => {
-		e.preventDefault();
-
-		const scope = e.target.closest('tr');
-		const newQty = scope.querySelector('input[name="qty"]').value;
-		const newHours = scope.querySelector('input[name="hours"]').value;
-		const newDeploysNb = scope.querySelector('input[name="deploys_nb"]').value;
-		const newDeploysDuration = scope.querySelector('input[name="deploys_duration"]').value;
-		const newBackupsNb = scope.querySelector('input[name="backups_nb"]').value;
-		const newBackupsDuration = scope.querySelector('input[name="backups_duration"]').value;
-
-		selectionStore.update(selection => {
-			selection.devices.forEach((device, i) => {
-				if (device.id === deviceToUpdate.id) {
-					selection.devices[i].qty = newQty;
-					selection.devices[i].hours = newHours;
-					selection.devices[i].deploys_nb = newDeploysNb;
-					selection.devices[i].deploys_duration = newDeploysDuration;
-					selection.devices[i].backups_nb = newBackupsNb;
-					selection.devices[i].backups_duration = newBackupsDuration;
-				}
-			});
-			return selection;
-		});
-
-		e.target.blur();
 	};
 
 	/**
@@ -95,13 +62,15 @@
 		</div>
 		<div class="location">
 			<p>
-				🗺️ Default location :
+				<span title="This will apply to all selected items, unless specified differently on each individual item below">
+					🗺️ Default location :
+				</span>
 				<button
 					class="btn btn--s"
 					bind:this={locationTooltipTrigger}
 					aria-describedby='tooltip-default-location'
 					on:click|preventDefault={regionTooltipMethods.toggle}
-					title="This will apply to all selected items, unless specified differently on each individual item below"
+					title="Change the default location"
 				>
 					{ getLocationLabel($selectionStore.defaultLocation) }
 				</button>
@@ -123,7 +92,7 @@
 	<LoadingSpinner />
 {/if}
 
-{#if $selectionStore.devices.length}
+{#if $selectionStore.device.length || $selectionStore.service.length}
 	<details open={$preferencesStore.ecometricsDeviceSelectionListState}>
 		<summary on:click={e => toggleEcometricsDeviceSelectionListState(e)}>
 			Selection
@@ -136,13 +105,16 @@
 					<tr>
 						<th>Type</th>
 						<th>Name</th>
-						<th>Quantity</th>
 						<th class="u-center">Use</th>
 						<th>Actions</th>
 					</tr>
 				</thead>
 				<tbody>
-					{#each $selectionStore.devices as device, i}
+
+
+					<!-- TODO merge devices and services in the same loop to preserve order ? -->
+
+					{#each $selectionStore.device as device}
 						<tr>
 							<td>
 								<span class="type-icon" title="{ device.subcategory }">
@@ -151,68 +123,40 @@
 							</td>
 							<td>{ device.manufacturer } { device.name }</td>
 							<td>
-								<div class="nb--s">
-									<input class="input--s" type="number" min="1" name="qty"
-										value={ device.selectionSettings.qty }
-										on:change={ e => updateSelectedDevice(e, device) }
-									/>
-								</div>
+								<EcoMetricsSelectionSettings entity={device} />
 							</td>
-
-
-							<!-- TODO rwork the "use" column (diff service / device : separate <table>s ?) -->
-
 							<td>
-								{#if device.subcategory === 'server'}
-									<div class="inner-form-item">
-										<label for="deploys-per-month-{i}" title="on average, during the development phase of the project">Deploys per month</label>
-										<input class="input--s" type="number" min="1" name="deploys_nb"
-											id="deploys-per-month-{i}"
-											value={ device.deploys_nb || getSelectedItemUseDefaultValue(device, 'deploys_nb') }
-											on:change={ e => updateSelectedDevice(e, device) }
-										/>
-									</div>
-									<div class="inner-form-item">
-										<label for="deploys-duration-{i}" title="with CI tests">Average deploys duration (seconds)</label>
-										<input class="input--s" type="number" min="1" name="deploys_duration"
-											id="deploys-duration-{i}"
-											value={ device.deploys_duration || getSelectedItemUseDefaultValue(device, 'deploys_duration') }
-											on:change={ e => updateSelectedDevice(e, device) }
-										/>
-									</div>
-									<div class="inner-form-item">
-										<label for="backups-per-month-{i}" title="on average, during the development phase of the project">Backups per month</label>
-										<input class="input--s" type="number" min="1" name="backups_nb"
-											id="backups-per-month-{i}"
-											value={ device.backups_nb || getSelectedItemUseDefaultValue(device, 'backups_nb') }
-											on:change={ e => updateSelectedDevice(e, device) }
-										/>
-									</div>
-									<div class="inner-form-item">
-										<label for="backups-duration-{i}" title="with CI tests">Average backups duration (seconds)</label>
-										<input class="input--s" type="number" min="1" name="backups_duration"
-											id="backups-duration-{i}"
-											value={ device.backups_duration || getSelectedItemUseDefaultValue(device, 'backups_duration') }
-											on:change={ e => updateSelectedDevice(e, device) }
-										/>
-									</div>
-								{/if}
-								<div class="inner-form-item">
-									<label for="hours-per-day-{i}">Average hours of use per day</label>
-									<input class="input--s" type="number" min="1" name="hours"
-										id="hours-per-day-{i}"
-										value={ device.hours || getSelectedItemUseDefaultValue(device, 'hours') }
-										on:change={ e => updateSelectedDevice(e, device) }
-									/>
-								</div>
-							</td>
-
-
-							<td>
-								<button class="btn btn--s" on:click={ e => removeSelectedItem(e, device) }>Remove</button>
+								<button
+									class="btn btn--s"
+									on:click|preventDefault={ () => removeSelectedItem(device) }
+								>
+									Remove
+								</button>
 							</td>
 						</tr>
 					{/each}
+
+					{#each $selectionStore.service as service}
+						<tr>
+							<td>
+								(TODO service icons ?)
+							</td>
+							<td>{ service.name }</td>
+							<td>
+								<EcoMetricsSelectionSettings entity={service} />
+							</td>
+							<td>
+								<button
+									class="btn btn--s"
+									on:click|preventDefault={ () => removeSelectedItem(service) }
+								>
+									Remove
+								</button>
+							</td>
+						</tr>
+					{/each}
+
+
 				</tbody>
 			</table>
 			<div class="bottom-zone">
@@ -248,8 +192,7 @@
 		width: 120%;
 		height: 120%;
 	}
-	.nb--s > input,
-	.inner-form-item > .input--s {
+	.nb--s > input {
 		width: 3.3rem;
 	}
 	.selection {
@@ -258,19 +201,6 @@
 	.selection td,
 	.selection th {
 		padding: calc(var(--space-s) / 2) var(--space-s);
-	}
-	.inner-form-item {
-		display: flex;
-		align-items: center;
-		justify-content: space-between;
-	}
-	.inner-form-item > label {
-		display: inline-block;
-		margin-left: auto;
-		margin-right: var(--space-s);
-		font-size: 80%;
-		/* white-space: nowrap; */
-		text-align: right;
 	}
 	.bottom-zone {
 		margin: var(--space-l);
@@ -281,6 +211,7 @@
 		width: auto;
 	}
 	.location-select {
-		min-width: 33ch;
+		width: 42ch;
+		max-width: 90vw;
 	}
 </style>

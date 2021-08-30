@@ -10,6 +10,7 @@
  * -> Reevaluate this choice if this tool becomes more involved.
  *
  * @see scripts/experiments/ecometrics/extract.js
+ * @see src/components/experiments/EcoMetricsSelector.svelte
  * @see src/components/experiments/EcoMetricsSelectMain.svelte
  */
 
@@ -88,7 +89,7 @@ export const addSelectedItem = async entity => {
 				entity.selectionSettings.deploys_nb = getSelectedItemUseDefaultValue(entity, 'deploys_nb');
 				entity.selectionSettings.deploys_duration = getSelectedItemUseDefaultValue(entity, 'deploys_duration');
 			}
-			selection.services.push(entity);
+			selection.service.push(entity);
 		} else {
 			entity.selectionSettings.qty = 1;
 			entity.selectionSettings.hours = getSelectedItemUseDefaultValue(entity, 'hours');
@@ -98,7 +99,7 @@ export const addSelectedItem = async entity => {
 				entity.selectionSettings.backups_nb = getSelectedItemUseDefaultValue(entity, 'backups_nb');
 				entity.selectionSettings.backups_duration = getSelectedItemUseDefaultValue(entity, 'backups_duration');
 			}
-			selection.devices.push(entity);
+			selection.device.push(entity);
 		}
 		return selection;
 	});
@@ -109,23 +110,28 @@ export const addSelectedItem = async entity => {
  */
 export const removeSelectedItem = entity => {
 	selectionStore.update(selection => {
-		if (entity.entityType === 'service') {
-			selection.services.forEach((service, i) => {
-				if (service.id === entity.id) {
-					selection.services.splice(i, 1);
-					return;
-				}
-			});
-			selection.services = [...selection.services];
-		} else {
-			selection.devices.forEach((device, i) => {
-				if (device.id === entity.id) {
-					selection.devices.splice(i, 1);
-					return;
-				}
-			});
-			selection.devices = [...selection.devices];
-		}
+		selection[entity.entityType].forEach((o, i) => {
+			if (o.id === entity.id) {
+				selection[entity.entityType].splice(i, 1);
+				return;
+			}
+		});
+		selection[entity.entityType] = [...selection[entity.entityType]];
+		return selection;
+	});
+};
+
+/**
+ * Updates selected device.
+ */
+export const updateSelectedItem = (entity, settings) => {
+	selectionStore.update(selection => {
+		selection[entity.entityType].forEach((o, i) => {
+			if (o.id === entity.id) {
+				selection[entity.entityType][i].selectionSettings = settings;
+				return;
+			}
+		});
 		return selection;
 	});
 };
@@ -135,8 +141,8 @@ export const removeSelectedItem = entity => {
  */
 export const clearSelection = () => {
 	selectionStore.update(selection => {
-		selection.devices = [];
-		selection.services = [];
+		selection.device = [];
+		selection.service = [];
 		return selection;
 	});
 };

@@ -33,7 +33,7 @@
 		const deviceImgs = [];
 		const minSize = 3; // in rem
 		const maxSize = 12; // in rem
-		const svg = getDeviceImg(device);
+		const svg = getDeviceImg(device, $deviceStore.devicesIcons);
 		const value = device.kg_co2eq;
 
 		// When only 1 device is selected, use median value.
@@ -46,7 +46,7 @@
 		// debug.
 		// console.log(device.kg_co2eq + ' / ' + highestKgCo2Value + ' , s = ' + scale);
 
-		for (let i = 1; i <= device.qty; i++) {
+		for (let i = 1; i <= device.selectionSettings.qty; i++) {
 			deviceImgs.push({
 				svg,
 				scale,
@@ -94,18 +94,18 @@
 		if (selection.devices.length) {
 			selection.devices.forEach(device => {
 				let kg_co2eq = 0;
-				labels.push(device.qty + " × " + getDeviceLabel(device));
+				labels.push(device.selectionSettings.qty + " × " + getDeviceLabel(device));
 
 				if (device.kg_co2eq && !isNaN(parseInt(device.kg_co2eq))) {
 					kg_co2eq = parseInt(device.kg_co2eq);
-					datasetCo2Eq.push(limitDecimals(kg_co2eq * device.qty, 2));
+					datasetCo2Eq.push(limitDecimals(kg_co2eq * device.selectionSettings.qty, 2));
 				} else {
 					datasetCo2Eq.push(kg_co2eq);
 					datasetCo2EqMissing++;
 				}
 
 				if (device.yearly_kwh && !isNaN(parseInt(device.yearly_kwh))) {
-					datasetYearlyKwh.push(limitDecimals(device.yearly_kwh * device.qty, 2));
+					datasetYearlyKwh.push(limitDecimals(device.yearly_kwh * device.selectionSettings.qty, 2));
 				} else {
 					datasetYearlyKwh.push(0);
 					datasetYearlyKwhMissing++;
@@ -214,7 +214,7 @@
 				{#if $clickedDeviceImgStore && 'device' in $clickedDeviceImgStore }
 					<h2 class="no-m-t">{ getDeviceLabel($clickedDeviceImgStore.device) }</h2>
 					<dl>
-						{#each getDeviceInfo($clickedDeviceImgStore.device) as prop}
+						{#each getDeviceInfo($clickedDeviceImgStore.device, $deviceStore.devicesColNames) as prop}
 							<dt>{ prop.label }</dt>
 							<dd>{ prop.value }</dd>
 						{/each}

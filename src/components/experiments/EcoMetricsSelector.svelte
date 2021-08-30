@@ -14,13 +14,11 @@
 	import Tooltip from '../Tooltip.svelte';
 	import EcoMetricsShareLink from './EcoMetricsShareLink.svelte';
 	import EcoMetricsSelectMain from './EcoMetricsSelectMain.svelte';
+	import EcoMetricsSelectLocation from './EcoMetricsSelectLocation.svelte';
 
-	let selectedLocation;
-	let selectedDefaultLocation;
 	let totalNbOfDevices = 0;
 	let totalNbOfServices = 0;
 
-	let regionTooltipId;
 	let locationTooltipTrigger;
 	let regionTooltipMethods;
 
@@ -29,36 +27,21 @@
 		if (selection.devices.length) {
 			totalNbOfDevices = 0;
 			selection.devices.forEach(device => {
-				totalNbOfDevices += parseInt(device.qty);
+				totalNbOfDevices += parseInt(device.selectionSettings.qty);
 			});
 		}
 		totalNbOfServices = selection.services.length;
 	});
 
 	/**
-	 * Populates the locations select options.
-	 */
-	const getLocationSelectOptions = locations => {
-		const selectOptions = [];
-		locations.forEach(location => {
-			let label = getLocationLabel(location);
-			selectOptions.push({ label, value: location.id, data: location });
-		});
-		selectOptions.sort((a, b) => a.label.localeCompare(b.label));
-		return selectOptions;
-	};
-
-	/**
 	 * Reacts to default location changes.
 	 */
-	const updateDefaultSelectedLocation = async () => {
-		if (!selectedDefaultLocation) {
-			return;
-		}
+	const updateDefaultSelectedLocation = e => {
 		selectionStore.update(selection => {
-			selection.defaultLocation = $locationEntityStore[selectedDefaultLocation.data.id];
+			selection.defaultLocation = $locationEntityStore[e.detail.entity.id];
 			return selection;
 		});
+		regionTooltipMethods.close();
 	};
 
 	/**
@@ -110,17 +93,13 @@
 		<div class="select">
 			<EcoMetricsSelectMain />
 		</div>
-
-
-		<!-- TODO use the locationStore + new <Select> instance ? -->
-
 		<div class="location">
 			<p>
 				🗺️ Default location :
 				<button
 					class="btn btn--s"
 					bind:this={locationTooltipTrigger}
-					aria-describedby={regionTooltipId}
+					aria-describedby='tooltip-default-location'
 					on:click|preventDefault={regionTooltipMethods.toggle}
 					title="This will apply to all selected items, unless specified differently on each individual item below"
 				>
@@ -129,22 +108,16 @@
 			</p>
 			{#if locationTooltipTrigger}
 				<Tooltip
+					id='tooltip-default-location'
 					trigger={locationTooltipTrigger}
-					bind:id={regionTooltipId}
 					bind:exposedMethods={regionTooltipMethods}
 				>
 					<div class='location-select'>
-						<Select items={getLocationSelectOptions(Object.values($locationEntityStore))}
-							bind:selectedValue={selectedDefaultLocation}
-							on:select={updateDefaultSelectedLocation}
-							placeholder="Select the default location..."
-						/>
+						<EcoMetricsSelectLocation on:select={updateDefaultSelectedLocation} />
 					</div>
 				</Tooltip>
 			{/if}
 		</div>
-
-
 	</form>
 {:else}
 	<LoadingSpinner />
@@ -153,7 +126,9 @@
 {#if $selectionStore.devices.length}
 	<details open={$preferencesStore.ecometricsDeviceSelectionListState}>
 		<summary on:click={e => toggleEcometricsDeviceSelectionListState(e)}>
-			Selection{ $selectionStore.devices.length ? ` (${totalNbOfDevices} devices)` : '' }
+			Selection
+			({totalNbOfDevices} device{ totalNbOfDevices > 1 ? 's' : '' },
+			{totalNbOfServices} service{ totalNbOfServices > 1 ? 's' : '' })
 		</summary>
 		<form class="full-vw">
 			<table class="selection">
@@ -178,7 +153,7 @@
 							<td>
 								<div class="nb--s">
 									<input class="input--s" type="number" min="1" name="qty"
-										value={ device.qty }
+										value={ device.selectionSettings.qty }
 										on:change={ e => updateSelectedDevice(e, device) }
 									/>
 								</div>

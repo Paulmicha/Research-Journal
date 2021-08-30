@@ -10,7 +10,7 @@
 	/**
 	 * Populates the main select options.
 	 */
-	const getMainSelectOptions = sources => {
+	const getSelectOptions = sources => {
 		const selectOptions = [];
 		sources.forEach(source => {
 			let label = source.name;
@@ -32,7 +32,7 @@
 	/**
 	 * Reacts to selection being made.
 	 *
-	 * @param {Object} option : selected option, see getMainSelectOptions().
+	 * @param {Object} option : selected option, see getSelectOptions().
 	 */
 	const selectionIsMade = async option => {
 		addSelectedItem(option.data);
@@ -49,7 +49,7 @@
 </script>
 
 <Select
-	items={getMainSelectOptions([
+	items={getSelectOptions([
 		...$deviceStore.devices,
 		...Object.values($serviceEntityStore)
 	])}

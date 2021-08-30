@@ -4,7 +4,7 @@
  * Contains device-related shared utilities for the Ecometrics experiment.
  */
 
-import { deviceStore } from '../../stores/ecometrics.js';
+import { randomizeArray, displayNb, limitDecimals, getValuePercentInRange } from '../../lib/generic_utils.js';
 
 /**
  * Formats given device label.
@@ -18,10 +18,11 @@ export const getDeviceLabel = device => device.manufacturer + ' ' + device.name;
  * Formats given device info for the side panel details.
  *
  * @param {Object} device : the device entity object.
+ * @param {Object} devicesColNames : labels for all device entity props.
  * @return {Array} of Objects like { label: "Title of value", value: "The value" }.
  */
-export const getDeviceInfo = device =>  {
-	if (!deviceStore || !deviceStore.devicesColNames) {
+export const getDeviceInfo = (device, devicesColNames) =>  {
+	if (!devicesColNames) {
 		return '';
 	}
 
@@ -42,9 +43,9 @@ export const getDeviceInfo = device =>  {
 	];
 
 	keysToRender.forEach(key => {
-		if (device[key].length) {
+		if (key in device && device[key].length) {
 			info.push({
-				label: deviceStore.devicesColNames[key] || key,
+				label: devicesColNames[key] || key,
 				value: device[key]
 			});
 		}
@@ -59,12 +60,12 @@ export const getDeviceInfo = device =>  {
  * @param {Object} device : the device entity object.
  * @return {String} the icon SVG inline markup.
  */
-export const getDeviceImg = device => {
-	if (!deviceStore || !deviceStore.devicesIcons) {
+export const getDeviceImg = (device, devicesIcons) => {
+	if (!devicesIcons) {
 		return '';
 	}
-	if (!(device.subcategory in deviceStore.devicesIcons)) {
-		return deviceStore.devicesIcons.box;
+	if (!(device.subcategory in devicesIcons)) {
+		return devicesIcons.box;
 	}
-	return deviceStore.devicesIcons[device.subcategory];
+	return devicesIcons[device.subcategory];
 };

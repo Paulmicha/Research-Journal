@@ -1,6 +1,11 @@
 <script>
 	import Select from 'svelte-select';
-	import { deviceStore, selectionStore, carbonIntensityStore } from '../../stores/ecometrics.js';
+	import {
+		deviceStore,
+		selectionStore,
+		locationEntityStore,
+		serviceEntityStore
+	} from '../../stores/ecometrics.js';
 	import { preferencesStore } from '../../stores/preferences.js';
 	import { getDeviceUseDefaultValue } from '../../lib/ecometrics/selection.js';
 	import EcoMetricsShareLink from './EcoMetricsShareLink.svelte';
@@ -27,111 +32,104 @@
 	});
 
 	/**
-	 * Populates the multi-select field items.
+	 * Populates the multi-select field options.
 	 */
 	const getSelectOptions = sources => {
 		sources.forEach(source => {
-			let value = source[key];
-
-			value = value.trim();
-			if (!value.length) {
-				return;
+			let label = source.name;
+			// For devices, 'manufacturer' will be concatenated with the 'name'.
+			if ('manufacturer' in source && source.manufacturer.length) {
+				label = `${source.manufacturer} ${label}`;
 			}
-
-			// Special : manufacturer will be concatenated with the source name.
-			if ('manufacturer' in source && source.manufacturer.trim().length) {
-				value = `${source.manufacturer.trim()} ${value}`;
-			}
-			// if ('category' in source && source.category.trim().length) {
-			// 	value = `${value} (${source.category.trim()})`;
-			// }
-
-			// Remove special characters.
-			// value = slugify(value, { lowercase: false, separator: ' ' });
-
-			// TODO figure out simplest way to make this case insensitive.
-			// const valCaseInsensitive = slugify(value, { separator: ' ' });
-
-			// Format the displayed option text.
-			// const label = `${value} <span style="color:grey">(${key.replaceAll('_', ' ')})</span>`;
-			const label = value;
-
 			// Other props not used by the Select component are kept in the bound
 			// "selectedValue" -> attach our sources data to easily get it back
 			// upon selection.
-			// @see addSelectedDevice()
-			selectOptions.push({ key, value, label, data: source });
+			// @see addSelectedItem()
+			selectOptions.push({ label, data: source });
 		});
-
-		// Remove duplicates.
-		let seen = {};
-		const dedup = selectOptions.filter(item =>
-			seen.hasOwnProperty(item.label) ? false : (seen[item.label] = true)
-		);
-
 		// Sort alphabetically.
-		dedup.sort((a, b) => a.label.localeCompare(b.label));
-
-		return dedup;
+		selectOptions.sort((a, b) => a.label.localeCompare(b.label));
+		return selectOptions;
 	};
 
 	/**
 	 * Resets the "device add" selector.
 	 */
-	const resetDeviceSelector = () => {
-		quantity = 1;
+	const resetItemSelector = () => {
 		selectedItem = null;
 	};
 
 	/**
-	 * Adds selected device (with quantity) to the list.
+	 * Adds selected item to the list.
+	 *
+	 * TODO split in 2 lists : devices and services (separate tables).
 	 */
-	const addSelectedDevice = async () => {
-		// e.preventDefault();
+	const addSelectedItem = async () => {
 		if (!selectedItem) {
 			return;
 		}
-
 		selectionStore.update(selection => {
-			selectedItem.pos = selection.devices.length;
-			selectedItem.qty = quantity;
-			selectedItem.deploys_nb = getDeviceUseDefaultValue(selectedItem, 'deploys_nb');
-			selectedItem.deploys_duration = getDeviceUseDefaultValue(selectedItem, 'deploys_duration');
-			selectedItem.backups_nb = getDeviceUseDefaultValue(selectedItem, 'backups_nb');
-			selectedItem.backups_duration = getDeviceUseDefaultValue(selectedItem, 'backups_duration');
 			selectedItem.hours = getDeviceUseDefaultValue(selectedItem, 'hours');
+			if (selectedItem.data.entityType === 'service') {
+				selectedItem.pos = selection.services.length;
+				if (selectedItem.data.type === 'saas') {
+					selectedItem.deploys_nb = getDeviceUseDefaultValue(selectedItem, 'deploys_nb');
+					selectedItem.deploys_duration = getDeviceUseDefaultValue(selectedItem, 'deploys_duration');
+				}
+			} else {
+				selectedItem.pos = selection.devices.length;
+				selectedItem.qty = 1;
+				if (selectedItem.data.subcategory === 'server') {
+					selectedItem.deploys_nb = getDeviceUseDefaultValue(selectedItem, 'deploys_nb');
+					selectedItem.deploys_duration = getDeviceUseDefaultValue(selectedItem, 'deploys_duration');
+					selectedItem.backups_nb = getDeviceUseDefaultValue(selectedItem, 'backups_nb');
+					selectedItem.backups_duration = getDeviceUseDefaultValue(selectedItem, 'backups_duration');
+				}
+			}
 			selection.devices.push(selectedItem);
 			return selection;
 		});
-
 		// TODO when this is called on:select on the <Select /> instance, the reset
 		// will not work immediately. Find better workaround than delaying.
-		// resetDeviceSelector();
+		// resetItemSelector();
 		let failsafe = 99;
 		while (selectedItem && failsafe > 0) {
-			await new Promise(resolve => setTimeout(resetDeviceSelector, 150));
+			await new Promise(resolve => setTimeout(resetItemSelector, 150));
 			failsafe--;
 		}
-
-		// e.target.blur();
 	};
 
 	/**
-	 * Removes selected device from the list.
+	 * Removes selected item from the list.
+	 *
+	 * TODO split in 2 lists : devices and services (separate tables).
 	 */
-	const removeSelectedDevice = (e, deviceToRemove) => {
+	const removeSelectedItem = (e, itemToRemove) => {
 		e.preventDefault();
 		selectionStore.update(selection => {
-			selection.devices.forEach((device, i) => {
-				if (device.data.id === deviceToRemove.data.id) {
-					selection.devices.splice(i, 1);
-				}
-			});
-			// Update positions to maintain correct numbering of items in list.
-			selection.devices = [...selection.devices];
-			selection.devices.forEach((device, i) => {
-				selection.devices[i].pos = i;
-			});
+			if (itemToRemove.data.entityType === 'service') {
+				selection.services.forEach((service, i) => {
+					if (service.data.id === itemToRemove.data.id) {
+						selection.services.splice(i, 1);
+					}
+				});
+				// Update positions to maintain correct numbering of items in list.
+				selection.services = [...selection.services];
+				selection.services.forEach((service, i) => {
+					selection.services[i].pos = i;
+				});
+			} else {
+				selection.devices.forEach((device, i) => {
+					if (device.data.id === itemToRemove.data.id) {
+						selection.devices.splice(i, 1);
+					}
+				});
+				// Update positions to maintain correct numbering of items in list.
+				selection.devices = [...selection.devices];
+				selection.devices.forEach((device, i) => {
+					selection.devices[i].pos = i;
+				});
+			}
 			return selection;
 		});
 	};
@@ -175,7 +173,7 @@
 			selection.devices = [];
 			return selection;
 		});
-		resetDeviceSelector();
+		resetItemSelector();
 	};
 
 	/**
@@ -194,12 +192,16 @@
 {#if $deviceStore.devices.length}
 	<form class="selector">
 		<div class="select">
-			<Select items={getSelectOptions($deviceStore.devices)}
+			<Select items={getSelectOptions([...$deviceStore.devices, ...Object.values($serviceEntityStore)])}
 				bind:selectedValue={selectedItem}
-				on:select={addSelectedDevice}
+				on:select={addSelectedItem}
 				placeholder="Search for devices to add to the list..."
 			/>
 		</div>
+
+
+		<!-- TODO use the locationStore + new <Select> instance ? -->
+
 		<div class="location">
 			<p>Default location: { $selectionStore.defaultLocation }</p>
 			<button
@@ -221,6 +223,8 @@
 				</Tooltip>
 			{/if}
 		</div>
+
+
 	</form>
 {:else}
 	<LoadingSpinner />
@@ -235,13 +239,9 @@
 			<table class="selection">
 				<thead>
 					<tr>
-						<!-- <th>#</th> -->
-						<!-- <th>ID</th> -->
 						<th>Type</th>
 						<th>Name</th>
 						<th>Quantity</th>
-						<!-- <th>Age (years)</th> -->
-						<!-- <th>Screen size</th> -->
 						<th class="u-center">Use</th>
 						<th>Actions</th>
 					</tr>
@@ -249,8 +249,6 @@
 				<tbody>
 					{#each $selectionStore.devices as device, i}
 						<tr>
-							<!-- <td>{ device.pos }</td> -->
-							<!-- <td>{ device.data.id }</td> -->
 							<td>
 								<span class="type-icon" title="{ device.data.subcategory }">
 									{@html (device.data.subcategory in $deviceStore.devicesIcons) ? $deviceStore.devicesIcons[device.data.subcategory] : $deviceStore.devicesIcons.box }
@@ -265,36 +263,12 @@
 									/>
 								</div>
 							</td>
-							<!-- <td>
-								<div class="nb--s">
-									<input class="input--s" type="number" min="0" name="age"
-										value={ device.age || device.data.age }
-										on:change={ e => updateSelectedDevice(e, device) }
-										/>
-								</div>
-							</td> -->
-							<!-- <td>{ device.data.screen_size }</td> -->
+
+
+							<!-- TODO rwork the "use" column (diff service / device : separate <table>s ?) -->
+
 							<td>
 								{#if device.data.subcategory === 'server'}
-									<!--
-										TODO region selector.
-										make a modal for each line, not just servers + distinguish
-										datacenters from electricity grid carbon instensity.
-									-->
-									<div class="inner-form-item">
-										<select>
-											{#each $carbonIntensityStore as ci}
-												<option>
-													{ ci.country_code || '' }
-													{ ci.continent || '' }
-													{ ci.country || '' }
-													{ ci.region || '' }
-													{ ci.city || '' }
-													{ ci.known_services ? '(' + ci.known_services + ')' : '' }
-												</option>
-											{/each}
-										</select>
-									</div>
 									<div class="inner-form-item">
 										<label for="deploys-per-month-{i}" title="on average, during the development phase of the project">Deploys per month</label>
 										<input class="input--s" type="number" min="1" name="deploys_nb"
@@ -337,8 +311,10 @@
 									/>
 								</div>
 							</td>
+
+
 							<td>
-								<button class="btn btn--s" on:click={ e => removeSelectedDevice(e, device) }>Remove</button>
+								<button class="btn btn--s" on:click={ e => removeSelectedItem(e, device) }>Remove</button>
 							</td>
 						</tr>
 					{/each}

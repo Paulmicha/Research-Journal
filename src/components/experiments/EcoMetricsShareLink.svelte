@@ -1,21 +1,13 @@
 <script>
 	import { route } from '../../stores/route.js';
 	import { selectionStore } from '../../stores/ecometrics.js';
+	import { selectionOneLetterPropMap } from '../../lib/ecometrics/selection.js';
 	import SidePanel from '../SidePanel.svelte';
 
 	// Sharing link reacts to current selection store.
 	let shareLink = '';
 	let shareableLinkInput;
 	let toasterMethods;
-
-	const oneLetterPropMap = {
-		qty: 'q',
-		deploys_nb: 'd',
-		deploys_duration: 'u',
-		backups_nb: 'b',
-		backups_duration: 'r',
-		hours: 'h'
-	};
 
 	selectionStore.subscribe(selection => {
 
@@ -30,8 +22,8 @@
 
 			selection.devices.forEach(device => {
 				const subParts = [];
-				Object.keys(oneLetterPropMap).forEach(k => subParts.push(
-					oneLetterPropMap[k] + device[k]
+				Object.keys(selectionOneLetterPropMap).forEach(k => subParts.push(
+					selectionOneLetterPropMap[k] + device[k]
 				));
 				parts.push(`${device.data.id}:${subParts.join(':')}`);
 			});
@@ -42,8 +34,7 @@
 	/**
 	 * Copy shareable link button click handler.
 	 */
-	const copyShareableLink = e => {
-		e.preventDefault();
+	const copyShareableLink = () => {
 		shareableLinkInput.focus();
     shareableLinkInput.select();
     try {
@@ -59,7 +50,7 @@
 
 {#if $selectionStore.devices.length || $selectionStore.services.length}
 	<button class="btn btn--s"
-		on:click={copyShareableLink}
+		on:click|preventDefault={copyShareableLink}
 		title="This link contains the current selection. Opening it will preset this page with this list."
 	>
 		Copy shareable link

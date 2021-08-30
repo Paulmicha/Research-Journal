@@ -58,6 +58,19 @@ export const limitDecimals = (n, x) =>  Math.round(n * Math.pow(10, x)) / Math.p
 /**
  * Returns a % representing the position of a value in given range.
  */
-export const getValuePercentInRange = (value, min, max) => {
-	return (value - min) / (max - min) * 100;
-};
+export const getValuePercentInRange = (value, min, max) => (value - min) / (max - min) * 100;
+
+/**
+ * Flips given object keys and values.
+ *
+ * See https://stackoverflow.com/a/31614602/2592338
+ *
+ * @param {Object} o the object to flip.
+ * @returns {Object} the flipped object.
+ *
+ * @example
+ *   objectFlip({ a: 'foo', b: 'bar' });
+ *   // result : { foo: 'a', bar: 'b' }
+ */
+export const objectFlip = o => Object.entries(o)
+	.reduce((obj, [key, value]) => ({ ...obj, [value]: key }), {});

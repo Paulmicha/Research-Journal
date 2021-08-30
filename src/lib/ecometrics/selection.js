@@ -37,3 +37,13 @@ export const getDeviceUseDefaultValue = (device, use) => {
 	}
 	return 6;
 };
+
+export const selectionOneLetterPropMap = {
+	qty: 'q',
+	deploys_nb: 'd',
+	deploys_duration: 'u',
+	backups_nb: 'b',
+	backups_duration: 'r',
+	hours: 'h',
+	location: 'l'
+};

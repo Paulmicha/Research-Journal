@@ -1,7 +1,15 @@
 <script>
 	import { route } from '../../stores/route.js';
-	import { randomizeArray } from '../../lib/generic_utils.js';
-	import { deviceStore, co2EqStore, selectionStore, carbonIntensityStore } from '../../stores/ecometrics.js';
+	import { randomizeArray, objectFlip } from '../../lib/generic_utils.js';
+	import { selectionOneLetterPropMap } from '../../lib/ecometrics/selection.js';
+	import {
+		deviceStore,
+		co2EqStore,
+		selectionStore,
+		carbonIntensityStore,
+		locationEntityStore,
+		serviceEntityStore
+	} from '../../stores/ecometrics.js';
 	import { preferencesStore } from '../../stores/preferences.js';
 	import LoadingSpinner from '../LoadingSpinner.svelte';
 	import EcoMetricsSelector from '../experiments/EcoMetricsSelector.svelte';
@@ -15,55 +23,38 @@
 		return prefs;
 	});
 
-	// TODO single source of truth this.
-	// @see src/components/experiments/EcoMetricsSelector.svelte
-	const oneLetterPropMapInverted = {
-		q: 'qty',
-		d: 'deploys_nb',
-		u: 'deploys_duration',
-		b: 'backups_nb',
-		r: 'backups_duration',
-		h: 'hours'
-	};
+	// Swap key / value for share links decoding.
+	// See https://stackoverflow.com/a/31614602/2592338
+	const oneLetterPropMapInverted = objectFlip(selectionOneLetterPropMap);
 
 	// Init custom data.
 	route.subscribe(o => {
 		if (o.data && o.data.ecometrics) {
-			// For scaling images of devices to represent their manufacturing impact.
-			// let devicesLowestKgCo2Value = 999999;
-			// let devicesHighestKgCo2Value = 0;
-			const devices = o.data.ecometrics.devices;
-
-			// Seed the 'age' key by default based on manufacturing date.
-			devices.forEach(device => {
-				if ('date' in device && device.date.length) {
-					device.age = new Date().getFullYear() - parseInt(device.date.replace(/\D/g, ''));
-				} else {
-					device.age = 1;
-				}
-				// if (device.kg_co2eq < devicesLowestKgCo2Value) {
-				// 	devicesLowestKgCo2Value = device.kg_co2eq;
-				// }
-				// if (device.kg_co2eq > devicesHighestKgCo2Value) {
-				// 	devicesHighestKgCo2Value = device.kg_co2eq;
-				// }
-			});
-
-			// Store all devices.
 			deviceStore.set({
-				devices,
+				devices: o.data.ecometrics.devices.map(device => {
+					device.entityType = 'device';
+					return device;
+				}),
 				devicesColNames: o.data.ecometrics.devicesColNamesByKey,
-				// devicesDistinctValues: o.data.ecometrics.devicesDistinctValues
 				devicesIcons: o.data.devicesIcons
-				// devicesLowestKgCo2Value,
-				// devicesHighestKgCo2Value
 			});
 
-			// Store randomized CO2 equivalences.
 			co2EqStore.set(randomizeArray(o.data.ecometrics.co2Eq));
-
-			// Store carbon intensity data.
 			carbonIntensityStore.set(o.data.ecometrics.carbonIntensity);
+
+			const locationsById = {};
+			o.data.ecometrics.locations.map(location => {
+				location.entityType = 'location';
+				locationsById[location.id] = location;
+			});
+			locationEntityStore.set(locationsById);
+
+			const servicesById = {};
+			o.data.ecometrics.services.map(service => {
+				service.entityType = 'service';
+				servicesById[service.id] = service;
+			});
+			serviceEntityStore.set(servicesById);
 
 			// Presets from query args (shareable links).
 			if ('s' in o.query && o.query.s.length) {

@@ -74,12 +74,10 @@ const googleCloudPlatformExtractedData = csv2Arr(googleCloudPlatformCsvFile);
 
 // We'll use the data from greenAlgorithms for building our location entities.
 const locations = [];
-greenAlgorithmsExtractedData.forEach((line, i) => {
-	if (i < 1) {
-		return;
-	}
+// The first line contains the labels, so we start at 1.
+for (let i = 1; i < greenAlgorithmsExtractedData.length; i++) {
+	const line = greenAlgorithmsExtractedData[i];
 	const locationBlueprint = {
-		"country_code": line[0],
 		"continent": line[1],
 		"country": line[2],
 		"region": line[3]
@@ -87,14 +85,7 @@ greenAlgorithmsExtractedData.forEach((line, i) => {
 	if (!locationExists(locationBlueprint, locations)) {
 		locations.push(locationNormalizeItem(locationBlueprint));
 	}
-	// Debug.
-	// else {
-	// 	console.log("Found duplicate location in greenAlgorithms dataset :");
-	// 	console.log(locationBlueprint);
-	// 	console.log(`from line ${i} :`);
-	// 	console.log(line);
-	// }
-});
+}
 
 // Locations can also come from services, which reference them.
 servicesRaw.forEach(s => {

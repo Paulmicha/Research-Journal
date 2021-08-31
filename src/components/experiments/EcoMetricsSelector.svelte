@@ -66,7 +66,7 @@
 					🗺️ Default location :
 				</span>
 				<button
-					class="btn btn--s"
+					class="link link--s"
 					bind:this={locationTooltipTrigger}
 					aria-describedby='tooltip-default-location'
 					on:click|preventDefault={locationTooltipMethods.toggle}
@@ -206,6 +206,10 @@
 	.bottom-zone > * {
 		display: inline-block;
 		width: auto;
+	}
+	.location {
+		margin-top: var(--space-s);
+		font-size: .8rem;
 	}
 	.location-select {
 		width: 42ch;

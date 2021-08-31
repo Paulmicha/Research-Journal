@@ -120,6 +120,21 @@ a.is-active {
 	color: cornflowerblue;
 }
 
+.link {
+	text-decoration: underline;
+	text-decoration-thickness: .2em;
+	text-underline-position: under;
+}
+.link:focus,
+.link:hover,
+.link.is-active {
+	color: cornflowerblue;
+}
+.link.link--s {
+	font-size: .8rem;
+	text-decoration-thickness: .1em;
+}
+
 hr {
 	border: 0;
 	height: 1px;
@@ -180,7 +195,7 @@ th.is-active button {
 
 blockquote {
 	margin-bottom: var(--space);
-	font-size: 120%;
+	font-size: 1.2rem;
 }
 
 dl {

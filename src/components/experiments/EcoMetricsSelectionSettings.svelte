@@ -46,7 +46,7 @@
 		<div class="inner-form-item">
 			<label for="qty-{ entity.id }">Quantity</label>
 			<input class="input--s" type="number" min="1" name="qty"
-				id="deploys-per-month-{ entity.id }"
+				id="qty-{ entity.id }"
 				value={ entity.selectionSettings.qty }
 				on:change|preventDefault={ e => updateSettings(e, entity) }
 			/>
@@ -65,15 +65,17 @@
 	{#if entity.subcategory === 'server' || entity.entityType === 'service'}
 
 		<!-- Tooltip for selecting use cases -->
-		<button
-			class="btn btn--s"
-			bind:this={usesTooltipTrigger}
-			aria-describedby={ 'tooltip-uses-' + entity.id }
-			on:click|preventDefault={usesTooltipMethods.toggle}
-			title="Specify what this is used for"
-		>
-			Use cases
-		</button>
+		<div class="inner-form-item">
+			<button
+				class="link link--s use-case-tooltip-trigger"
+				bind:this={usesTooltipTrigger}
+				aria-describedby={ 'tooltip-uses-' + entity.id }
+				on:click|preventDefault={usesTooltipMethods.toggle}
+				title="Specify what this is used for"
+			>
+				Use cases
+			</button>
+		</div>
 		{#if usesTooltipTrigger}
 			<Tooltip
 				id={ 'tooltip-uses-' + entity.id }
@@ -258,6 +260,9 @@
 </div>
 
 <style>
+	.use-case-tooltip-trigger {
+		margin: var(--space-xs) auto;
+	}
 	.inner-form-item > .input--s {
 		width: 3.3rem;
 	}
@@ -271,7 +276,6 @@
 		margin-left: auto;
 		margin-right: var(--space-s);
 		font-size: .8rem;
-		/* white-space: nowrap; */
 		text-align: right;
 	}
 </style>

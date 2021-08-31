@@ -33,7 +33,7 @@ const createBrowserSelectionStore = () => {
 	}
 	const selectionStore = writable(defaultSelectionStoreVal);
 	selectionStore.subscribe(selection => localStorage.setItem(
-		'ecometricsSelectionV2',
+		'ecometricsSelectionV3',
 		JSON.stringify(selection)
 	));
 	return selectionStore;

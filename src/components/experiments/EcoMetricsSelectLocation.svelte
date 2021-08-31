@@ -13,8 +13,11 @@
 	const getSelectOptions = locations => {
 		const selectOptions = [];
 		locations.forEach(location => {
-			let label = getLocationLabel(location);
-			selectOptions.push({ label, value: location.id, data: location });
+			selectOptions.push({
+				label: getLocationLabel(location),
+				value: location.id,
+				data: location
+			});
 		});
 		selectOptions.sort((a, b) => a.label.localeCompare(b.label));
 		return selectOptions;

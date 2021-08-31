@@ -17,6 +17,7 @@ const serviceKeys = [
 	"id", // required for entity reference to other services.
 	"type", // e.g. 'cloud provider', 'saas', 'paas', 'faas', 'online tool', etc.
 	"name",
+	// "uses", // TODO : comma-separated list, e.g. 'host,backup,deploy' ? @see getSelectedItemUseDefaultValue()
 	"services", // n:n entity reference to other services, e.g. Gitlab's cloud provider.
 	"locations" // array of all known or possible locations (n:n entity reference to "location" entities).
 ];

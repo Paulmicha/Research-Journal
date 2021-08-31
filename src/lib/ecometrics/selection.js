@@ -12,6 +12,7 @@
  * @see scripts/experiments/ecometrics/extract.js
  * @see src/components/experiments/EcoMetricsSelector.svelte
  * @see src/components/experiments/EcoMetricsSelectMain.svelte
+ * @see src/components/experiments/EcoMetricsSelectionSettings.svelte
  */
 
 import { selectionStore } from '../../stores/ecometrics.js';

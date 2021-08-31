@@ -6,7 +6,7 @@
 	} from '../../stores/ecometrics.js';
 	import { preferencesStore } from '../../stores/preferences.js';
 	import { getLocationLabel } from '../../lib/ecometrics/location.js';
-	import { clearSelection, removeSelectedItem, updateSelectedItem } from '../../lib/ecometrics/selection.js';
+	import { clearSelection, removeSelectedItem } from '../../lib/ecometrics/selection.js';
 	import LoadingSpinner from '../LoadingSpinner.svelte';
 	import Tooltip from '../Tooltip.svelte';
 	import EcoMetricsShareLink from './EcoMetricsShareLink.svelte';
@@ -18,7 +18,7 @@
 	let totalNbOfServices = 0;
 
 	let locationTooltipTrigger;
-	let regionTooltipMethods;
+	let locationTooltipMethods;
 
 	// Automatically update the totals whenever current selection changes.
 	selectionStore.subscribe(selection => {
@@ -39,7 +39,7 @@
 			selection.defaultLocation = $locationEntityStore[e.detail.entity.id];
 			return selection;
 		});
-		regionTooltipMethods.close();
+		locationTooltipMethods.close();
 	};
 
 	/**
@@ -69,7 +69,7 @@
 					class="btn btn--s"
 					bind:this={locationTooltipTrigger}
 					aria-describedby='tooltip-default-location'
-					on:click|preventDefault={regionTooltipMethods.toggle}
+					on:click|preventDefault={locationTooltipMethods.toggle}
 					title="Change the default location"
 				>
 					{ getLocationLabel($selectionStore.defaultLocation) }
@@ -79,7 +79,7 @@
 				<Tooltip
 					id='tooltip-default-location'
 					trigger={locationTooltipTrigger}
-					bind:exposedMethods={regionTooltipMethods}
+					bind:exposedMethods={locationTooltipMethods}
 				>
 					<div class='location-select'>
 						<EcoMetricsSelectLocation on:select={updateDefaultSelectedLocation} />
@@ -191,9 +191,6 @@
 		margin: -10%;
 		width: 120%;
 		height: 120%;
-	}
-	.nb--s > input {
-		width: 3.3rem;
 	}
 	.selection {
 		margin: 0 auto var(--space-l) auto;

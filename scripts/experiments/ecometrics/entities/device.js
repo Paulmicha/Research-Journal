@@ -20,7 +20,7 @@ const devicesKeys = [
 	"use_percent", // 'use' in Boavizta
 	"manufacturing_percent", // 'manufacturing' in Boavizta
 	"lifetime",
-	"use_location",
+	// "use_location",
 	"date", // model released on this date
 	// "sources",
 	"error_percent", // error

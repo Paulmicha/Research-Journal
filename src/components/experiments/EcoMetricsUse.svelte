@@ -27,19 +27,17 @@
 
 </script>
 
-{#if $selectionStore.device.length || $selectionStore.service.length}
+{#if $totalsStore.yearly_kwh.value}
 	<!-- {#if selectionHasServer($selectionStore.devices)}
 		<p>TODO server config</p>
 	{/if} -->
-	{#if $totalsStore.kg_co2eq.value}
-		<section>
-			<h2>CO2 Equivalents</h2>
-			<div class="rich-text">
-				<p>Currently specified use of devices and services amounts to a total of <strong>{ displayNb($totalsStore.yearly_kwh.value) }</strong> Kw/h per year - that is, <strong>TODO</strong> Kg CO2 Equivalents over a period of <strong>1 { period }</strong>. Here's a list of corresponding measures for reference :</p>
-			</div>
-			<EcoMetricsCo2Equivalents />
-		</section>
-	{/if}
+	<section>
+		<h2>CO2 Equivalents</h2>
+		<div class="rich-text">
+			<p>Currently specified use of devices and services amounts to a total of <strong>{ displayNb($totalsStore.yearly_kwh.value) }</strong> Kw/h per year - that is, <strong>TODO</strong> Kg CO2 Equivalents over a period of <strong>1 { period }</strong>. Here's a list of corresponding measures for reference :</p>
+		</div>
+		<EcoMetricsCo2Equivalents />
+	</section>
 {/if}
 
 <style>

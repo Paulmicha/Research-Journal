@@ -172,7 +172,7 @@
 
 </script>
 
-{#if $selectionStore.device.length || $selectionStore.service.length}
+{#if $selectionStore.device.length}
 
 	<!-- Debug. -->
 	<!-- <pre style="font-size:.75rem">{JSON.stringify(co2EqChartData, null, 2)}</pre> -->

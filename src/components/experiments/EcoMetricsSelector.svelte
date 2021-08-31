@@ -30,7 +30,11 @@
 		if (selection.device.length) {
 			totalNbOfDevices = 0;
 			selection.device.forEach(device => {
-				totalNbOfDevices += parseInt(device.selectionSettings.qty);
+				if (device.selectionSettings.qty) {
+					totalNbOfDevices += parseInt(device.selectionSettings.qty);
+				} else {
+					totalNbOfDevices++;
+				}
 			});
 		}
 		totalNbOfServices = selection.service.length;

@@ -88,7 +88,7 @@
 <aside {id}
 	use:init
 	role="tooltip"
-	class="tooltip"
+	class="tooltip fx-shadow"
 	data-show={isOpen}
 	data-popper-placement={placement}
 >
@@ -99,7 +99,8 @@
 <style>
 	.tooltip {
 		display: none;
-		border: 1px solid black;
+		border: 1px solid #CCC;
+		box-shadow: var(--listShadow, 0 2px 3px 0 rgba(44, 62, 80, 0.24));
 		/* border-radius: 4px; */
 		padding: var(--space-s) var(--space);
 		background: white;

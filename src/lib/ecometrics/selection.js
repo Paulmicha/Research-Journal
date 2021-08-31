@@ -41,7 +41,9 @@ export const selectionOneLetterPropMap = {
  */
 export const getSelectedItemUseDefaultValue = (entity, use) => {
 	switch (use) {
-		case "hours":
+		case "qty":
+			return 1;
+		case "hours_per_day":
 			// Assumes entity.entityType === 'device'.
 			switch (entity.subcategory) {
 				case 'router':
@@ -54,28 +56,30 @@ export const getSelectedItemUseDefaultValue = (entity, use) => {
 				default:
 					return 6;
 			}
-		case "deploys_nb":
-			return 4;
+		case "deploys_per_month":
+			return 1;
 		case "deploys_duration":
 			return 120;
-		case "backups_nb":
+		case "backups_per_month":
+			return 4;
 		case "backups_duration":
-			return 0;
+			return 360;
+		case "backups_total_size":
+			return 5000;
+		case "repos_total_size":
+			return 300;
+		case "instances_total_size":
+			return 5000;
+		case "tests_per_month":
+			return 2;
+		case "tests_duration":
+			return 180;
 	}
-	return 6;
+	return 0;
 };
 
 /**
  * Adds selected item to the list.
- *
- * TODO how to map which settings are exposed in UI for given item based on the
- * "kind" of device or service ?
- * -> For now : case by case, hardcoded.
- *
- * TODO could be like a "tag" system (comma separated ?) to allow more
- * flexible and precise settings attributions.
- * -> Replace 'subcategory' and 'type' from source data tranforms.
- * @see scripts/experiments/ecometrics/extract.js
  */
 export const addSelectedItem = async entity => {
 	if (!entity) {
@@ -85,23 +89,7 @@ export const addSelectedItem = async entity => {
 		entity.selectionSettings = {};
 	}
 	selectionStore.update(selection => {
-		if (entity.entityType === 'service') {
-			if (entity.type === 'saas') {
-				entity.selectionSettings.deploys_nb = getSelectedItemUseDefaultValue(entity, 'deploys_nb');
-				entity.selectionSettings.deploys_duration = getSelectedItemUseDefaultValue(entity, 'deploys_duration');
-			}
-			selection.service.push(entity);
-		} else {
-			entity.selectionSettings.qty = 1;
-			entity.selectionSettings.hours = getSelectedItemUseDefaultValue(entity, 'hours');
-			if (entity.subcategory === 'server') {
-				entity.selectionSettings.deploys_nb = getSelectedItemUseDefaultValue(entity, 'deploys_nb');
-				entity.selectionSettings.deploys_duration = getSelectedItemUseDefaultValue(entity, 'deploys_duration');
-				entity.selectionSettings.backups_nb = getSelectedItemUseDefaultValue(entity, 'backups_nb');
-				entity.selectionSettings.backups_duration = getSelectedItemUseDefaultValue(entity, 'backups_duration');
-			}
-			selection.device.push(entity);
-		}
+		selection[entity.entityType].push(entity);
 		return selection;
 	});
 };

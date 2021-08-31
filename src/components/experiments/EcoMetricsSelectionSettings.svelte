@@ -6,7 +6,7 @@
 
 	// Device or service data input.
 	export let entity;
-	// Reuse the methods of the location tooltip "singleton".
+	// Reuse the location tooltip "singleton".
 	// @see src/components/experiments/EcoMetricsSelector.svelte
 	export let toggleLocationTooltip;
 
@@ -15,33 +15,34 @@
 	let usesTooltipTrigger;
 	let usesTooltipMethods;
 
-	let useRepo = false;
-	let useHost = false;
-	let useBackup = false;
-	let useDeploy = false;
-	let useTests = false;
+	let useRepo = entity.selectionSettings.useRepo || false;
+	let useHost = entity.selectionSettings.useHost || false;
+	let useBackup = entity.selectionSettings.useBackup || false;
+	let useDeploy = entity.selectionSettings.useDeploy || false;
+	let useTests = entity.selectionSettings.useTests || false;
 
 	/**
-	 * TODO (wip) Updates current entity selection settings.
+	 * Updates current entity selection settings.
 	 *
 	 * @param {Object} e : the DOM event object.
 	 */
 	const updateSettings = e => {
-		const settings = {};
-
-		// TODO : need to use the same "mapping" as in :
-		// @see getSelectedItemUseDefaultValue()
-
-		// settings.qty = scope.querySelector('input[name="qty"]').value;
-		// settings.hours = scope.querySelector('input[name="hours"]').value;
-		// settings.deploysNb = scope.querySelector('input[name="deploys_nb"]').value;
-		// settings.deploysDuration = scope.querySelector('input[name="deploys_duration"]').value;
-		// settings.backupsNb = scope.querySelector('input[name="backups_nb"]').value;
-		// settings.backupsDuration = scope.querySelector('input[name="backups_duration"]').value;
-
+		const settings = entity.selectionSettings;
+		if (e.target.value != getSelectedItemUseDefaultValue(entity, e.target.name)) {
+			settings[e.target.name] = e.target.value;
+		} else {
+			delete settings[e.target.name];
+		}
 		updateSelectedItem(entity, settings);
 		e.target.blur();
 	};
+
+	/**
+	 * Current input value getter.
+	 */
+	const getValue = key => entity.selectionSettings[key]
+		|| getSelectedItemUseDefaultValue(entity, key);
+
 </script>
 
 <div bind:this={scope}>
@@ -52,7 +53,7 @@
 			<label for="qty-{ entity.id }">Quantity</label>
 			<input class="input--s" type="number" min="1" name="qty"
 				id="qty-{ entity.id }"
-				value={ entity.selectionSettings.qty }
+				value={ getValue('qty') }
 				on:change|preventDefault={ updateSettings }
 			/>
 		</div>
@@ -60,7 +61,7 @@
 			<label for="hours-per-day-{ entity.id }">Average hours of use per day</label>
 			<input class="input--s" type="number" min="1" name="hours_per_day"
 				id="hours-per-day-{ entity.id }"
-				value={ entity.selectionSettings.hours_per_day || getSelectedItemUseDefaultValue(entity, 'hours_per_day') }
+				value={ getValue('hours_per_day') }
 				on:change|preventDefault={ updateSettings }
 			/>
 		</div>
@@ -89,7 +90,7 @@
 			data-entity-type={ entity.entityType }
 			title={ getLocationLabel(entity.selectionSettings.location || $selectionStore.defaultLocation) }
 		>
-			{#if entity.selectionSettings.location && entity.selectionSettings.location != $selectionStore.defaultLocation}
+			{#if entity.selectionSettings.location && entity.selectionSettings.location.id != $selectionStore.defaultLocation.id}
 				Location
 			{:else}
 				Default location
@@ -109,9 +110,10 @@
 					as a code repository (e.g. git, svn)
 				</label>
 				<input
-					type="checkbox"
+					type="checkbox" name="useRepo"
 					id="use-case-repo-{ entity.id }"
 					bind:checked={ useRepo }
+					on:change|preventDefault={ updateSettings }
 				/>
 			</div>
 			<div class="inner-form-item">
@@ -119,9 +121,10 @@
 					as a host
 				</label>
 				<input
-					type="checkbox"
+					type="checkbox" name="useHost"
 					id="use-case-host-{ entity.id }"
 					bind:checked={ useHost }
+					on:change|preventDefault={ updateSettings }
 				/>
 			</div>
 			<div class="inner-form-item">
@@ -129,9 +132,10 @@
 					as a backup destination
 				</label>
 				<input
-					type="checkbox"
+					type="checkbox" name="useBackup"
 					id="use-case-backup-{ entity.id }"
 					bind:checked={ useBackup }
+					on:change|preventDefault={ updateSettings }
 				/>
 			</div>
 			<div class="inner-form-item">
@@ -139,9 +143,10 @@
 					as a deployment tool
 				</label>
 				<input
-					type="checkbox"
+					type="checkbox" name="useDeploy"
 					id="use-case-deploy-{ entity.id }"
 					bind:checked={ useDeploy }
+					on:change|preventDefault={ updateSettings }
 				/>
 			</div>
 			<div class="inner-form-item">
@@ -149,9 +154,10 @@
 					as an automated test runner (<abbr title="continuous integration">CI</abbr> server)
 				</label>
 				<input
-					type="checkbox"
+					type="checkbox" name="useTests"
 					id="use-case-tests-{ entity.id }"
 					bind:checked={ useTests }
+					on:change|preventDefault={ updateSettings }
 				/>
 			</div>
 		</Tooltip>
@@ -159,7 +165,7 @@
 
 	<!-- Every chosen use cases have their own settings -->
 	{#if useRepo}
-		<div class="inner-form-item">
+		<div class="inner-form-item inner-form-item--l">
 			<label
 				for="repos-total-size-{ entity.id }"
 				title="try to estimate the total size of all repos"
@@ -168,14 +174,14 @@
 			</label>
 			<input class="input--s" type="number" min="0" name="repos_total_size"
 				id="repos-total-size-{ entity.id }"
-				value={ entity.selectionSettings.repos_total_size || getSelectedItemUseDefaultValue(entity, 'repos_total_size') }
+				value={ getValue('repos_total_size') }
 				on:change|preventDefault={ updateSettings }
 			/>
 		</div>
 	{/if}
 
 	{#if useHost}
-		<div class="inner-form-item">
+		<div class="inner-form-item inner-form-item--l">
 			<label
 				for="instances-total-size-{ entity.id }"
 				title="try to estimate the total size of all instances on this host (i.e. dev, stage, prod, code, assets, VMs, docker images and volumes, etc)"
@@ -184,7 +190,7 @@
 			</label>
 			<input class="input--s" type="number" min="0" name="instances_total_size"
 				id="instances-total-size-{ entity.id }"
-				value={ entity.selectionSettings.instances_total_size || getSelectedItemUseDefaultValue(entity, 'instances_total_size') }
+				value={ getValue('instances_total_size') }
 				on:change|preventDefault={ updateSettings }
 			/>
 		</div>
@@ -197,7 +203,7 @@
 			</label>
 			<input class="input--s" type="number" min="1" name="backups_per_month"
 				id="backups-per-month-{ entity.id }"
-				value={ entity.selectionSettings.backups_per_month || getSelectedItemUseDefaultValue(entity, 'backups_per_month') }
+				value={ getValue('backups_per_month') }
 				on:change|preventDefault={ updateSettings }
 			/>
 		</div>
@@ -207,11 +213,11 @@
 			</label>
 			<input class="input--s" type="number" min="1" name="backups_duration"
 				id="backups-duration-{ entity.id }"
-				value={ entity.selectionSettings.backups_duration || getSelectedItemUseDefaultValue(entity, 'backups_duration') }
+				value={ getValue('backups_duration') }
 				on:change|preventDefault={ updateSettings }
 			/>
 		</div>
-		<div class="inner-form-item">
+		<div class="inner-form-item inner-form-item--l">
 			<label
 				for="backups-total-size-{ entity.id }"
 				title="try to estimate the total size of all backups (i.e. code, assets, database dumps, etc.)"
@@ -220,7 +226,7 @@
 			</label>
 			<input class="input--s" type="number" min="0" name="backups_total_size"
 				id="backups-total-size-{ entity.id }"
-				value={ entity.selectionSettings.backups_total_size || getSelectedItemUseDefaultValue(entity, 'backups_total_size') }
+				value={ getValue('backups_total_size') }
 				on:change|preventDefault={ updateSettings }
 			/>
 		</div>
@@ -236,7 +242,7 @@
 			</label>
 			<input class="input--s" type="number" min="1" name="deploys_per_month"
 				id="deploys-per-month-{ entity.id }"
-				value={ entity.selectionSettings.deploys_per_month || getSelectedItemUseDefaultValue(entity, 'deploys_per_month') }
+				value={ getValue('deploys_per_month') }
 				on:change|preventDefault={ updateSettings }
 			/>
 		</div>
@@ -246,7 +252,7 @@
 			</label>
 			<input class="input--s" type="number" min="1" name="deploys_duration"
 				id="deploys-duration-{ entity.id }"
-				value={ entity.selectionSettings.deploys_duration || getSelectedItemUseDefaultValue(entity, 'deploys_duration') }
+				value={ getValue('deploys_duration') }
 				on:change|preventDefault={ updateSettings }
 			/>
 		</div>
@@ -258,11 +264,11 @@
 				for="tests-per-week-{ entity.id }"
 				title="on average, i.e. unit / integration / functional / visual regression tests, load testing, etc."
 			>
-				Average number of tests per week
+				Average number of tests per month
 			</label>
-			<input class="input--s" type="number" min="1" name="tests_per_week"
+			<input class="input--s" type="number" min="1" name="tests_per_month"
 				id="tests-per-week-{ entity.id }"
-				value={ entity.selectionSettings.tests_per_week || getSelectedItemUseDefaultValue(entity, 'tests_per_week') }
+				value={ getValue('tests_per_month') }
 				on:change|preventDefault={ updateSettings }
 			/>
 		</div>
@@ -272,7 +278,7 @@
 			</label>
 			<input class="input--s" type="number" min="1" name="tests_duration"
 				id="tests-duration-{ entity.id }"
-				value={ entity.selectionSettings.tests_duration || getSelectedItemUseDefaultValue(entity, 'tests_duration') }
+				value={ getValue('tests_duration') }
 				on:change|preventDefault={ updateSettings }
 			/>
 		</div>
@@ -287,8 +293,12 @@
 		margin: var(--space-xs) auto;
 	}
 	.inner-form-item > .input--s {
-		width: 3.3rem;
+		/* width: 3.3rem; */
+		width: 3.75rem;
 	}
+	/* .inner-form-item.inner-form-item--l > .input--s {
+		width: 4.2rem;
+	} */
 	.inner-form-item {
 		display: flex;
 		align-items: center;

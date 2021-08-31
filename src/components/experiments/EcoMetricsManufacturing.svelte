@@ -46,7 +46,7 @@
 		// debug.
 		// console.log(device.kg_co2eq + ' / ' + highestKgCo2Value + ' , s = ' + scale);
 
-		for (let i = 1; i <= device.selectionSettings.qty; i++) {
+		for (let i = 1; i <= (device.selectionSettings.qty || 1); i++) {
 			deviceImgs.push({
 				svg,
 				scale,
@@ -95,18 +95,18 @@
 		if (selection.device.length) {
 			selection.device.forEach(device => {
 				let kg_co2eq = 0;
-				labels.push(device.selectionSettings.qty + " × " + getDeviceLabel(device));
+				labels.push((device.selectionSettings.qty || 1) + " × " + getDeviceLabel(device));
 
 				if (device.kg_co2eq && !isNaN(parseInt(device.kg_co2eq))) {
 					kg_co2eq = parseInt(device.kg_co2eq);
-					datasetCo2Eq.push(limitDecimals(kg_co2eq * device.selectionSettings.qty, 2));
+					datasetCo2Eq.push(limitDecimals(kg_co2eq * (device.selectionSettings.qty || 1), 2));
 				} else {
 					datasetCo2Eq.push(kg_co2eq);
 					datasetCo2EqMissing++;
 				}
 
 				if (device.yearly_kwh && !isNaN(parseInt(device.yearly_kwh))) {
-					datasetYearlyKwh.push(limitDecimals(device.yearly_kwh * device.selectionSettings.qty, 2));
+					datasetYearlyKwh.push(limitDecimals(device.yearly_kwh * (device.selectionSettings.qty || 1), 2));
 				} else {
 					datasetYearlyKwh.push(0);
 					datasetYearlyKwhMissing++;

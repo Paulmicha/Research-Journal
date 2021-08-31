@@ -44,6 +44,6 @@
 <Select
 	items={getSelectOptions(Object.values($locationEntityStore))}
 	on:select={e => selectionIsMade(e.detail)}
-	placeholder="Search and select new default location..."
+	placeholder="Search and select new location..."
 	bind:selectedValue={selectedValue}
 />

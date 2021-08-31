@@ -9,6 +9,7 @@
 	export let clickOutsideExclusions = [];
 
 	let componentInstanceElement;
+	let swappedTrigger;
 
 	const init = element => {
 		componentInstanceElement = element;
@@ -18,7 +19,28 @@
 		}
 	}
 
+	/**
+	 * This allows to reuse the same tooltip from another trigger.
+	 *
+	 * @param {Object} otherTrigger : [optional] DOM object of another trigger.
+	 *   Omitting this argument will simply revert the component instance to its
+	 *   initial configuration.
+	 */
+	const recreate = otherTrigger => {
+		if (otherTrigger) {
+			popperInstance = createPopper(otherTrigger, componentInstanceElement);
+			if (!clickOutsideExclusions.includes(otherTrigger)) {
+				clickOutsideExclusions.push(otherTrigger);
+			}
+			swappedTrigger = otherTrigger;
+		} else {
+			popperInstance = createPopper(trigger, componentInstanceElement);
+			swappedTrigger = null;
+		}
+	}
+
 	const open = () => {
+		popperInstance.update(); // Ensures the position is always correct.
 		componentInstanceElement.setAttribute('data-show', '');
 		if (!componentInstanceElement.classList.contains('is-on')) {
 			componentInstanceElement.classList.add('is-on');
@@ -55,9 +77,12 @@
 		}
   }
 
-	export const exposedMethods = { open, close, toggle };
+	const getCurrentTrigger = () => swappedTrigger || trigger;
+
+	export const exposedMethods = { open, close, toggle, recreate, getCurrentTrigger };
 </script>
 
+<!-- TODO also implement keyboard interations, like escape key to close -->
 <svelte:body on:click={onClickOutside} />
 
 <aside {id}

@@ -56,11 +56,13 @@
 			});
 			serviceEntityStore.set(servicesById);
 
-			// Preset the default location to "World".
-			selectionStore.update(selection => {
-				selection.defaultLocation = locationsById['10401578'];
-				return selection;
-			});
+			// Preset the default location to "World" if empty.
+			if (!$selectionStore.defaultLocation) {
+				selectionStore.update(selection => {
+					selection.defaultLocation = locationsById['10401578'];
+					return selection;
+				});
+			}
 
 			// Presets from query args (shareable links).
 			// TODO (wip) services

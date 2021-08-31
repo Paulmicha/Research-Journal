@@ -6,7 +6,12 @@
 	} from '../../stores/ecometrics.js';
 	import { preferencesStore } from '../../stores/preferences.js';
 	import { getLocationLabel } from '../../lib/ecometrics/location.js';
-	import { clearSelection, removeSelectedItem } from '../../lib/ecometrics/selection.js';
+	import {
+		clearSelection,
+		removeSelectedItem,
+		updateSelectedItem,
+		getSelectedEntity
+	} from '../../lib/ecometrics/selection.js';
 	import LoadingSpinner from '../LoadingSpinner.svelte';
 	import Tooltip from '../Tooltip.svelte';
 	import EcoMetricsShareLink from './EcoMetricsShareLink.svelte';
@@ -17,7 +22,7 @@
 	let totalNbOfDevices = 0;
 	let totalNbOfServices = 0;
 
-	let locationTooltipTrigger;
+	let defaultLocationTooltipTrigger;
 	let locationTooltipMethods;
 
 	// Automatically update the totals whenever current selection changes.
@@ -32,13 +37,59 @@
 	});
 
 	/**
-	 * Reacts to default location changes.
+	 * Toggles the location tooltip and updates its trigger ref if necessary.
+	 *
+	 * This allows to use multiple triggers for the same Tooltip instance. It
+	 * allows to avoid duplicating / recreating its contents.
+	 * @see src/components/experiments/EcoMetricsSelectionSettings.svelte
+	 *
+	 * @param {Object} e the DOM click event of the last trigger used to open the
+	 *   location tooltip "singleton".
 	 */
-	const updateDefaultSelectedLocation = e => {
-		selectionStore.update(selection => {
-			selection.defaultLocation = $locationEntityStore[e.detail.entity.id];
-			return selection;
-		});
+	const toggleLocationTooltip = e => {
+		if (locationTooltipMethods.getCurrentTrigger() !== e.target) {
+			locationTooltipMethods.recreate(e.target);
+			locationTooltipMethods.open();
+		} else {
+			locationTooltipMethods.toggle();
+		}
+	}
+
+	/**
+	 * Selects a location from the "singleton" tooltip.
+	 */
+	const selectLocation = e => {
+		const currentTrigger = locationTooltipMethods.getCurrentTrigger();
+
+		// For the default location selector, update the locationEntityStore.
+		if (currentTrigger === defaultLocationTooltipTrigger) {
+			selectionStore.update(selection => {
+				selection.defaultLocation = $locationEntityStore[e.detail.entity.id];
+				return selection;
+			});
+			locationTooltipMethods.close();
+			return;
+		}
+
+		// For the location selector on individual selected entities, update the
+		// selectionStore.
+		if (!currentTrigger.hasAttribute('data-entity-id') || !currentTrigger.hasAttribute('data-entity-type')) {
+			return;
+		}
+		const entity = getSelectedEntity(
+			$selectionStore,
+			currentTrigger.getAttribute('data-entity-type'),
+			currentTrigger.getAttribute('data-entity-id')
+		);
+		if (!entity) {
+			return;
+		}
+		let newSettings = {};
+		if ('selectionSettings' in entity) {
+			newSettings = entity.selectionSettings;
+		}
+		newSettings.location = $locationEntityStore[e.detail.entity.id];
+		updateSelectedItem(entity, newSettings);
 		locationTooltipMethods.close();
 	};
 
@@ -67,22 +118,22 @@
 				</span>
 				<button
 					class="link link--s"
-					bind:this={locationTooltipTrigger}
+					bind:this={defaultLocationTooltipTrigger}
 					aria-describedby='tooltip-default-location'
-					on:click|preventDefault={locationTooltipMethods.toggle}
+					on:click|preventDefault={toggleLocationTooltip}
 					title="Change the default location"
 				>
 					{ getLocationLabel($selectionStore.defaultLocation) }
 				</button>
 			</p>
-			{#if locationTooltipTrigger}
+			{#if defaultLocationTooltipTrigger}
 				<Tooltip
 					id='tooltip-default-location'
-					trigger={locationTooltipTrigger}
+					trigger={defaultLocationTooltipTrigger}
 					bind:exposedMethods={locationTooltipMethods}
 				>
 					<div class='location-select'>
-						<EcoMetricsSelectLocation on:select={updateDefaultSelectedLocation} />
+						<EcoMetricsSelectLocation on:select={selectLocation} />
 					</div>
 				</Tooltip>
 			{/if}
@@ -123,7 +174,7 @@
 							</td>
 							<td>{ device.manufacturer } { device.name }</td>
 							<td>
-								<EcoMetricsSelectionSettings entity={device} />
+								<EcoMetricsSelectionSettings {toggleLocationTooltip} entity={device} />
 							</td>
 							<td>
 								<button
@@ -143,7 +194,7 @@
 							</td>
 							<td>{ service.name }</td>
 							<td>
-								<EcoMetricsSelectionSettings entity={service} />
+								<EcoMetricsSelectionSettings {toggleLocationTooltip} entity={service} />
 							</td>
 							<td>
 								<button

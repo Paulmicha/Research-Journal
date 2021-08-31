@@ -147,3 +147,15 @@ export const clearSelection = () => {
 		return selection;
 	});
 };
+
+/**
+ * Returns selected entity by entity type and id.
+ */
+export const getSelectedEntity = (selection, entityType, id) => {
+	for (let i = 0; i < selection[entityType].length; i++) {
+		const entity = selection[entityType][i];
+		if (id === entity.id) {
+			return entity;
+		}
+	}
+};

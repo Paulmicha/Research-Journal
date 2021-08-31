@@ -24,7 +24,7 @@ export const clickedDeviceImgStore = writable({});
 let defaultSelectionStoreVal = {
 	device: [],
 	service: [],
-	defaultLocation: ''
+	defaultLocation: false
 };
 const createBrowserSelectionStore = () => {
 	const storedVal = localStorage.getItem('ecometricsSelectionV3');

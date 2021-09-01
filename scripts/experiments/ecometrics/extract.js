@@ -64,7 +64,7 @@ let co2EqRaw = [
 
 // We won't use the IT equipment equivalents here, as we're already measuring
 // those.
-const co2EqExcludedIds = ['27002', '27006', '27010'];
+const co2EqExcludedIds = [27002, 27006, 27010];
 co2EqRaw = co2EqRaw.filter(eq => !co2EqExcludedIds.includes(eq.id));
 
 // Load raw CSV data as arrays.

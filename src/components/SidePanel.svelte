@@ -1,4 +1,6 @@
 <script>
+	// import Dismissable from "./Dismissable.svelte";
+
 	export let pos = "fixed";
 	export let zIndex = "1";
 	export let w = '';
@@ -51,11 +53,13 @@
 	export const exposedMethods = { open, close, toggle };
 </script>
 
+<svelte:window on:keydown={ e => { e.key === "Escape" && close() }} />
+
 <aside {id}
-	bind:this={componentInstanceElement}
+	bind:this={ componentInstanceElement }
 	aria-hidden="true"
 	class="side-panel side-panel--{dir} fx-shadow rich-text--inverse"
-	style={inlineCssVars}
+	style={ inlineCssVars }
 >
 	<div class="before">
 		{#if label.length }

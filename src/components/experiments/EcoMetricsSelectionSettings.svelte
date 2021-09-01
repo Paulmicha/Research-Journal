@@ -1,6 +1,10 @@
 <script>
 	import { selectionStore } from '../../stores/ecometrics.js';
-	import { getSelectedItemUseDefaultValue, updateSelectedItem } from '../../lib/ecometrics/selection.js';
+	import {
+		getSelectedItemDefaultSetting,
+		updateSelectedItem,
+		getSelectedItemSetting
+	} from '../../lib/ecometrics/selection.js';
 	import { getLocationLabel } from '../../lib/ecometrics/location.js';
 	import Tooltip from '../Tooltip.svelte';
 	import Ellipsis from '../Ellipsis.svelte';
@@ -36,7 +40,7 @@
 		if (e.target.getAttribute('type') === 'checkbox') {
 			comparedValue = e.target.checked;
 		}
-		if (comparedValue != getSelectedItemUseDefaultValue(entity, e.target.name)) {
+		if (comparedValue != getSelectedItemDefaultSetting(entity, e.target.name)) {
 			settings[e.target.name] = comparedValue;
 		} else {
 			delete settings[e.target.name];
@@ -44,12 +48,6 @@
 		updateSelectedItem(entity, pos, settings);
 		e.target.blur();
 	};
-
-	/**
-	 * Current input value getter.
-	 */
-	const getValue = key => entity.selectionSettings[key]
-		|| getSelectedItemUseDefaultValue(entity, key);
 
 </script>
 
@@ -161,7 +159,7 @@
 		<label for="qty-{ entity.id }">Quantity</label>
 		<input class="input--s" type="number" min="1" name="qty"
 			id="qty-{ entity.id }"
-			value={ getValue('qty') }
+			value={ getSelectedItemSetting(entity, 'qty') }
 			on:change|preventDefault={ updateSettings }
 		/>
 	</div>
@@ -169,7 +167,7 @@
 		<label for="hours-per-day-{ entity.id }">Average hours of use per day</label>
 		<input class="input--s" type="number" min="1" name="hours_per_day"
 			id="hours-per-day-{ entity.id }"
-			value={ getValue('hours_per_day') }
+			value={ getSelectedItemSetting(entity, 'hours_per_day') }
 			on:change|preventDefault={ updateSettings }
 		/>
 	</div>
@@ -186,7 +184,7 @@
 		</label>
 		<input class="input--s" type="number" min="0" name="repos_total_size"
 			id="repos-total-size-{ entity.id }"
-			value={ getValue('repos_total_size') }
+			value={ getSelectedItemSetting(entity, 'repos_total_size') }
 			on:change|preventDefault={ updateSettings }
 		/>
 	</div>
@@ -202,7 +200,7 @@
 		</label>
 		<input class="input--s" type="number" min="0" name="instances_total_size"
 			id="instances-total-size-{ entity.id }"
-			value={ getValue('instances_total_size') }
+			value={ getSelectedItemSetting(entity, 'instances_total_size') }
 			on:change|preventDefault={ updateSettings }
 		/>
 	</div>
@@ -215,7 +213,7 @@
 		</label>
 		<input class="input--s" type="number" min="1" name="backups_per_month"
 			id="backups-per-month-{ entity.id }"
-			value={ getValue('backups_per_month') }
+			value={ getSelectedItemSetting(entity, 'backups_per_month') }
 			on:change|preventDefault={ updateSettings }
 		/>
 	</div>
@@ -225,7 +223,7 @@
 		</label>
 		<input class="input--s" type="number" min="1" name="backups_duration"
 			id="backups-duration-{ entity.id }"
-			value={ getValue('backups_duration') }
+			value={ getSelectedItemSetting(entity, 'backups_duration') }
 			on:change|preventDefault={ updateSettings }
 		/>
 	</div>
@@ -238,7 +236,7 @@
 		</label>
 		<input class="input--s" type="number" min="0" name="backups_total_size"
 			id="backups-total-size-{ entity.id }"
-			value={ getValue('backups_total_size') }
+			value={ getSelectedItemSetting(entity, 'backups_total_size') }
 			on:change|preventDefault={ updateSettings }
 		/>
 	</div>
@@ -254,7 +252,7 @@
 		</label>
 		<input class="input--s" type="number" min="1" name="deploys_per_month"
 			id="deploys-per-month-{ entity.id }"
-			value={ getValue('deploys_per_month') }
+			value={ getSelectedItemSetting(entity, 'deploys_per_month') }
 			on:change|preventDefault={ updateSettings }
 		/>
 	</div>
@@ -264,7 +262,7 @@
 		</label>
 		<input class="input--s" type="number" min="1" name="deploys_duration"
 			id="deploys-duration-{ entity.id }"
-			value={ getValue('deploys_duration') }
+			value={ getSelectedItemSetting(entity, 'deploys_duration') }
 			on:change|preventDefault={ updateSettings }
 		/>
 	</div>
@@ -280,7 +278,7 @@
 		</label>
 		<input class="input--s" type="number" min="1" name="tests_per_month"
 			id="tests-per-week-{ entity.id }"
-			value={ getValue('tests_per_month') }
+			value={ getSelectedItemSetting(entity, 'tests_per_month') }
 			on:change|preventDefault={ updateSettings }
 		/>
 	</div>
@@ -290,7 +288,7 @@
 		</label>
 		<input class="input--s" type="number" min="1" name="tests_duration"
 			id="tests-duration-{ entity.id }"
-			value={ getValue('tests_duration') }
+			value={ getSelectedItemSetting(entity, 'tests_duration') }
 			on:change|preventDefault={ updateSettings }
 		/>
 	</div>

@@ -17,21 +17,30 @@
 
 import { selectionStore } from '../../stores/ecometrics.js';
 
-// TODO update with new fields.
-// @see getSelectedItemUseDefaultValue()
+// @see selectionUseDefaultValue()
 // @see src/components/experiments/EcoMetricsSelectionSettings.svelte
 export const selectionOneLetterPropMap = {
 	qty: 'q',
-	deploys_nb: 'd',
+	deploys_per_month: 'd',
 	deploys_duration: 'u',
-	backups_nb: 'b',
+	backups_per_month: 'b',
 	backups_duration: 'r',
-	hours: 'h',
-	location: 'l'
+	backups_total_size: 'r',
+	hours_per_day: 'h',
+	location: 'l',
+	repos_total_size: 'e',
+	instances_total_size: 'i',
+	tests_per_month: 't',
+	tests_duration: 'a',
+	useRepo: 'p',
+	useHost: 'o',
+	useBackup: 'c',
+	useDeploy: 'y',
+	useTests: 's'
 };
 
 /**
- * Provides default values for device or service use settings.
+ * Provides default values for device or service settings.
  *
  * TODO how to map which settings are exposed in UI for given item based on the
  * "kind" of device or service ?
@@ -42,7 +51,7 @@ export const selectionOneLetterPropMap = {
  * -> Replace 'subcategory' and 'type' from source data tranforms.
  * @see scripts/experiments/ecometrics/extract.js
  */
-export const getSelectedItemUseDefaultValue = (entity, use) => {
+export const getSelectedItemDefaultSetting = (entity, use) => {
 	switch (use) {
 		case "qty":
 			return 1;
@@ -85,6 +94,16 @@ export const getSelectedItemUseDefaultValue = (entity, use) => {
 			return false;
 	}
 	return 0;
+};
+
+/**
+ * Returns the current selected entity setting value.
+ */
+export const getSelectedItemSetting = (entity, key) => {
+	if ('selectionSettings' in entity && key in entity.selectionSettings) {
+		return entity.selectionSettings[key]
+	}
+	return getSelectedItemDefaultSetting(entity, key);
 };
 
 /**

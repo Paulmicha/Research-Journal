@@ -4,6 +4,8 @@
 	import { getDeviceImg, getDeviceLabel, getDeviceKwhPerPeriod } from '../../lib/ecometrics/device.js';
 	import { getServiceImg } from '../../lib/ecometrics/service.js';
 	import { getLocationCarbonIntensity, getLocationLabel } from '../../lib/ecometrics/location.js';
+	import { getSelectedItemSetting } from '../../lib/ecometrics/selection.js';
+	import Chart from 'svelte-frappe-charts';
 	import Tooltip from '../Tooltip.svelte';
   import EcoMetricsCo2Equivalents from './EcoMetricsCo2Equivalents.svelte';
 
@@ -29,19 +31,34 @@
 		}
 	}
 
-	// let useStats = {};
-
-	// totalsStore.subscribe(totals => {
-	// 	if ($selectionStore.devices.length) {
-	// 		$selectionStore.devices.forEach(device => {
-	// 			console.log(device);
-	// 		});
-	// 	}
-	// 	console.log(totals);
-	// });
+	let deviceUseCo2EqChartData = {
+		"labels": [],
+		"datasets": []
+	};
 
 	selectionStore.subscribe(selection => {
-		// console.log(selection);
+		const deviceLabels = [];
+		const datasetDeviceKgCo2PerYear = [];
+
+		// TODO services.
+		selection.device.forEach(entity => {
+			datasetDeviceKgCo2PerYear.push(
+				getDeviceKwhPerPeriod(entity, 'year') * getLocationCarbonIntensity(
+					entity.selectionSettings.location || $selectionStore.defaultLocation,
+					$carbonIntensityStore
+				) / 1000
+			);
+			deviceLabels.push(getDeviceLabel(entity));
+		});
+		deviceUseCo2EqChartData = {
+			"labels": deviceLabels,
+			"datasets": [
+				{
+					"name": "Emissions from power consumption (Kg Co2 per year)",
+					"values": datasetDeviceKgCo2PerYear
+				}
+			]
+		};
 	});
 
 </script>
@@ -98,24 +115,31 @@
 					<div class="f-grid-item">
 						<h3>Devices</h3>
 						{#each $selectionStore.device as entity}
-							<div class="selection-item">
+							<div class="selection-item rich-text">
 								<h4 class="selection-label">
 									<span class="selection-icon">
 										{@html getDeviceImg(entity, $deviceStore.devicesIcons) }
 									</span>
-									<span>{ getDeviceLabel(entity) }</span>
+									<span>{ getSelectedItemSetting(entity, 'qty') }&nbsp;×&nbsp;{ getDeviceLabel(entity) }</span>
 								</h4>
-								<p>
+								<!-- <p>
 									Based on the estimated carbon intensity of the main use location of this device (about { getLocationCarbonIntensity(entity.selectionSettings.location || $selectionStore.defaultLocation, $carbonIntensityStore) } gCO2e/kWh in { getLocationLabel(entity.selectionSettings.location || $selectionStore.defaultLocation) }) and the estimated power consumption of this device ({ displayNb(getDeviceKwhPerPeriod(entity, period)) } Kw/h per { period }), the estimated footprint amounts to :
-								</p>
+								</p> -->
+								<ul>
+									<li>Estimated carbon intensity of the main use location of this device&nbsp;: <strong>{ getLocationCarbonIntensity(entity.selectionSettings.location || $selectionStore.defaultLocation, $carbonIntensityStore) }</strong>&nbsp;gCO2e/kWh in { getLocationLabel(entity.selectionSettings.location || $selectionStore.defaultLocation) })</li>
+									<li>Estimated power consumption for using this device <strong>{ getSelectedItemSetting(entity, 'hours_per_day') }</strong>&nbsp;hours per day on average&nbsp;: <strong>{ displayNb(getDeviceKwhPerPeriod(entity, period)) }</strong>&nbsp;Kw/h&nbsp;per&nbsp;{ period })</li>
+								</ul>
 								<p class="selection-result">
+									Estimated footprint (for { getSelectedItemSetting(entity, 'qty') } device{ getSelectedItemSetting(entity, 'qty') > 1 ? 's' : '' })&nbsp;:
 									<strong>
-										{ displayNb(getDeviceKwhPerPeriod(entity, period) * getLocationCarbonIntensity(entity.selectionSettings.location || $selectionStore.defaultLocation, $carbonIntensityStore) / 1000) }
-									</strong>
-									Kg CO2 / { period }
+										{ displayNb(getSelectedItemSetting(entity, 'qty') * getDeviceKwhPerPeriod(entity, period) * getLocationCarbonIntensity(entity.selectionSettings.location || $selectionStore.defaultLocation, $carbonIntensityStore) / 1000) }
+									</strong>&nbsp;Kg&nbsp;CO2&nbsp;/&nbsp;{ period }
 								</p>
 							</div>
 						{/each}
+						<div class="selection-chart">
+							<Chart data={deviceUseCo2EqChartData} type="pie" maxSlices="20" />
+						</div>
 					</div>
 				{/if}
 				{#if $selectionStore.service.length}

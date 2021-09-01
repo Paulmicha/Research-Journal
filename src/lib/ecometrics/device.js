@@ -5,6 +5,7 @@
  */
 
 import { randomizeArray, displayNb, limitDecimals, getValuePercentInRange } from '../../lib/generic_utils.js';
+import { getSelectedItemDefaultSetting } from './selection.js';
 
 /**
  * Formats given device label.
@@ -72,7 +73,8 @@ export const getDeviceImg = (device, devicesIcons) => {
 };
 
 /**
- * Gets the kwh value of given device over given period.
+ * Gets the kwh value of given device over given period according to specified
+ * hours of use / day.
  *
  * @param {Object} device the entity
  * @param {String} period the currently selected period.
@@ -80,13 +82,16 @@ export const getDeviceImg = (device, devicesIcons) => {
  */
 export const getDeviceKwhPerPeriod = (device, period) => {
 	const yearlyKwh = parseInt(device.yearly_kwh);
+	const hoursPerDay = parseInt(device.selectionSettings.hours_per_day
+		|| getSelectedItemDefaultSetting(device, 'hours_per_day'));
+	const kwhUsedPerDay = (yearlyKwh / 365) * hoursPerDay;
 	switch (period) {
-		case 'day':
-			return yearlyKwh / 365;
 		case 'week':
-			return yearlyKwh / 52;
+			return kwhUsedPerDay * 7;
 		case 'month':
-			return yearlyKwh / 12;
+			return kwhUsedPerDay * 365 / 12;
+		case 'year':
+			return kwhUsedPerDay * 365;
 	}
-	return yearlyKwh;
+	return kwhUsedPerDay;
 };

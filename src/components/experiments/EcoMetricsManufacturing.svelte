@@ -73,7 +73,6 @@
 		return randomizeArray(images);
 	};
 
-	// TODO (wip) services.
 	selectionStore.subscribe(selection => {
 		const labels = [];
 		const datasetCo2Eq = [];

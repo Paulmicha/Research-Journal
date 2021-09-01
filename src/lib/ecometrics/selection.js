@@ -97,10 +97,10 @@ export const addSelectedItem = async entity => {
 /**
  * Removes selected item from the list.
  */
-export const removeSelectedItem = entity => {
+export const removeSelectedItem = (entity, pos) => {
 	selectionStore.update(selection => {
 		selection[entity.entityType].forEach((o, i) => {
-			if (o.id === entity.id) {
+			if (o.id === entity.id && i === pos) {
 				selection[entity.entityType].splice(i, 1);
 				return;
 			}
@@ -113,10 +113,10 @@ export const removeSelectedItem = entity => {
 /**
  * Updates selected device.
  */
-export const updateSelectedItem = (entity, settings) => {
+export const updateSelectedItem = (entity, pos, settings) => {
 	selectionStore.update(selection => {
 		selection[entity.entityType].forEach((o, i) => {
-			if (o.id === entity.id) {
+			if (o.id === entity.id && i === pos) {
 				selection[entity.entityType][i].selectionSettings = settings;
 				return;
 			}

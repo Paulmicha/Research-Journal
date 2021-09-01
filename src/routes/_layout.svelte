@@ -6,17 +6,31 @@
 
 <script>
 	import { setContext } from 'svelte';
+	import { stores } from '@sapper/app';
+	import { onMount } from 'svelte';
 	import Meta from '../components/Meta.svelte';
 
+	export let segment;
+
+	// Keep scrollbar width up to date to avoid horizontal scrollbars.
+	let d = null;
+	onMount(() => {
+		d = document;
+	});
+	const { page } = stores();
+	const setDocumentScrollbarWidthCssVar = () => d && d.documentElement.style.setProperty(
+		'--scrollbar-width',
+		(window.innerWidth - document.documentElement.clientWidth) + "px"
+	);
+	page.subscribe(setDocumentScrollbarWidthCssVar);
+
+	// Make all components inherit globals via Svelte context API.
 	const globals = global_data.default;
 	globals.translations = translation_data.default;
 	globals.menu_main = menu_main.default;
-
 	setContext('global_data', globals);
 </script>
 
-<svelte:window on:load={e => document.documentElement.style.setProperty('--scrollbar-width', (window.innerWidth - document.documentElement.clientWidth) + "px")} />
-
+<svelte:window on:load={setDocumentScrollbarWidthCssVar} />
 <Meta></Meta>
-
 <slot></slot>

@@ -53,6 +53,13 @@
 			o.data.ecometrics.services.map(service => {
 				service.entityType = 'service';
 				servicesById[service.id] = service;
+				// Some services have a list of locations where the 1st is to be
+				// considered as the default location.
+				// @see scripts/experiments/ecometrics/manual-data/services.json
+				if ('locations' in service) {
+					service.selectionSettings = {};
+					service.selectionSettings.location = locationsById[service.locations[0]];
+				}
 			});
 			serviceEntityStore.set(servicesById);
 

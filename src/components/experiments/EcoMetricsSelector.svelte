@@ -169,7 +169,7 @@
 
 					<!-- TODO merge devices and services in the same loop to preserve order ? -->
 
-					{#each $selectionStore.device as device}
+					{#each $selectionStore.device as device, i}
 						<tr>
 							<td>
 								<span class="type-icon" title="{ device.subcategory }">
@@ -178,12 +178,16 @@
 							</td>
 							<td>{ device.manufacturer } { device.name }</td>
 							<td>
-								<EcoMetricsSelectionSettings {toggleLocationTooltip} entity={device} />
+								<EcoMetricsSelectionSettings
+									{ toggleLocationTooltip }
+									entity={ device }
+									pos={ i }
+								/>
 							</td>
 							<td>
 								<button
 									class="btn btn--s"
-									on:click|preventDefault={ () => removeSelectedItem(device) }
+									on:click|preventDefault={ () => removeSelectedItem(device, i) }
 								>
 									Remove
 								</button>
@@ -191,19 +195,23 @@
 						</tr>
 					{/each}
 
-					{#each $selectionStore.service as service}
+					{#each $selectionStore.service as service, i}
 						<tr>
 							<td>
 								(TODO service icons ?)
 							</td>
 							<td>{ service.name }</td>
 							<td>
-								<EcoMetricsSelectionSettings {toggleLocationTooltip} entity={service} />
+								<EcoMetricsSelectionSettings
+									{ toggleLocationTooltip }
+									entity={ service }
+									pos={ i }
+								/>
 							</td>
 							<td>
 								<button
 									class="btn btn--s"
-									on:click|preventDefault={ () => removeSelectedItem(service) }
+									on:click|preventDefault={ () => removeSelectedItem(service, i) }
 								>
 									Remove
 								</button>

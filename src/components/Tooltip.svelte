@@ -2,7 +2,7 @@
 	import { createPopper } from '@popperjs/core';
 
 	export let trigger;
-	export let popperInstance;
+	export let popperInstance = null;
 	export let isOpen = null;
 	export let placement = 'bottom';
 	export let id = Math.random().toString(36).substr(2, 9);

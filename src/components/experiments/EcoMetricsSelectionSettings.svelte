@@ -6,6 +6,7 @@
 
 	// Device or service data input.
 	export let entity;
+	export let pos;
 	// Reuse the location tooltip "singleton".
 	// @see src/components/experiments/EcoMetricsSelector.svelte
 	export let toggleLocationTooltip;
@@ -33,7 +34,7 @@
 		} else {
 			delete settings[e.target.name];
 		}
-		updateSelectedItem(entity, settings);
+		updateSelectedItem(entity, pos, settings);
 		e.target.blur();
 	};
 
@@ -290,7 +291,7 @@
 		font-size: .8rem;
 	}
 	.tooltip-triggers > button {
-		margin: var(--space-xs) auto;
+		margin: 0 auto var(--space-s) auto;
 	}
 	.inner-form-item > .input--s {
 		/* width: 3.3rem; */

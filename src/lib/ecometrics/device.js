@@ -58,6 +58,7 @@ export const getDeviceInfo = (device, devicesColNames) =>  {
  * Returns device SVG code according to its type (subcategory).
  *
  * @param {Object} device : the device entity object.
+ * @param {Object} devicesIcons : the loaded data containing inline SVG markup.
  * @return {String} the icon SVG inline markup.
  */
 export const getDeviceImg = (device, devicesIcons) => {
@@ -65,7 +66,7 @@ export const getDeviceImg = (device, devicesIcons) => {
 		return '';
 	}
 	if (!(device.subcategory in devicesIcons)) {
-		return devicesIcons.box;
+		return devicesIcons.default;
 	}
 	return devicesIcons[device.subcategory];
 };

@@ -433,6 +433,14 @@ summary:hover {
 	box-shadow: 0 0 8px rgba(0,0,0,.18),0 8px 16px rgba(0,0,0,.36);
 }
 
+.fx-ellipsis {
+	display: inline-block;
+	overflow: hidden;
+	white-space: nowrap;
+	width: var(--ellipsis-w, 20ch);
+	text-overflow: ellipsis;
+}
+
 
 /* Global third-party components overrides */
 

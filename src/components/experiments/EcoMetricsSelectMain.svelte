@@ -1,7 +1,7 @@
 <script>
 	import { createEventDispatcher } from 'svelte';
 	import Select from 'svelte-select';
-	import { deviceStore, serviceEntityStore } from '../../stores/ecometrics.js';
+	import { deviceStore, serviceStore } from '../../stores/ecometrics.js';
 	import { addSelectedItem } from '../../lib/ecometrics/selection.js';
 
 	let selectedValue;
@@ -51,7 +51,7 @@
 <Select
 	items={getSelectOptions([
 		...$deviceStore.devices,
-		...Object.values($serviceEntityStore)
+		...Object.values($serviceStore.services)
 	])}
 	on:select={e => selectionIsMade(e.detail)}
 	placeholder="Search for devices or services to add to the list..."

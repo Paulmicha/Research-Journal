@@ -5,17 +5,23 @@
 
 import { writable } from 'svelte/store';
 
+// TODO uniformize data structure (objects keyed by ID for all entities with ID)
 export const deviceStore = writable({
-	"devices": [],
-	"devicesColNames": [],
-	"devicesIcons": {}
+	devices: [],
+	devicesColNames: [],
+	devicesIcons: {}
+});
+
+export const serviceStore = writable({
+	services: {},
+	servicesIcons: {}
 });
 
 export const co2EqStore = writable([]);
 export const carbonIntensityStore = writable([]);
 export const locationEntityStore = writable({});
-export const serviceEntityStore = writable({});
 export const totalsStore = writable({});
+
 export const randomizedDeviceImgStore = writable([]);
 export const clickedDeviceImgStore = writable({});
 

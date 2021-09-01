@@ -2,7 +2,8 @@
 	import {
 		deviceStore,
 		selectionStore,
-		locationEntityStore
+		locationEntityStore,
+		serviceStore
 	} from '../../stores/ecometrics.js';
 	import { preferencesStore } from '../../stores/preferences.js';
 	import { getLocationLabel } from '../../lib/ecometrics/location.js';
@@ -12,6 +13,7 @@
 		updateSelectedItem,
 		getSelectedEntity
 	} from '../../lib/ecometrics/selection.js';
+	import { getServiceImg } from '../../lib/ecometrics/service.js';
 	import LoadingSpinner from '../LoadingSpinner.svelte';
 	import Tooltip from '../Tooltip.svelte';
 	import EcoMetricsShareLink from './EcoMetricsShareLink.svelte';
@@ -198,7 +200,9 @@
 					{#each $selectionStore.service as service, i}
 						<tr>
 							<td>
-								(TODO service icons ?)
+								<span class="type-icon">
+									{@html getServiceImg(service, $serviceStore.servicesIcons) }
+								</span>
 							</td>
 							<td>{ service.name }</td>
 							<td>

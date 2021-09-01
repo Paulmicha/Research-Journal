@@ -8,7 +8,7 @@
 		selectionStore,
 		carbonIntensityStore,
 		locationEntityStore,
-		serviceEntityStore
+		serviceStore
 	} from '../../stores/ecometrics.js';
 	import { preferencesStore } from '../../stores/preferences.js';
 	import LoadingSpinner from '../LoadingSpinner.svelte';
@@ -51,8 +51,6 @@
 
 			const servicesById = {};
 			o.data.ecometrics.services.map(service => {
-				service.entityType = 'service';
-				servicesById[service.id] = service;
 				// Some services have a list of locations where the 1st is to be
 				// considered as the default location.
 				// @see scripts/experiments/ecometrics/manual-data/services.json
@@ -60,8 +58,13 @@
 					service.selectionSettings = {};
 					service.selectionSettings.location = locationsById[service.locations[0]];
 				}
+				service.entityType = 'service';
+				servicesById[service.id] = service;
 			});
-			serviceEntityStore.set(servicesById);
+			serviceStore.set({
+				services: servicesById,
+				servicesIcons: o.data.servicesIcons
+			});
 
 			// Preset the default location to "World" if empty.
 			if (!$selectionStore.defaultLocation) {

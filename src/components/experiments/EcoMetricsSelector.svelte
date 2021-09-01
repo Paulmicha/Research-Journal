@@ -174,7 +174,7 @@
 					{#each $selectionStore.device as device, i}
 						<tr>
 							<td>
-								<span class="type-icon" title="{ device.subcategory }">
+								<span class="selection-icon" title="{ device.subcategory }">
 									{@html (device.subcategory in $deviceStore.devicesIcons) ? $deviceStore.devicesIcons[device.subcategory] : $deviceStore.devicesIcons.box }
 								</span>
 							</td>
@@ -200,7 +200,7 @@
 					{#each $selectionStore.service as service, i}
 						<tr>
 							<td>
-								<span class="type-icon">
+								<span class="selection-icon">
 									{@html getServiceImg(service, $serviceStore.servicesIcons) }
 								</span>
 							</td>
@@ -238,22 +238,16 @@
 
 <style>
 	.selector {
-		/* display: flex;
-		justify-items: center;
-		align-items: center; */
 		margin-top: calc(var(--space) / 2);
 		margin-bottom: var(--space);
 	}
-	/* .select {
-		flex-grow: 1;
-	} */
-	.type-icon {
+	:global(.selection-icon) {
 		display: inline-block;
 		vertical-align: middle;
 		width: 2em;
 		height: 2em;
 	}
-	:global(.type-icon > svg) {
+	:global(.selection-icon > svg) {
 		display: inline-block;
 		margin: -10%;
 		width: 120%;

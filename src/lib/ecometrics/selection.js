@@ -17,6 +17,9 @@
 
 import { selectionStore } from '../../stores/ecometrics.js';
 
+// TODO update with new fields.
+// @see getSelectedItemUseDefaultValue()
+// @see src/components/experiments/EcoMetricsSelectionSettings.svelte
 export const selectionOneLetterPropMap = {
 	qty: 'q',
 	deploys_nb: 'd',
@@ -74,6 +77,12 @@ export const getSelectedItemUseDefaultValue = (entity, use) => {
 			return 2;
 		case "tests_duration":
 			return 180;
+		case "useRepo":
+		case "useHost":
+		case "useBackup":
+		case "useDeploy":
+		case "useTests":
+			return false;
 	}
 	return 0;
 };

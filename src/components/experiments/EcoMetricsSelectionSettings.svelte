@@ -30,8 +30,14 @@
 	 */
 	const updateSettings = e => {
 		const settings = entity.selectionSettings;
-		if (e.target.value != getSelectedItemUseDefaultValue(entity, e.target.name)) {
-			settings[e.target.name] = e.target.value;
+		// Checkboxes must use "checked" instead of "value" to compare with the
+		// default use value.
+		let comparedValue = e.target.value;
+		if (e.target.getAttribute('type') === 'checkbox') {
+			comparedValue = e.target.checked;
+		}
+		if (comparedValue != getSelectedItemUseDefaultValue(entity, e.target.name)) {
+			settings[e.target.name] = comparedValue;
 		} else {
 			delete settings[e.target.name];
 		}

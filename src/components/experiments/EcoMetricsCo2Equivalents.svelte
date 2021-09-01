@@ -1,9 +1,6 @@
 <script>
 	import { displayNb } from '../../lib/generic_utils.js';
-	import {
-		co2EqStore,
-		totalsStore
-	} from '../../stores/ecometrics.js';
+	import { co2EqStore } from '../../stores/ecometrics.js';
 
 	export let totalKgEqCo2 = 0;
 

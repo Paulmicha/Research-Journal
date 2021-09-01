@@ -70,3 +70,23 @@ export const getDeviceImg = (device, devicesIcons) => {
 	}
 	return devicesIcons[device.subcategory];
 };
+
+/**
+ * Gets the kwh value of given device over given period.
+ *
+ * @param {Object} device the entity
+ * @param {String} period the currently selected period.
+ * @returns {Float}
+ */
+export const getDeviceKwhPerPeriod = (device, period) => {
+	const yearlyKwh = parseInt(device.yearly_kwh);
+	switch (period) {
+		case 'day':
+			return yearlyKwh / 365;
+		case 'week':
+			return yearlyKwh / 52;
+		case 'month':
+			return yearlyKwh / 12;
+	}
+	return yearlyKwh;
+};

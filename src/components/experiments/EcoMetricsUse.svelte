@@ -99,17 +99,21 @@
 						<h3>Devices</h3>
 						{#each $selectionStore.device as entity}
 							<div class="selection-item">
-								<div class="selection-icon">
-									{@html getDeviceImg(entity, $deviceStore.devicesIcons) }
-								</div>
-								<div class="selection-details">
-									<h4>{ getDeviceLabel(entity) }</h4>
-									Based on the estimated carbon intensity of the main use location of this device (about { getLocationCarbonIntensity(entity.selectionSettings.location || $selectionStore.defaultLocation, $carbonIntensityStore) } gCO2e/kWh in { getLocationLabel(entity.selectionSettings.location || $selectionStore.defaultLocation) }) and the estimated Kw/h per { period } ({ displayNb(getDeviceKwhPerPeriod(entity, period)) }), the estimated footprint amounts to :<br/>
+								<h4 class="selection-label">
+									<span class="selection-icon">
+										{@html getDeviceImg(entity, $deviceStore.devicesIcons) }
+									</span>
+									<span>{ getDeviceLabel(entity) }</span>
+								</h4>
+								<p>
+									Based on the estimated carbon intensity of the main use location of this device (about { getLocationCarbonIntensity(entity.selectionSettings.location || $selectionStore.defaultLocation, $carbonIntensityStore) } gCO2e/kWh in { getLocationLabel(entity.selectionSettings.location || $selectionStore.defaultLocation) }) and the estimated power consumption of this device ({ displayNb(getDeviceKwhPerPeriod(entity, period)) } Kw/h per { period }), the estimated footprint amounts to :
+								</p>
+								<p class="selection-result">
 									<strong>
 										{ displayNb(getDeviceKwhPerPeriod(entity, period) * getLocationCarbonIntensity(entity.selectionSettings.location || $selectionStore.defaultLocation, $carbonIntensityStore) / 1000) }
 									</strong>
 									Kg CO2 / { period }
-								</div>
+								</p>
 							</div>
 						{/each}
 					</div>
@@ -119,16 +123,13 @@
 						<h3>Services</h3>
 						{#each $selectionStore.service as service}
 							<div class="selection-item">
-								<div class="selection-icon">
-									{@html getServiceImg(service, $serviceStore.servicesIcons) }
-								</div>
-								<div class="selection-details">
-									<h4>{ service.name }</h4>
-									<dl>
-										<dt>Carbon intensity</dt>
-										<dd>TODO</dd>
-									</dl>
-								</div>
+								<h4 class="selection-label">
+									<span class="selection-icon selection-icon--s">
+										{@html getServiceImg(service, $serviceStore.servicesIcons) }
+									</span>
+									<span>{ service.name }</span>
+								</h4>
+								<p>TODO</p>
 							</div>
 						{/each}
 					</div>
@@ -172,27 +173,35 @@
 	.f-grid-item {
 		padding-top: 0;
 	}
-	.selection-item {
-		display: flex;
-	}
 	.selection-item + .selection-item {
 		border-top: 1px solid #AFAFAF;
 		margin-top: var(--space);
 		padding-top: var(--space);
 	}
+	.selection-label {
+		display: flex;
+		align-items: center;
+		margin-bottom: var(--space-xs);
+	}
 	.selection-icon {
-		min-width: 2em;
+		margin-right: var(--space);
 	}
-	.selection-details {
-		flex-grow: 1;
-		margin-left: var(--space);
+	:global(.selection-icon.selection-icon--s > svg) {
+		margin: 0;
+		width: 100%;
+		height: 100%;
 	}
-	@media (min-width: 60ch) {
+	.selection-result {
+		display: block;
+		margin-top: var(--space-s);
+		text-align: center;
+	}
+	@media (min-width: 80ch) {
 		.f-grid {
 			--gutter: 2.5rem;
 		}
 		.f-grid-item {
-			max-width: 70ch;
+			max-width: 66ch;
 		}
 		.f-grid-item > h3 {
 			text-align: center;

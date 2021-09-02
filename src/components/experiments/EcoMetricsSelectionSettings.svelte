@@ -21,11 +21,11 @@
 	let usesTooltipMethods;
 
 	// Using variables allows to benefit from Svelte's {#if} "auto-update".
-	let useRepo = entity.selectionSettings.useRepo || false;
-	let useHost = entity.selectionSettings.useHost || false;
-	let useBackup = entity.selectionSettings.useBackup || false;
-	let useDeploy = entity.selectionSettings.useDeploy || false;
-	let useTests = entity.selectionSettings.useTests || false;
+	let useRepo = getSelectedItemSetting(entity, 'useRepo');
+	let useHost = getSelectedItemSetting(entity, 'useHost');
+	let useBackup = getSelectedItemSetting(entity, 'useBackup');
+	let useDeploy = getSelectedItemSetting(entity, 'useDeploy');
+	let useTests = getSelectedItemSetting(entity, 'useTests');
 
 	/**
 	 * Updates current entity selection settings.

@@ -1,34 +1,77 @@
 <script>
 	import { route } from '../../stores/route.js';
 	import { selectionStore } from '../../stores/ecometrics.js';
-	import { selectionOneLetterPropMap } from '../../lib/ecometrics/selection.js';
+	import { getSelectedItemDefaultSetting, getSelectedItemSetting, selectionOneLetterPropMap } from '../../lib/ecometrics/selection.js';
 	import SidePanel from '../SidePanel.svelte';
 
-	// Sharing link reacts to current selection store.
 	let shareLink = '';
 	let shareableLinkInput;
 	let toasterMethods;
 
+	// This is for creating the link (encoding).
+	// For the decoding :
+	// @see src/components/content/DigitalEcoMetricsTool.svelte
 	selectionStore.subscribe(selection => {
+		let i = 0;
+		let parts = [];
+		const map = {
+			device: 'd',
+			service: 's'
+		};
 
-		// TODO includes services.
-		// @see src/components/experiments/EcoMetricsUse.svelte
-		if (selection.device.length) {
-			const parts = [];
-
+		if (selection.device.length || selection.service.length) {
 			// TODO reverse proxy... ?
-			// shareLink = 'http://' + $route.host + '/' + $route.path + '?s=';
+			// let shareLink = 'http://' + $route.host + '/' + $route.path + '?s=';
 			shareLink = 'https://msc.paulmichalet.com/' + $route.path + '?s=';
 
-			selection.device.forEach(device => {
-				const subParts = [];
-				Object.keys(selectionOneLetterPropMap).forEach(k => subParts.push(
-					selectionOneLetterPropMap[k] + device[k]
-				));
-				parts.push(`${device.id}:${subParts.join(':')}`);
-			});
-			shareLink += parts.join(',');
+			// Start with the default location (if not "World", which will be selected
+			// by default - no need to send it in the URL).
+			if (selection.defaultLocation && selection.defaultLocation.id != '10401578') {
+				shareLink += 'l' + selection.defaultLocation.id;
+				i++;
+			}
+		} else {
+			return '';
 		}
+
+		// Process all entities with settings (device + service).
+		Object.keys(map).forEach(entityType => {
+			if (selection[entityType].length) {
+				parts = [];
+				selection[entityType].forEach(entity => {
+					const subParts = [];
+					// Only put the values that are not defaults in URL.
+					Object.keys(selectionOneLetterPropMap).forEach(k => {
+						const val = getSelectedItemSetting(entity, k);
+						if (val != getSelectedItemDefaultSetting(entity, k)) {
+							// Assume all values that are objects are references to entities
+							// which have an ID.
+							if (typeof val === 'object' && val !== null) {
+								if ('id' in val && `${val.id}` !== '') {
+									subParts.push(
+										selectionOneLetterPropMap[k] + val.id
+									);
+								}
+							} else {
+								subParts.push(
+									selectionOneLetterPropMap[k] + val
+								);
+							}
+						}
+					});
+					if (subParts.length) {
+						parts.push(`${map[entityType]}${entity.id}/${subParts.join('/')}`);
+					} else {
+						parts.push(`${map[entityType]}${entity.id}`);
+					}
+				});
+				if (i > 0) {
+					shareLink += ';';
+				}
+				shareLink += parts.join(';');
+				i++;
+			}
+		});
 	});
 
 	/**

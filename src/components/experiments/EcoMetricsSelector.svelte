@@ -11,7 +11,8 @@
 		clearSelection,
 		removeSelectedItem,
 		updateSelectedItem,
-		getSelectedEntity
+		getSelectedEntity,
+		getSelectedItemSetting
 	} from '../../lib/ecometrics/selection.js';
 	import { getServiceImg } from '../../lib/ecometrics/service.js';
 	import LoadingSpinner from '../LoadingSpinner.svelte';
@@ -32,11 +33,7 @@
 		if (selection.device.length) {
 			totalNbOfDevices = 0;
 			selection.device.forEach(device => {
-				if (device.selectionSettings.qty) {
-					totalNbOfDevices += parseInt(device.selectionSettings.qty);
-				} else {
-					totalNbOfDevices++;
-				}
+				totalNbOfDevices += parseInt(getSelectedItemSetting(device, 'qty'));
 			});
 		}
 		totalNbOfServices = selection.service.length;

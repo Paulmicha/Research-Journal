@@ -88,7 +88,9 @@
 			]
 		};
 
-		totalKgCo2PerYear = datasetDeviceKgCo2PerYear.reduce((x, y) => x + y);
+		if (datasetDeviceKgCo2PerYear.length) {
+			totalKgCo2PerYear = datasetDeviceKgCo2PerYear.reduce((x, y) => x + y);
+		}
 	});
 
 </script>
@@ -308,6 +310,7 @@
 	td {
 		border: 0 none;
 		padding: 0;
+		vertical-align: bottom;
 	}
 	td + td {
 		padding-left: var(--space);

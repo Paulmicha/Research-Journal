@@ -1,7 +1,7 @@
 <script>
 	import { route } from '../../stores/route.js';
 	import { randomizeArray, objectFlip } from '../../lib/generic_utils.js';
-	import { selectionOneLetterPropMap } from '../../lib/ecometrics/selection.js';
+	import { addSelectedItem, selectionOneLetterPropMap } from '../../lib/ecometrics/selection.js';
 	import {
 		deviceStore,
 		co2EqStore,
@@ -30,9 +30,11 @@
 	// Init custom data.
 	route.subscribe(o => {
 		if (o.data && o.data.ecometrics) {
+			const devicesById = {};
 			deviceStore.set({
 				devices: o.data.ecometrics.devices.map(device => {
 					device.entityType = 'device';
+					devicesById[device.id] = device;
 					return device;
 				}),
 				devicesColNames: o.data.ecometrics.devicesColNamesByKey,
@@ -75,51 +77,87 @@
 			}
 
 			// Presets from query args (shareable links).
-			// TODO (wip) services
+			// The separator between entities is ';'.
+			// The separator between entity setting is '/'.
+			// Example :
+			// host.tld/path?s=l39266913;d52609815;d22777652/q2;s58190969/l74923856/i2000/otrue
+			// -> 4 entities :
+			//   - l39266913 : location of ID 39266913
+			//   - d52609815 : device of ID 52609815
+			//   - d22777652/q2 : device with 1 setting (quantity = 2)
+			//   - s58190969/l74923856/i2000/otrue : a service with 3 settings
+			// @see src/components/experiments/EcoMetricsShareLink.svelte
+			// @see src/components/experiments/EcoMetricsSelectionSettings.svelte
 			if ('s' in o.query && o.query.s.length) {
-				let pos = 0;
 				const devicesToSelect = [];
+				const servicesToSelect = [];
+				let defaultLocationToSelect = false;
 
-				o.query.s.split(',').forEach(part => {
-					const deviceToSelect = {};
+				o.query.s.split(';').forEach((urlEncodedEntity, i) => {
+					const parts = urlEncodedEntity.split('/');
+					const id = parts[0].substring(1);
+					let entityToSelect;
 
-					part.split(':').forEach((subPart, i) => {
-						deviceToSelect.pos = i;
-						const firstChar = subPart.substring(0, 1);
-						let firstCharMatched = false;
+					switch (parts[0].substring(0, 1)) {
+						case 'd':
+							entityToSelect = devicesById[id];
+							break;
+						case 's':
+							entityToSelect = servicesById[id];
+							break;
+						case 'l':
+							defaultLocationToSelect = locationsById[id];
+							// Exit early because in this case, we're reading the default
+							// location entity, which has no settings.
+							return;
+					}
 
-						Object.keys(oneLetterPropMapInverted).forEach(l => {
-							if (firstChar === l) {
-								deviceToSelect[oneLetterPropMapInverted[l]] = subPart.substring(1);
-								firstCharMatched = true;
-							}
-						});
+					if (!('selectionSettings' in entityToSelect)) {
+						entityToSelect.selectionSettings = {};
+					}
 
-						if (!firstCharMatched) {
-							deviceToSelect.id = subPart;
+					// When there is nothing more than the entity ID, it means that all
+					// settings are defaults. When there's more than 1 part, we have
+					// non-default settings to parse.
+					if (parts.length > 1) {
+						// Part 0 is the entity ID, and all remaining parts are settings
+						// -> start the loop at 1.
+						for (let i = 1; i < parts.length; i++) {
+							const urlEncodedSetting = parts[i];
+							const firstChar = urlEncodedSetting.substring(0, 1);
 
-							// Match data by device ID.
-							devices.forEach(device => {
-								if (device.id === subPart) {
-									deviceToSelect.data = device;
-									return;
+							Object.keys(oneLetterPropMapInverted).forEach(l => {
+								if (firstChar === l) {
+									entityToSelect.selectionSettings[oneLetterPropMapInverted[l]] = urlEncodedSetting.substring(1);
+
+									// TODO avoid manual exceptions here and in the "encoding"
+									// part of the URL sharing mechanism by only allowing strings
+									// in 'selectionSettings' ?
+									if (l === 'l') {
+										// Location overrides are (for now) the entity objects
+										// themselves (instead of just the ID).
+										entityToSelect.selectionSettings[oneLetterPropMapInverted[l]] = locationsById[urlEncodedSetting.substring(1)];
+									}
 								}
 							});
 						}
-					});
+					}
 
-					if ('data' in deviceToSelect) {
-						deviceToSelect.pos = pos;
-						devicesToSelect.push(deviceToSelect);
-						pos++;
-					} else {
-						// TODO Fallback matching after v1 ?
-						console.log(`Device ${deviceToSelect.id} data not matched (the source dataset was likely updated)`);
+					switch (entityToSelect.entityType) {
+						case 'device':
+							devicesToSelect.push(entityToSelect);
+							break;
+						case 'service':
+							servicesToSelect.push(entityToSelect);
+							break;
 					}
 				});
 
+				// Finally, update the selection store with all parsed data.
 				selectionStore.update(selection => {
 					selection.device = devicesToSelect;
+					selection.service = servicesToSelect;
+					selection.defaultLocation = defaultLocationToSelect || locationsById['10401578'];
 					return selection;
 				});
 			}

@@ -265,6 +265,18 @@ dd {
 	align-items: center;
 }
 
+.dl-grid {
+	display: grid;
+	grid-template-columns: max-content auto;
+}
+.dl-grid-max {
+	grid-column-start: 1;
+	padding-right: var(--space-l);
+}
+.dl-grid-auto {
+	grid-column-start: 2;
+}
+
 /* Hide elements visually, but keep them available for screen-readers. */
 .u-sr-only {
 	position: absolute;
@@ -437,7 +449,7 @@ summary:hover {
 	display: inline-block;
 	overflow: hidden;
 	white-space: nowrap;
-	width: var(--ellipsis-w, 20ch);
+	max-width: var(--ellipsis-w, 20ch);
 	text-overflow: ellipsis;
 }
 

@@ -167,10 +167,6 @@
 					</tr>
 				</thead>
 				<tbody>
-
-
-					<!-- TODO merge devices and services in the same loop to preserve order ? -->
-
 					{#each $selectionStore.device as device, i}
 						<tr>
 							<td>
@@ -196,11 +192,10 @@
 							</td>
 						</tr>
 					{/each}
-
 					{#each $selectionStore.service as service, i}
 						<tr>
 							<td>
-								<span class="selection-icon">
+								<span class="selection-icon selection-icon--s">
 									{@html getServiceImg(service, $serviceStore.servicesIcons) }
 								</span>
 							</td>
@@ -222,8 +217,6 @@
 							</td>
 						</tr>
 					{/each}
-
-
 				</tbody>
 			</table>
 			<div class="bottom-zone">
@@ -252,6 +245,11 @@
 		margin: -10%;
 		width: 120%;
 		height: 120%;
+	}
+	:global(.selection-icon.selection-icon--s > svg) {
+		margin: 0;
+		width: 100%;
+		height: 100%;
 	}
 	.selection {
 		margin: 0 auto var(--space-l) auto;

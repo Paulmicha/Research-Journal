@@ -56,18 +56,20 @@ export const getSelectedItemDefaultSetting = (entity, use) => {
 		case "qty":
 			return 1;
 		case "hours_per_day":
-			// Assumes entity.entityType === 'device'.
-			switch (entity.subcategory) {
-				case 'router':
-				case 'server':
-					return 24;
-				case 'smartphone':
-					return 2;
-				case 'ipphone':
-					return 1;
-				default:
-					return 6;
+			if (entity.entityType === 'device') {
+				switch (entity.subcategory) {
+					case 'router':
+					case 'server':
+						return 24;
+					case 'smartphone':
+						return 2;
+					case 'ipphone':
+						return 1;
+					default:
+						return 6;
+				}
 			}
+			return 1;
 		case "deploys_per_month":
 			return 1;
 		case "deploys_duration":

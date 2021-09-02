@@ -36,5 +36,35 @@
 				"region": "Washington"
 			}
 		]
+	},
+	{
+		"type": "cloud provider",
+		"name": "Amazon Web Services (AWS)"
+	},
+	{
+		"type": "saas",
+		"name": "Elasticsearch",
+		"services": [
+			{
+				"type": "cloud provider",
+				"name": "Amazon Web Services (AWS)"
+			}
+		]
+	},
+	{
+		"type": "saas",
+		"name": "Gmail"
+	},
+	{
+		"type": "saas",
+		"name": "WhatsApp"
+	},
+	{
+		"type": "saas",
+		"name": "Zoom"
+	},
+	{
+		"type": "cloud provider",
+		"name": "Microsoft Azure"
 	}
 ]

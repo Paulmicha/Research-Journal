@@ -5,10 +5,11 @@
  */
 
 import slugify from '@sindresorhus/slugify';
-// import { randomizeArray, displayNb, limitDecimals, getValuePercentInRange } from '../../lib/generic_utils.js';
 
 /**
  * Returns service SVG code according to its type (subcategory).
+ *
+ * Contains hardcoded mappings to match some service names to particular icons.
  *
  * @param {Object} service : the service entity object.
  * @param {Object} servicesIcons : the loaded data containing inline SVG markup.
@@ -18,7 +19,14 @@ export const getServiceImg = (service, servicesIcons) => {
 	if (!servicesIcons) {
 		return '';
 	}
-	const iconName = slugify(service.name);
+	let iconName = slugify(service.name, { separator: '' });
+	if (iconName.includes('google')) {
+		iconName = 'google';
+	} else if (iconName.includes('amazon')) {
+		iconName = 'aws';
+	} else if (iconName.includes('microsoft')) {
+		iconName = 'microsoft';
+	}
 	if (!(iconName in servicesIcons)) {
 		return servicesIcons.default;
 	}

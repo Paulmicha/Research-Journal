@@ -205,7 +205,8 @@
 									<span>{ entity.name }</span>
 								</h4>
 								{#if entity.services.length}
-									<p>This service depends on : {#each entity.services as sid}
+									<p>This service depends on : {#each entity.services as sid, i}
+										{#if i !== 0}, {/if}
 										<span class="selection-label-inline">
 											<span class="selection-icon">{@html getServiceImg($serviceStore.services[sid], $serviceStore.servicesIcons) }</span>
 											<span>{ $serviceStore.services[sid].name }</span>
@@ -260,6 +261,14 @@
 		<EcoMetricsCo2Equivalents totalKgEqCo2={ convertValuePerYearToPeriod(totalKgCo2PerYear, period) } />
 	</section>
 {/if}
+
+<!-- TODO Information "singleton" tooltip for data transfers. -->
+<!--
+	estimate of 0.06 kWh/GB for 2015 is a new estimate proposed in this study,
+	based on Krug and colleagues (2014) with updated data for 2015 from Krug
+	(2016). kWh/GB = kilowatt-hours per gigabyte.
+	See https://onlinelibrary.wiley.com/doi/full/10.1111/jiec.12630
+-->
 
 <style>
 	.period-selector-wrap {

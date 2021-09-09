@@ -265,7 +265,7 @@ dd {
 	align-items: center;
 }
 
-.dl-grid {
+/* .dl-grid {
 	display: grid;
 	grid-template-columns: max-content auto;
 }
@@ -275,7 +275,7 @@ dd {
 }
 .dl-grid-auto {
 	grid-column-start: 2;
-}
+} */
 
 /* Hide elements visually, but keep them available for screen-readers. */
 .u-sr-only {

@@ -42,7 +42,10 @@
 		// will not work immediately -> find better workaround than delaying.
 		let failsafe = 99;
 		while (selectedValue && failsafe > 0) {
-			await new Promise(resolve => setTimeout(() => { selectedValue = null }, 150));
+			await new Promise(resolve => setTimeout(() => {
+				selectedValue = null;
+				resolve();
+			}, 150));
 			failsafe--;
 		}
 	};

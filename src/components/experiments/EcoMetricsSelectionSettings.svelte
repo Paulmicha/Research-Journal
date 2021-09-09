@@ -95,6 +95,8 @@
 		trigger={ usesTooltipTrigger }
 		bind:exposedMethods={ usesTooltipMethods }
 	>
+		<!-- TODO conditional uses config based on service "type" -->
+		<!-- TODO share link boolean values conersion -->
 		<div class="form-item">
 			<label for="use-case-repo-{ entity.id }">
 				as a code repository (e.g. git, svn)

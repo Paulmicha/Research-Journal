@@ -356,6 +356,9 @@ const build_channels_urls_index = () => {
 			urlObj.searchParams.delete('utm_campaign');
 			urlObj.searchParams.delete('utm_medium');
 			urlObj.searchParams.delete('utm_source');
+			urlObj.searchParams.delete('ul_campaign');
+			urlObj.searchParams.delete('ul_source');
+			urlObj.searchParams.delete('ul_medium');
 			if (urlObj.hash.startsWith('#nlref=')) {
 				urlObj.hash = '';
 			}

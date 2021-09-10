@@ -2,6 +2,11 @@
 	{
 		"type": "cloud",
 		"name": "Google Cloud Platform",
+		"features": [
+			"hosting",
+			"storage",
+			"index"
+		],
 		"locations": [
 			{
 				"continent": "North America",
@@ -12,11 +17,58 @@
 		"postprocess": ["append googleCloudPlatformCI locations"]
 	},
 	{
+		"type": "cloud",
+		"name": "Amazon Web Services (AWS)",
+		"features": [
+			"hosting",
+			"storage",
+			"index"
+		]
+	},
+	{
+		"type": "cloud",
+		"name": "Microsoft Azure",
+		"features": [
+			"hosting",
+			"storage",
+			"index"
+		]
+	},
+	{
+		"type": "cloud",
+		"name": "Scaleway",
+		"features": [
+			"hosting",
+			"storage"
+		],
+		"locations": [
+			{
+				"continent": "Europe",
+				"country": "France",
+				"region": "Île-de-France"
+			},
+			{
+				"continent": "Europe",
+				"country": "Netherlands",
+				"city": "Amsterdam"
+			}
+		]
+	},
+	{
 		"type": "paas",
 		"name": "Gitlab",
+		"features": [
+			"hosting",
+			"code repository",
+			"storage",
+			"sharing",
+			"communication",
+			"documents",
+			"messages"
+		],
 		"services": [
 			{
-				"type": "cloud provider",
+				"type": "cloud",
 				"name": "Google Cloud Platform"
 			}
 		]
@@ -24,6 +76,15 @@
 	{
 		"type": "paas",
 		"name": "Github",
+		"features": [
+			"hosting",
+			"code repository",
+			"storage",
+			"sharing",
+			"communication",
+			"documents",
+			"messages"
+		],
 		"locations": [
 			{
 				"continent": "North America",
@@ -38,12 +99,61 @@
 		]
 	},
 	{
-		"type": "cloud",
-		"name": "Amazon Web Services (AWS)"
+		"type": "paas",
+		"name": "Netlify",
+		"features": [
+			"hosting",
+			"storage"
+		]
+	},
+	{
+		"type": "saas",
+		"name": "Google Drive",
+		"features": [
+			"storage",
+			"documents",
+			"sharing",
+			"editing",
+			"real-time collaboration"
+		]
+	},
+	{
+		"type": "saas",
+		"name": "Microsoft Sky Drive",
+		"features": [
+			"storage",
+			"documents",
+			"sharing",
+			"editing",
+			"real-time collaboration"
+		]
+	},
+	{
+		"type": "saas",
+		"name": "Apple iCloud",
+		"features": [
+			"storage",
+			"documents",
+			"sharing",
+			"editing",
+			"real-time collaboration"
+		]
+	},
+	{
+		"type": "saas",
+		"name": "NextCloud",
+		"features": [
+			"storage",
+			"documents",
+			"sharing",
+			"editing",
+			"real-time collaboration"
+		]
 	},
 	{
 		"type": "saas",
 		"name": "Elasticsearch",
+		"features": ["index", "storage"],
 		"services": [
 			{
 				"type": "cloud",
@@ -53,18 +163,112 @@
 	},
 	{
 		"type": "saas",
-		"name": "Gmail"
+		"name": "Okta",
+		"features": ["identity", "storage", "access management"]
 	},
 	{
 		"type": "saas",
-		"name": "WhatsApp"
+		"name": "WhatsApp",
+		"features": ["communication", "messages", "audio", "visio", "calls"]
 	},
 	{
 		"type": "saas",
-		"name": "Zoom"
+		"name": "Zoom",
+		"features": ["communication", "visio", "calls"]
 	},
 	{
-		"type": "cloud provider",
-		"name": "Microsoft Azure"
+		"type": "saas",
+		"name": "Microsoft Teams",
+		"features": ["communication", "visio", "calls"]
+	},
+	{
+		"type": "saas",
+		"name": "Tixeo",
+		"features": ["communication", "visio", "calls"]
+	},
+	{
+		"type": "saas",
+		"name": "Jitsi Meet",
+		"features": ["communication", "visio", "calls"]
+	},
+	{
+		"type": "saas",
+		"name": "Gmail",
+		"features": ["communication", "mail", "storage", "messages"]
+	},
+	{
+		"type": "saas",
+		"name": "Microsoft Outlook",
+		"features": ["communication", "mail", "storage", "messages"]
+	},
+	{
+		"type": "saas",
+		"name": "Proton Mail",
+		"features": ["communication", "mail", "storage", "messages"]
+	},
+	{
+		"type": "saas",
+		"name": "Zotero",
+		"features": ["storage", "sharing"]
+	},
+	{
+		"type": "saas",
+		"name": "Slack",
+		"features": ["communication", "messages", "sharing"]
+	},
+	{
+		"type": "saas",
+		"name": "Discord",
+		"features": ["communication", "messages", "sharing"]
+	},
+	{
+		"type": "saas",
+		"name": "Zulip",
+		"features": ["communication", "messages", "sharing"]
+	},
+	{
+		"type": "saas",
+		"name": "Trello",
+		"features": ["storage"]
+	},
+	{
+		"type": "saas",
+		"name": "Miro",
+		"features": [
+			"storage",
+			"documents",
+			"sharing",
+			"editing",
+			"real-time collaboration"
+		]
+	},
+	{
+		"type": "saas",
+		"name": "Telegram",
+		"features": ["communication", "messages", "visio", "calls"]
+	},
+	{
+		"type": "social",
+		"name": "LinkedIn"
+	},
+	{
+		"type": "social",
+		"name": "Instagram"
+	},
+	{
+		"type": "social",
+		"name": "Facebook"
+	},
+	{
+		"type": "media",
+		"name": "Twitter"
+	},
+	{
+		"type": "media",
+		"name": "Spotify"
+	},
+	{
+		"type": "media",
+		"name": "Youtube"
 	}
 ]

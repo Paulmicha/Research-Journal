@@ -208,7 +208,9 @@
 									<p>This service depends on : {#each entity.services as sid, i}
 										{#if i !== 0}, {/if}
 										<span class="selection-label-inline">
-											<span class="selection-icon">{@html getServiceImg($serviceStore.services[sid], $serviceStore.servicesIcons) }</span>
+											<span class="selection-icon">
+												{@html getServiceImg($serviceStore.services[sid], $serviceStore.servicesIcons) }
+											</span>
 											<span>{ $serviceStore.services[sid].name }</span>
 										</span>
 									{/each}</p>

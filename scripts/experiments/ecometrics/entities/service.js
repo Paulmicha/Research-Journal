@@ -17,10 +17,15 @@ const serviceKeys = [
 	"id", // required for entity reference to other services.
 	"type", // e.g. 'cloud provider', 'saas', 'paas', 'faas', 'online tool', etc.
 	"name",
-	// "uses", // TODO : comma-separated list, e.g. 'host,backup,deploy' ? @see getSelectedItemUseDefaultValue()
+	"features",
 	"services", // n:n entity reference to other services, e.g. Gitlab's cloud provider.
 	"locations" // array of all known or possible locations (n:n entity reference to "location" entities).
 ];
+
+// TODO this entity type uses several array props on its object representation :
+// do we uniformize everything by using CSV (e.g. of string values or entity IDs
+// for refs) instead ? For now, we leave it like that.
+const arrayProps = ["features", "services", "locations"];
 
 /**
  * Generates service "fingerprint".
@@ -49,8 +54,8 @@ const generateServiceID = service => `${cyrb53(getFingerprint(service))}`.substr
 const serviceNormalizeItem = service => {
 	// Normalize keys.
 	serviceKeys.forEach(key => {
-		// À 2 doigts de réinventer un ORM... Ce qu'on voulait éviter.
-		if (key === 'services' || key === 'locations') {
+		// Deal with non-string props.
+		if (arrayProps.includes(key)) {
 			if (!(key in service)) {
 				service[key] = [];
 			}

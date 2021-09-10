@@ -49,12 +49,28 @@
 		e.target.blur();
 	};
 
+	/**
+	 * Determines if the "use cases" tooltip applies to current entity.
+	 */
+	const entityQualifiesForUseCasesTooltip = () => {
+		if ('subcategory' in entity && entity.subcategory === 'server') {
+			return true;
+		}
+		const types = ['cloud', 'paas'];
+		if ('type' in entity && types.includes(entity.type)) {
+			return true;
+		}
+		return false;
+	};
 </script>
 
 <!-- Tooltips for selecting use cases and location -->
 <div class="form-item tooltip-triggers">
-	<!-- For "server" devices and services, display an opt-in list of uses -->
-	{#if entity.subcategory === 'server' || entity.entityType === 'service'}
+	<!--
+		For "server" devices and cloud/paas services, display an opt-in list of
+		use cases.
+	-->
+	{#if entityQualifiesForUseCasesTooltip()}
 		<button
 			class="link link--s"
 			bind:this={ usesTooltipTrigger }
@@ -95,7 +111,6 @@
 		trigger={ usesTooltipTrigger }
 		bind:exposedMethods={ usesTooltipMethods }
 	>
-		<!-- TODO conditional uses config based on service "type" -->
 		<!-- TODO share link boolean values conersion -->
 		<div class="form-item">
 			<label for="use-case-repo-{ entity.id }">

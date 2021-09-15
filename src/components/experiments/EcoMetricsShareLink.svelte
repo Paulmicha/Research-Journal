@@ -1,7 +1,7 @@
 <script>
 	import { route } from '../../stores/route.js';
 	import { selectionStore } from '../../stores/ecometrics.js';
-	import { getSelectedItemDefaultSetting, getSelectedItemSetting, selectionOneLetterPropMap } from '../../lib/ecometrics/selection.js';
+	import { getSelectedItemDefaultSetting, getSelectedItemSetting, selectionShortenedPropMap } from '../../lib/ecometrics/selection.js';
 	import SidePanel from '../SidePanel.svelte';
 
 	let shareLink = '';
@@ -41,7 +41,7 @@
 				selection[entityType].forEach(entity => {
 					const subParts = [];
 					// Only put the values that are not defaults in URL.
-					Object.keys(selectionOneLetterPropMap).forEach(k => {
+					Object.keys(selectionShortenedPropMap).forEach(k => {
 						const val = getSelectedItemSetting(entity, k);
 						if (val != getSelectedItemDefaultSetting(entity, k)) {
 							// Assume all values that are objects are references to entities
@@ -49,12 +49,12 @@
 							if (typeof val === 'object' && val !== null) {
 								if ('id' in val && `${val.id}` !== '') {
 									subParts.push(
-										selectionOneLetterPropMap[k] + val.id
+										selectionShortenedPropMap[k] + val.id
 									);
 								}
 							} else {
 								subParts.push(
-									selectionOneLetterPropMap[k] + val
+									selectionShortenedPropMap[k] + val
 								);
 							}
 						}

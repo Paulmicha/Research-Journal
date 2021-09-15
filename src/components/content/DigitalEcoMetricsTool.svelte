@@ -1,7 +1,7 @@
 <script>
 	import { route } from '../../stores/route.js';
 	import { randomizeArray, objectFlip } from '../../lib/generic_utils.js';
-	import { addSelectedItem, selectionOneLetterPropMap } from '../../lib/ecometrics/selection.js';
+	import { addSelectedItem, selectionShortenedPropMap } from '../../lib/ecometrics/selection.js';
 	import {
 		deviceStore,
 		co2EqStore,
@@ -25,7 +25,7 @@
 
 	// Swap key / value for share links decoding.
 	// See https://stackoverflow.com/a/31614602/2592338
-	const oneLetterPropMapInverted = objectFlip(selectionOneLetterPropMap);
+	const oneLetterPropMapInverted = objectFlip(selectionShortenedPropMap);
 
 	// Init custom data.
 	route.subscribe(o => {
@@ -177,59 +177,103 @@
 	{#if $selectionStore.device.length || $selectionStore.service.length}
 		<Tabs
 			id="metrics"
-			selected={$preferencesStore.ecometricsLastActiveTab || 0}
-			on:change={tabHasChanged}
-			items={[{label:"Manufacturing"}, {label:"Use"}]}
+			selected={ 'ecometricsLastActiveTab' in $preferencesStore ? $preferencesStore.ecometricsLastActiveTab : 1 }
+			on:change={ tabHasChanged }
+			items={[ "Infrastructure", "Manufacturing", "Use", "End of life" ]}
 		>
 			<TabContent i="0">
-				<EcoMetricsManufacturing />
+				<section class="rich-text">
+					<h2>Infrastructure building</h2>
+					<p>This is currently not implemented in this tool. It should cover the impacts of extraction (minerals), buildings, networks, antennas, etc.</p>
+					<figure>
+						<blockquote cite="http://gauthierroussilhe.com/post/territoires-centres-de-donnees.html">
+							<p>En 2020, 150 milliards de dollars ont été investi par les géants du cloud, dont la moitié pour construire des nouveaux centres de données. Les plus gros investissements sont dans l’ordre : Amazon, Microsoft, Google, Facebook, Apple, Alibaba et Tencent. S’il y avait 541 hyperscalers dans le monde en juin 2020, Synergy Research Group estime maintenant qu’il y en aurait 625 aujourd'hui.</p>
+							<p>Comment tous ces nouveaux centres sont installés, quel a été l’impact de leur construction, de la fabrication du matériel, quelles sont leurs demandes locales en électricité et en eau, quels sont les conflits d’usage liés à cela, est-ce que ces développements sont compatibles avec un monde à +2°C ? Quid des réseaux de télécommunication [...] ?</p>
+						</blockquote>
+						<figcaption>
+							— Gauthier Roussilhe,
+							<cite>
+								<a href="http://gauthierroussilhe.com/post/territoires-centres-de-donnees.html">Territorialiser les systèmes numériques, l'exemple des centres de données</a>
+							</cite>
+						</figcaption>
+					</figure>
+					<h3>More information :</h3>
+					<ul>
+						<li>
+							<a href="https://www.youtube.com/watch?v=QW9udH0vwlE">
+								Promesses de dématérialisation et matérialité minérale (online event "Under the hood of Sustainable IT" organized by the Belgian Institute for Sustainable IT)
+							</a>
+						</li>
+					</ul>
+				</section>
 			</TabContent>
 			<TabContent i="1">
+				<EcoMetricsManufacturing />
+				<section class="rich-text">
+					<h2>Sources</h2>
+					<ul>
+						<li>
+							<a href="https://github.com/Boavizta/environmental-footprint-data" target="_blank">
+								Boavizta Project - Environmental Footprint Data
+							</a>
+						</li>
+						<li>
+							<a href="https://ecoinfo.cnrs.fr/ecodiag-calcul/" target="_blank">
+								Ecodiag
+							</a>
+							by
+							<a href="https://ecoinfo.cnrs.fr/" target="_blank">
+								Ecoinfo (CNRS)
+							</a>
+						</li>
+						<li>
+							<a href="https://github.com/datagir/monconvertisseurco2" target="_blank">
+								Mon convertisseur CO2
+							</a>
+							by
+							<a href="https://datagir.ademe.fr/" target="_blank">
+								Datagir
+							</a>
+							(<a href="https://data.ademe.fr/" target="_blank">ADEME</a> + <a href="https://beta.gouv.fr/">beta.gouv.fr / DINUM</a>)
+						</li>
+					</ul>
+				</section>
+			</TabContent>
+			<TabContent i="2">
 				<EcoMetricsUse />
+				<section class="rich-text">
+					<h2>Sources</h2>
+					<ul>
+						<li>
+							<a href="https://github.com/datagir/monconvertisseurco2" target="_blank">
+								Mon convertisseur CO2
+							</a>
+							by
+							<a href="https://datagir.ademe.fr/" target="_blank">
+								Datagir
+							</a>
+							(<a href="https://data.ademe.fr/" target="_blank">ADEME</a> + <a href="https://beta.gouv.fr/">beta.gouv.fr / DINUM</a>)
+						</li>
+						<li>
+							<a href="https://github.com/GreenAlgorithms/green-algorithms-tool" target="_blank">
+								Green Algorithms tool
+							</a>
+							-
+							Lannelongue, L., Grealey, J., Inouye, M., <a href="https://doi.org/10.1002/advs.202100707" target="_blank">Green Algorithms: Quantifying the Carbon Footprint of Computation</a>. Adv. Sci. 2021, 2100707.
+						</li>
+						<li>
+							<a href="https://medium.com/teads-engineering/estimating-aws-ec2-instances-power-consumption-c9745e347959" target="_blank">
+								Estimating AWS EC2 Instances Power Consumption
+							</a>
+							by Benjamin DAVY (2021/03/25)
+						</li>
+					</ul>
+				</section>
+			</TabContent>
+			<TabContent i="3">
+				<h2>End of life</h2>
+				<p>Il manque ici des données sur la phase de fin de vie des équipements et des infrastructures (bâtiments, réseaux).</p>
 			</TabContent>
 		</Tabs>
-		<section class="rich-text">
-			<h2>Sources</h2>
-			<ul>
-				<li>
-					<a href="https://github.com/Boavizta/environmental-footprint-data" target="_blank">
-						Boavizta Project - Environmental Footprint Data
-					</a>
-				</li>
-				<li>
-					<a href="https://ecoinfo.cnrs.fr/ecodiag-calcul/" target="_blank">
-						Ecodiag
-					</a>
-					by
-					<a href="https://ecoinfo.cnrs.fr/" target="_blank">
-						Ecoinfo (CNRS)
-					</a>
-				</li>
-				<li>
-					<a href="https://github.com/datagir/monconvertisseurco2" target="_blank">
-						Mon convertisseur CO2
-					</a>
-					by
-					<a href="https://datagir.ademe.fr/" target="_blank">
-						Datagir
-					</a>
-					(<a href="https://data.ademe.fr/" target="_blank">ADEME</a> + <a href="https://beta.gouv.fr/">beta.gouv.fr / DINUM</a>)
-				</li>
-				<li>
-					<a href="https://github.com/GreenAlgorithms/green-algorithms-tool" target="_blank">
-						Green Algorithms
-					</a>
-					-
-					Lannelongue, L., Grealey, J., Inouye, M., <a href="https://doi.org/10.1002/advs.202100707" target="_blank">Green Algorithms: Quantifying the Carbon Footprint of Computation</a>. Adv. Sci. 2021, 2100707.
-				</li>
-				<!-- <li>
-					[wip]
-					<a href="https://medium.com/teads-engineering/estimating-aws-ec2-instances-power-consumption-c9745e347959" target="_blank">
-						Estimating AWS EC2 Instances Power Consumption
-					</a>
-					by Benjamin DAVY (2021/03/25)
-				</li> -->
-			</ul>
-		</section>
 	{/if}
 {/if}

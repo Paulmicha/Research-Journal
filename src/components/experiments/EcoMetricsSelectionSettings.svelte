@@ -24,7 +24,7 @@
 	let useRepo = getSelectedItemSetting(entity, 'useRepo');
 	let useHost = getSelectedItemSetting(entity, 'useHost');
 	let useBackup = getSelectedItemSetting(entity, 'useBackup');
-	let useDeploy = getSelectedItemSetting(entity, 'useDeploy');
+	// let useDeploy = getSelectedItemSetting(entity, 'useDeploy');
 	let useTests = getSelectedItemSetting(entity, 'useTests');
 
 	/**
@@ -58,6 +58,16 @@
 		}
 		const types = ['cloud', 'paas'];
 		if ('type' in entity && types.includes(entity.type)) {
+			return true;
+		}
+		return false;
+	};
+
+	/**
+	 * Determines if current entity makes use of online data storage.
+	 */
+	const entityUsesOnlineStorage = () => {
+		if ('features' in entity && (entity.features.includes('storage'))) {
 			return true;
 		}
 		return false;
@@ -111,7 +121,6 @@
 		trigger={ usesTooltipTrigger }
 		bind:exposedMethods={ usesTooltipMethods }
 	>
-		<!-- TODO share link boolean values conersion -->
 		<div class="form-item">
 			<label for="use-case-repo-{ entity.id }">
 				as a code repository (e.g. git, svn)
@@ -145,7 +154,7 @@
 				on:change|preventDefault={ updateSettings }
 			/>
 		</div>
-		<div class="form-item">
+		<!-- <div class="form-item">
 			<label for="use-case-deploy-{ entity.id }">
 				as a deployment tool
 			</label>
@@ -155,7 +164,7 @@
 				bind:checked={ useDeploy }
 				on:change|preventDefault={ updateSettings }
 			/>
-		</div>
+		</div> -->
 		<div class="form-item">
 			<label for="use-case-tests-{ entity.id }">
 				as an automated test runner (<abbr title="continuous integration">CI</abbr> server)
@@ -191,8 +200,53 @@
 {/if}
 
 <!-- Every chosen use cases have their own settings -->
-{#if useRepo}
+{#if entityUsesOnlineStorage() && !useBackup}
 	<div class="form-item form-item--l">
+		<label
+			for="storage-size-{ entity.id }"
+			title="try to estimate the approximative volume of data stored online for your use of this service"
+		>
+			Approximative volume of data stored online for this service (in Mo)
+		</label>
+		<input class="input--s" type="number" min="0" name="storage_size"
+			id="storage-size-{ entity.id }"
+			value={ getSelectedItemSetting(entity, 'storage_size') }
+			on:change|preventDefault={ updateSettings }
+		/>
+	</div>
+{/if}
+
+{#if useHost || useTests}
+	<div class="form-item form-item--l">
+		<label
+			for="vcpu-{ entity.id }"
+			title="If appropriate, indicate the number of vcpu allocated for running this service"
+		>
+			VCPU allocation
+		</label>
+		<input class="input--s" type="number" min="0" name="vcpu_nb"
+			id="vcpu-{ entity.id }"
+			value={ getSelectedItemSetting(entity, 'vcpu_nb') }
+			on:change|preventDefault={ updateSettings }
+		/>
+	</div>
+	<div class="form-item form-item--l">
+		<label
+			for="ram-{ entity.id }"
+			title="If appropriate, indicate the amount of RAM allocated for running this service"
+		>
+			RAM allocation (Gb)
+		</label>
+		<input class="input--s" type="number" min="0" name="ram"
+			id="ram-{ entity.id }"
+			value={ getSelectedItemSetting(entity, 'ram') }
+			on:change|preventDefault={ updateSettings }
+		/>
+	</div>
+{/if}
+
+{#if useRepo}
+	<!-- <div class="form-item form-item--l">
 		<label
 			for="repos-total-size-{ entity.id }"
 			title="try to estimate the total size of all repos"
@@ -204,10 +258,22 @@
 			value={ getSelectedItemSetting(entity, 'repos_total_size') }
 			on:change|preventDefault={ updateSettings }
 		/>
+	</div> -->
+	<div class="form-item form-item--l">
+		<label
+			for="repos-commits-per-month-{ entity.id }"
+		>
+			Average number of commits per month (all repos)
+		</label>
+		<input class="input--s" type="number" min="0" name="repos_commits_per_month"
+			id="repos-commits-per-month-{ entity.id }"
+			value={ getSelectedItemSetting(entity, 'repos_commits_per_month') }
+			on:change|preventDefault={ updateSettings }
+		/>
 	</div>
 {/if}
 
-{#if useHost}
+<!-- {#if useHost}
 	<div class="form-item form-item--l">
 		<label
 			for="instances-total-size-{ entity.id }"
@@ -221,7 +287,7 @@
 			on:change|preventDefault={ updateSettings }
 		/>
 	</div>
-{/if}
+{/if} -->
 
 {#if useBackup}
 	<div class="form-item">
@@ -234,7 +300,7 @@
 			on:change|preventDefault={ updateSettings }
 		/>
 	</div>
-	<div class="form-item">
+	<!-- <div class="form-item">
 		<label for="backups-duration-{ entity.id }">
 			Average backups duration (in seconds)
 		</label>
@@ -243,7 +309,7 @@
 			value={ getSelectedItemSetting(entity, 'backups_duration') }
 			on:change|preventDefault={ updateSettings }
 		/>
-	</div>
+	</div> -->
 	<div class="form-item form-item--l">
 		<label
 			for="backups-total-size-{ entity.id }"
@@ -259,7 +325,7 @@
 	</div>
 {/if}
 
-{#if useDeploy}
+<!-- {#if useDeploy}
 	<div class="form-item">
 		<label
 			for="deploys-per-month-{ entity.id }"
@@ -283,7 +349,7 @@
 			on:change|preventDefault={ updateSettings }
 		/>
 	</div>
-{/if}
+{/if} -->
 
 {#if useTests}
 	<div class="form-item">

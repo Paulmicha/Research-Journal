@@ -169,7 +169,14 @@
 	{
 		"type": "saas",
 		"name": "WhatsApp",
-		"features": ["communication", "messages", "audio", "visio", "calls"]
+		"features": ["communication", "messages", "audio", "visio", "calls"],
+		"notes" : [
+			{
+				"content": "Once your messages are delivered, they are deleted from our servers. The following scenarios describe circumstances where we may store your messages in the course of delivering them: <ul><li>Undelivered Messages. If a message cannot be delivered immediately (for example, if the recipient is offline), we keep it in encrypted form on our servers for up to 30 days as we try to deliver it. If a message is still undelivered after 30 days, we delete it.</li><li>Media Forwarding. When a user forwards media within a message, we store that media temporarily in encrypted form on our servers to aid in more efficient delivery of additional forwards.</li></ul>",
+				"source": "https://www.whatsapp.com/legal/privacy-policy",
+				"retrieved": "2021-09-15 15:24:33"
+			}
+		]
 	},
 	{
 		"type": "saas",
@@ -194,17 +201,43 @@
 	{
 		"type": "saas",
 		"name": "Gmail",
-		"features": ["communication", "mail", "storage", "messages"]
+		"features": ["communication", "mail", "storage", "messages"],
+		"notes": [
+			{
+				"content": "The average Gmail account contains roughly 17K messages.",
+				"source": "https://techjury.net/blog/gmail-statistics/",
+				"retrieved": "2021-09-15 15:50:01"
+			},
+			{
+				"content": "The average of 100 emails was about 130KB per mail and if I took out 3 of the larger attachments it averaged 40KB per mail. According to International Data Corporation (IDC) the average email, worldwide, is about 59KB.",
+				"source": "http://www.marinesatellitesystems.com/index.php?page_id=867",
+				"retrieved": "2021-09-15 15:56:25"
+			}
+		]
 	},
 	{
 		"type": "saas",
 		"name": "Microsoft Outlook",
-		"features": ["communication", "mail", "storage", "messages"]
+		"features": ["communication", "mail", "storage", "messages"],
+		"notes": [
+			{
+				"content": "The average of 100 emails was about 130KB per mail and if I took out 3 of the larger attachments it averaged 40KB per mail. According to International Data Corporation (IDC) the average email, worldwide, is about 59KB.",
+				"source": "http://www.marinesatellitesystems.com/index.php?page_id=867",
+				"retrieved": "2021-09-15 15:56:25"
+			}
+		]
 	},
 	{
 		"type": "saas",
 		"name": "Proton Mail",
-		"features": ["communication", "mail", "storage", "messages"]
+		"features": ["communication", "mail", "storage", "messages"],
+		"notes": [
+			{
+				"content": "The average of 100 emails was about 130KB per mail and if I took out 3 of the larger attachments it averaged 40KB per mail. According to International Data Corporation (IDC) the average email, worldwide, is about 59KB.",
+				"source": "http://www.marinesatellitesystems.com/index.php?page_id=867",
+				"retrieved": "2021-09-15 15:56:25"
+			}
+		]
 	},
 	{
 		"type": "saas",

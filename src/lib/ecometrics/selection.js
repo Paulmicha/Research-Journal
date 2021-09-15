@@ -19,19 +19,21 @@ import { selectionStore } from '../../stores/ecometrics.js';
 
 // @see selectionUseDefaultValue()
 // @see src/components/experiments/EcoMetricsSelectionSettings.svelte
-export const selectionOneLetterPropMap = {
+export const selectionShortenedPropMap = {
 	qty: 'q',
 	deploys_per_month: 'd',
 	deploys_duration: 'u',
 	backups_per_month: 'b',
 	backups_duration: 'r',
-	backups_total_size: 'r',
+	backups_total_size: 'z',
 	hours_per_day: 'h',
 	location: 'l',
 	repos_total_size: 'e',
+	repos_commits_per_month: 'm',
 	instances_total_size: 'i',
 	tests_per_month: 't',
 	tests_duration: 'a',
+	storage_size: 'g',
 	useRepo: 'p',
 	useHost: 'o',
 	useBackup: 'c',
@@ -42,13 +44,6 @@ export const selectionOneLetterPropMap = {
 /**
  * Provides default values for device or service settings.
  *
- * TODO how to map which settings are exposed in UI for given item based on the
- * "kind" of device or service ?
- * -> For now : case by case, hardcoded.
- *
- * TODO could be like a "tag" system (comma separated ?) to allow more
- * flexible and precise settings attributions.
- * -> Replace 'subcategory' and 'type' from source data tranforms.
  * @see scripts/experiments/ecometrics/extract.js
  */
 export const getSelectedItemDefaultSetting = (entity, use) => {
@@ -82,12 +77,35 @@ export const getSelectedItemDefaultSetting = (entity, use) => {
 			return 5000;
 		case "repos_total_size":
 			return 300;
+		case "repos_commits_per_month":
+			return 50;
 		case "instances_total_size":
 			return 5000;
 		case "tests_per_month":
 			return 2;
 		case "tests_duration":
 			return 180;
+		case "storage_size":
+			// TODO yeah, that's pretty approximative alright.
+			if ('features' in entity) {
+				// -> 1Gb for email accounts (based on : 17K emails per account on
+				// average for GMail, and about 60k per email).
+				// @see scripts/experiments/ecometrics/manual-data/services.json
+				if (entity.features.includes('mail')) {
+					return 1000;
+				}
+				// Fallback to 300Mb for any other online service using storage.
+				if (entity.features.includes('storage')) {
+					return 300;
+				}
+			}
+			// Can't really assume any data volume as a default measure for any
+			// service not "caught" in the above.
+			return 0;
+		case "vcpu_nb":
+			return 1;
+		case "ram":
+			return 2;
 		case "useRepo":
 		case "useHost":
 		case "useBackup":

@@ -184,9 +184,9 @@
 			<h3>Totals</h3>
 			<div class="full-vw">
 				<div class="f-grid f-grid--center f-grid--g">
-					<div class="chart-wrap">
+					<!-- <div class="chart-wrap">
 						<Chart data={co2EqChartData} type="bar" valuesOverPoints="1" />
-					</div>
+					</div> -->
 					<div class="chart-wrap">
 						<Chart data={co2EqChartData} type="pie" maxSlices="20" />
 					</div>

@@ -31,6 +31,10 @@
 	setContext('global_data', globals);
 </script>
 
-<svelte:window on:load={setDocumentScrollbarWidthCssVar} />
+<!-- TODO deal with non-navigation window height changes -->
+<!-- on:resize={setDocumentScrollbarWidthCssVar} -->
+<svelte:window
+	on:load={setDocumentScrollbarWidthCssVar}
+/>
 <Meta></Meta>
 <slot></slot>

@@ -10,6 +10,15 @@
 	export let items = [];
 	export let selected = 0;
 
+	// Support array of strings as items labels (instead of objects).
+	if (items.length && typeof items[0] === "string") {
+		items = items.map(item => {
+			return {
+				label: item
+			};
+		});
+	}
+
 	const dispatch = createEventDispatcher();
 
 	selected = parseInt(selected);
@@ -49,11 +58,13 @@
 		}
 	}
 
-	const tabClick = (e, i) => {
-		e.preventDefault();
-		selected = i;
-		const tabs = Array.from(componentInstanceElement.querySelectorAll('[role="tab"]'));
-		tabs.forEach((tab, i) => selected === i ? open(tab) : close(tab));
+	/**
+	 * Toggles tab contents visibility.
+	 *
+	 * Svelte already handles tabs attributes automatically - i.e. <li> and <a>.
+	 */
+	const tabClick = async (e, i) => {
+		selected = parseInt(i);
 		const contentPanes = Array.from(componentInstanceElement.querySelectorAll('[role="tabpanel"]'));
 		contentPanes.forEach((contentPane, i) => selected === i ? open(contentPane) : close(contentPane));
 		dispatch('change', { selected });
@@ -68,16 +79,16 @@
 		<div class="full-vw--padded">
 			<ul role="tablist">
 				{#each items as item, i}
-					<li role="presentation" class="tablist-item { selected === i ? 'is-on' : 'is-off' }">
+					<li role="presentation" class="tablist-item { parseInt(selected) === i ? 'is-on' : 'is-off' }">
 						<a
 							id="{ id }-{ i }-label"
 							role="tab"
 							tabindex={ i }
 							href="#{ id }-{ i }"
 							aria-controls="{ id }-{ i }"
-							aria-selected="{ selected === i ? 'true' : 'false' }"
-							class="tablist-link { selected === i ? 'is-on' : 'is-off' }"
-							on:click={e => tabClick(e, i)}
+							aria-selected="{ parseInt(selected) === i ? 'true' : 'false' }"
+							class="tablist-link { parseInt(selected) === i ? 'is-on' : 'is-off' }"
+							on:click|preventDefault={e => tabClick(e, i)}
 						>
 							{ item.label }
 						</a>

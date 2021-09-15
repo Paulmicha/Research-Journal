@@ -92,7 +92,6 @@
 			totalKgCo2PerYear = datasetDeviceKgCo2PerYear.reduce((x, y) => x + y);
 		}
 	});
-
 </script>
 
 <!--
@@ -194,8 +193,13 @@
 					</div>
 				{/if}
 				{#if $selectionStore.service.length}
-					<div class="f-grid-item">
-						<h3>Services</h3>
+					<div class="f-grid-item rich-text">
+						<h3>Services*</h3>
+						<p>*: we can only make very, very approximative (and probably wrong) estimates here :</p>
+						<ul>
+							<li>As of 2021, virtually no data is publicly available to make any "realistic" measures for services running on cloud vendors (see sources below). Services that do <strong>not</strong> run in the cloud are exceptions. The opacity also comes from the complexity and increasingly adaptive nature of the way physical resources are allocated (i.e. virtualization, "serverless", etc)</li>
+							<li>We also currently do not account for the device(s) used for using the services - e.g. if it requires antennas (3G, 4G), Wifi, etc.</li>
+						</ul>
 						{#each $selectionStore.service as entity}
 							<div class="selection-item">
 								<h4 class="selection-label">
@@ -214,6 +218,16 @@
 											<span>{ $serviceStore.services[sid].name }</span>
 										</span>
 									{/each}</p>
+								{/if}
+								<!-- Debug. -->
+								<!-- <pre>{ JSON.stringify(entity, null, 2) }</pre> -->
+								{#if entity.notes}
+									{#each entity.notes as note}
+										<p>
+											From <a href={ note.source }>source</a> (retrieved on { note.retrieved }) :
+										</p>
+										{@html note.content }
+									{/each}
 								{/if}
 								<table>
 									{#if entity.selectionSettings.location}

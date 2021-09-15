@@ -19,13 +19,14 @@ const serviceKeys = [
 	"name",
 	"features",
 	"services", // n:n entity reference to other services, e.g. Gitlab's cloud provider.
-	"locations" // array of all known or possible locations (n:n entity reference to "location" entities).
+	"locations", // array of all known or possible locations (n:n entity reference to "location" entities).
+	"notes" // additional info, links, etc.
 ];
 
 // TODO this entity type uses several array props on its object representation :
 // do we uniformize everything by using CSV (e.g. of string values or entity IDs
 // for refs) instead ? For now, we leave it like that.
-const arrayProps = ["features", "services", "locations"];
+const arrayProps = ["features", "services", "locations", "notes"];
 
 /**
  * Generates service "fingerprint".

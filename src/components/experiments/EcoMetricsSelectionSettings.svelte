@@ -21,7 +21,7 @@
 	let usesTooltipMethods;
 
 	// Using variables allows to benefit from Svelte's {#if} "auto-update".
-	let useRepo = getSelectedItemSetting(entity, 'useRepo');
+	// let useRepo = getSelectedItemSetting(entity, 'useRepo');
 	let useHost = getSelectedItemSetting(entity, 'useHost');
 	let useBackup = getSelectedItemSetting(entity, 'useBackup');
 	// let useDeploy = getSelectedItemSetting(entity, 'useDeploy');
@@ -121,7 +121,7 @@
 		trigger={ usesTooltipTrigger }
 		bind:exposedMethods={ usesTooltipMethods }
 	>
-		<div class="form-item">
+		<!-- <div class="form-item">
 			<label for="use-case-repo-{ entity.id }">
 				as a code repository (e.g. git, svn)
 			</label>
@@ -131,10 +131,10 @@
 				bind:checked={ useRepo }
 				on:change|preventDefault={ updateSettings }
 			/>
-		</div>
+		</div> -->
 		<div class="form-item">
 			<label for="use-case-host-{ entity.id }">
-				as a host
+				as a host (webserver)
 			</label>
 			<input
 				type="checkbox" name="useHost"
@@ -220,13 +220,13 @@
 	<div class="form-item form-item--l">
 		<label
 			for="vcpu-{ entity.id }"
-			title="If appropriate, indicate the number of vcpu allocated for running this service"
+			title="Indicate the number of vCPU allocated for running this service"
 		>
-			VCPU allocation
+			vCPU allocation
 		</label>
-		<input class="input--s" type="number" min="0" name="vcpu_nb"
+		<input class="input--s" type="number" min="0" name="vcpu"
 			id="vcpu-{ entity.id }"
-			value={ getSelectedItemSetting(entity, 'vcpu_nb') }
+			value={ getSelectedItemSetting(entity, 'vcpu') }
 			on:change|preventDefault={ updateSettings }
 		/>
 	</div>
@@ -245,8 +245,8 @@
 	</div>
 {/if}
 
-{#if useRepo}
-	<!-- <div class="form-item form-item--l">
+<!-- {#if useRepo}
+	<div class="form-item form-item--l">
 		<label
 			for="repos-total-size-{ entity.id }"
 			title="try to estimate the total size of all repos"
@@ -258,7 +258,7 @@
 			value={ getSelectedItemSetting(entity, 'repos_total_size') }
 			on:change|preventDefault={ updateSettings }
 		/>
-	</div> -->
+	</div>
 	<div class="form-item form-item--l">
 		<label
 			for="repos-commits-per-month-{ entity.id }"
@@ -271,7 +271,7 @@
 			on:change|preventDefault={ updateSettings }
 		/>
 	</div>
-{/if}
+{/if} -->
 
 <!-- {#if useHost}
 	<div class="form-item form-item--l">

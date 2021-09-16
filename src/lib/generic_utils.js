@@ -61,6 +61,11 @@ export const limitDecimals = (n, x) =>  Math.round(n * Math.pow(10, x)) / Math.p
 export const getValuePercentInRange = (value, min, max) => (value - min) / (max - min) * 100;
 
 /**
+ * Returns the value in given range corresponding to given %.
+ */
+export const getPercentValueInRange = (percent, min, max) => percent / 100 * (max - min) + min;
+
+/**
  * Flips given object keys and values.
  *
  * See https://stackoverflow.com/a/31614602/2592338

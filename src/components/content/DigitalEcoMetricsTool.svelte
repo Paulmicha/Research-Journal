@@ -262,6 +262,12 @@
 							Lannelongue, L., Grealey, J., Inouye, M., <a href="https://doi.org/10.1002/advs.202100707" target="_blank">Green Algorithms: Quantifying the Carbon Footprint of Computation</a>. Adv. Sci. 2021, 2100707.
 						</li>
 						<li>
+							<a href="https://davidmytton.blog/assessing-the-suitability-of-the-greenhouse-gas-protocol-for-calculation-of-emissions-from-public-cloud-computing-workloads/" target="_blank">
+								Assessing the suitability of the Greenhouse Gas Protocol for calculation of emissions from public cloud computing workloads
+							</a>
+							by David Mytton (2020/08/09)
+						</li>
+						<li>
 							<a href="https://medium.com/teads-engineering/estimating-aws-ec2-instances-power-consumption-c9745e347959" target="_blank">
 								Estimating AWS EC2 Instances Power Consumption
 							</a>

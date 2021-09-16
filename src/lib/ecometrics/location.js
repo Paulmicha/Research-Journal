@@ -18,15 +18,41 @@ export const getLocationLabel = location => location && ''
  *
  * @param {Object} location the entity.
  * @param {Array} ci the carbon intensity store containing the list of all
- *  available caron intensity entities.
+ *   available carbon intensity entities.
+ * @param {Array} locations (optional) the location entities to fallback by
+ *   country or continent. Defaults to empty array.
  * @returns {Number | Boolean} the carbon intensity matching given location if
- *  found, or false.
+ *   found, or false.
  */
-export const getLocationCarbonIntensity = (location, ci) => {
-	for (let i = 0; i < ci.length; i++) {
+export const getLocationCarbonIntensity = (location, ci, locations = []) => {
+	let i = 0;
+	let j = 0;
+	for (i = 0; i < ci.length; i++) {
 		const ciEntity = ci[i];
 		if (ciEntity.location === location.id) {
 			return parseFloat(ciEntity.carbon_intensity);
+		}
+	}
+	// Attempt to find fallback value by country.
+	for (j = 0; j < locations.length; j++) {
+		if (location.country === locations[j].country) {
+			for (i = 0; i < ci.length; i++) {
+				const ciEntity = ci[i];
+				if (ciEntity.location === locations[j].id) {
+					return parseFloat(ciEntity.carbon_intensity);
+				}
+			}
+		}
+	}
+	// Attempt to find fallback value by continent.
+	for (j = 0; j < locations.length; j++) {
+		if (location.continent === locations[j].continent) {
+			for (i = 0; i < ci.length; i++) {
+				const ciEntity = ci[i];
+				if (ciEntity.location === locations[j].id) {
+					return parseFloat(ciEntity.carbon_intensity);
+				}
+			}
 		}
 	}
 	return false;

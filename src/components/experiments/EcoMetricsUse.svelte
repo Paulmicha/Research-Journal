@@ -1,8 +1,18 @@
 <script>
 	import { displayNb } from '../../lib/generic_utils.js';
-	import { deviceStore, serviceStore, selectionStore, carbonIntensityStore } from '../../stores/ecometrics.js';
+	import {
+		deviceStore,
+		serviceStore,
+		selectionStore,
+		carbonIntensityStore,
+		locationEntityStore
+	} from '../../stores/ecometrics.js';
 	import { getDeviceImg, getDeviceLabel, getDeviceKwhPerPeriod } from '../../lib/ecometrics/device.js';
-	import { getServiceImg } from '../../lib/ecometrics/service.js';
+	import {
+		getServiceImg,
+		estimateCloudConsumption,
+		estimateDataTransferConsumption
+	} from '../../lib/ecometrics/service.js';
 	import { getLocationCarbonIntensity, getLocationLabel } from '../../lib/ecometrics/location.js';
 	import { getSelectedItemSetting } from '../../lib/ecometrics/selection.js';
 	import Chart from 'svelte-frappe-charts';
@@ -92,6 +102,13 @@
 			totalKgCo2PerYear = datasetDeviceKgCo2PerYear.reduce((x, y) => x + y);
 		}
 	});
+
+	/**
+	 * Determines if a service need to display a <detail> tag for more info.
+	 * @param entity
+	 */
+	const displayServiceDetails = entity => entity.notes.length
+		|| (getSelectedItemSetting(entity, 'useHost') && entity.type === 'cloud');
 </script>
 
 <!--
@@ -99,7 +116,17 @@
 	from elswhere), same as the location selector.
 	@see src/components/experiments/EcoMetricsSelector.svelte
 -->
-<div class="period-selector-wrap">
+<section class="rich-text">
+	<h2>Devices and Services Use</h2>
+	<p>As a general warning, for services, we can only make very approximative (and probably wrong) estimates. Virtually no data is currently available to make any "realistic" estimates for services running on public cloud vendors (<a href="https://davidmytton.blog/assessing-the-suitability-of-the-greenhouse-gas-protocol-for-calculation-of-emissions-from-public-cloud-computing-workloads/" target="_blank">Mytton, 2020</a>). Services that do <strong>not</strong> run in the cloud are exceptions. This opacity also comes from the complexity and increasingly adaptive, on-demand nature of the way physical resources are allocated (primarily vCPU, RAM, storage).</p>
+	<h3>What is currently not accounted for</h3>
+	<ul>
+		<li>Any environmental indicator other than CO2 emissions - i.e. Water Usage Effectiveness (WUE), Eutrophication, Waste, Ecotoxicity...</li>
+		<li>Network impacts for transferring data to the device(s) used for using the services - e.g. antennas (3G, 4G, Wifi), cables, <abbr title="Internet Exchange Point">IXP</abbr>s, etc. Getting estimates for these data volumes per service seem impossible to generalize for such a basic tool. We're not trying to make a professional <abbr title="Lifecycle Analysis">LCA</abbr> tool here.</li>
+		<li>The PUE (Power Usage Effectiveness) - how much extra energy is needed to operate the data centre (cooling, lighting etc.) of datacenters.</li>
+		<li>The PSF (Pragmatic Scaling Factor) - used to take into account multiple identical runs of algorithms (e.g. for testing or optimisation).</li>
+	</ul>
+	<h3>What impact is estimated</h3>
 	<p>
 		Estimated carbon intensity of electricity in selected default location ({ getLocationLabel($selectionStore.defaultLocation) })&nbsp;: <strong>{ displayNb(getLocationCarbonIntensity($selectionStore.defaultLocation, $carbonIntensityStore)) }</strong>&nbsp;gCO2e/kWh
 	</p>
@@ -113,31 +140,31 @@
 	>
 		1 { period }
 	</button>
-</div>
-{#if periodTooltipTrigger}
-	<Tooltip
-		id="period-selector"
-		trigger={ periodTooltipTrigger }
-		bind:exposedMethods={ periodTooltipMethods }
-	>
-		<label>
-			<input type="radio" bind:group={period} name="period" value="day" />
-			day
-		</label>
-		<label>
-			<input type="radio" bind:group={period} name="period" value="week" />
-			week
-		</label>
-		<label>
-			<input type="radio" bind:group={period} name="period" value="month" />
-			month
-		</label>
-		<label>
-			<input type="radio" bind:group={period} name="period" value="year" />
-			year
-		</label>
-	</Tooltip>
-{/if}
+	{#if periodTooltipTrigger}
+		<Tooltip
+			id="period-selector"
+			trigger={ periodTooltipTrigger }
+			bind:exposedMethods={ periodTooltipMethods }
+		>
+			<label>
+				<input type="radio" bind:group={period} name="period" value="day" />
+				day
+			</label>
+			<label>
+				<input type="radio" bind:group={period} name="period" value="week" />
+				week
+			</label>
+			<label>
+				<input type="radio" bind:group={period} name="period" value="month" />
+				month
+			</label>
+			<label>
+				<input type="radio" bind:group={period} name="period" value="year" />
+				year
+			</label>
+		</Tooltip>
+	{/if}
+</section>
 
 <!-- For each selected item, display the details of the calculations -->
 {#if $selectionStore.device.length || $selectionStore.service.length}
@@ -194,12 +221,7 @@
 				{/if}
 				{#if $selectionStore.service.length}
 					<div class="f-grid-item rich-text">
-						<h3>Services*</h3>
-						<p>*: we can only make very, very approximative (and probably wrong) estimates here :</p>
-						<ul>
-							<li>As of 2021, virtually no data is publicly available to make any "realistic" measures for services running on cloud vendors (see sources below). Services that do <strong>not</strong> run in the cloud are exceptions. The opacity also comes from the complexity and increasingly adaptive nature of the way physical resources are allocated (i.e. virtualization, "serverless", etc)</li>
-							<li>We also currently do not account for the device(s) used for using the services - e.g. if it requires antennas (3G, 4G), Wifi, etc.</li>
-						</ul>
+						<h3>Services</h3>
 						{#each $selectionStore.service as entity}
 							<div class="selection-item">
 								<h4 class="selection-label">
@@ -221,13 +243,21 @@
 								{/if}
 								<!-- Debug. -->
 								<!-- <pre>{ JSON.stringify(entity, null, 2) }</pre> -->
-								{#if entity.notes}
-									{#each entity.notes as note}
-										<p>
-											From <a href={ note.source }>source</a> (retrieved on { note.retrieved }) :
-										</p>
-										{@html note.content }
-									{/each}
+								{#if displayServiceDetails(entity)}
+									<details>
+										<summary>Details</summary>
+										{#if entity.notes}
+											{#each entity.notes as note}
+												<p>
+													From <a href={ note.source }>source</a> (retrieved on { note.retrieved }) :
+												</p>
+												{@html note.content }
+											{/each}
+										{/if}
+										{#if getSelectedItemSetting(entity, 'useHost') && entity.type === 'cloud'}
+											<p>Hosting a service like a webserver in the cloud implies at least a fraction of an amount of power consumption that is virtually permanent. But <strong>it's currently an impossible thing to generalize</strong> - i.e. the type of architecture could be shared, dedicated, baremetal, virtualized ; the tech "stack" and choices of technical implementation vary too drastically depending on what is hosted... So the (wrong) estimate we're using here assumes 1/4 vCPU and 1/4 Gb RAM in "idle" state as the baseline for a single "webserver" service, based on averaged findings for <abbr title="Amazon Web Services">AWS</abbr> EC2 instances by <a href="https://medium.com/teads-engineering/estimating-aws-ec2-instances-power-consumption-c9745e347959" target="_blank">Benjamin Davy</a> (published 2021/03/25).</p>
+										{/if}
+									</details>
 								{/if}
 								<table>
 									{#if entity.selectionSettings.location}
@@ -236,20 +266,20 @@
 												Estimated carbon intensity of electricity in { getLocationLabel(entity.selectionSettings.location) }&nbsp;:
 											</td>
 											<td class="val">
-												<strong>{ displayNb(getLocationCarbonIntensity(entity.selectionSettings.location, $carbonIntensityStore)) }</strong>
+												<strong>{ displayNb(getLocationCarbonIntensity(entity.selectionSettings.location, $carbonIntensityStore, Object.values($locationEntityStore))) }</strong>
 											</td>
 											<td>gCO2e/kWh</td>
 										</tr>
 									{/if}
 									<tr>
-										<td>TODO : calculate "idle" (baseline) estimates</td>
-										<td></td>
-										<td></td>
+										<td>Estimated cloud power consumption</td>
+										<td class="val">{ displayNb(estimateCloudConsumption(entity)) }</td>
+										<td>kW/h</td>
 									</tr>
 									<tr>
-										<td>TODO : calculate "intensive use" estimates</td>
-										<td></td>
-										<td></td>
+										<td>Estimated data transfer consumption (backups)</td>
+										<td class="val">{ displayNb(estimateDataTransferConsumption(entity)) }</td>
+										<td>kW/h per month</td>
 									</tr>
 								</table>
 							</div>
@@ -287,9 +317,6 @@
 -->
 
 <style>
-	.period-selector-wrap {
-		margin-top: var(--space);
-	}
 	.f-grid {
 		--gutter: 1.66rem;
 	}

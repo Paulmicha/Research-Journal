@@ -6,6 +6,7 @@
 
 import slugify from '@sindresorhus/slugify';
 import { getSelectedItemSetting } from './selection';
+import { getPercentValueInRange } from '../generic_utils';
 
 /**
  * Returns service SVG code according to its type (subcategory).
@@ -35,7 +36,7 @@ export const getServiceImg = (service, servicesIcons) => {
 };
 
 /**
- * Estimates power consumption based on RAM and CPU stress.
+ * Calculates (wrong) estimates of power consumption based on RAM and CPU stress.
  *
  * "the GHG Protocol is not suitable for customers to assess the emissions of
  * their IT environments located in the public cloud because the required
@@ -49,12 +50,19 @@ export const getServiceImg = (service, servicesIcons) => {
  * See https://medium.com/teads-engineering/estimating-aws-ec2-instances-power-consumption-c9745e347959
  *
  * We make pretty harsh assumptions here to represent something that is
- * apparently impossible to measure due to vendors not having or releasing the
- * necessary data.
+ * apparently impossible to measure due to vendors not having or not releasing
+ * the necessary data. Current leads to make our own measures include :
+ * - https://github.com/hubblo-org/scaphandre
+ * - https://github.com/marmelab/argos
  *
  * @param {Object} selectedService the entity object "decorated" with settings.
+ * @returns {Number} total kW/h for all settings on given service.
  */
 export const estimateCloudConsumption = selectedService => {
+	let n = 0;
+	let d = 0;
+	let totalWattsPerHour = 0;
+
 	// We'll use the average gap in W/vCPU measures between idle and 100% from
 	// Benjamin Davy's research + the same for W/GB for RAM.
 	const awsEc2Measures = {
@@ -69,14 +77,68 @@ export const estimateCloudConsumption = selectedService => {
 			high: [1.16, 0.79, 0.61, 0.67, 0.96]
 		}
 	};
-	// Automated tests : 75% ressources used ?
+	awsEc2Measures.cpu.averageLow = awsEc2Measures.cpu.low.reduce((a, b) => a + b) / awsEc2Measures.cpu.low.length;
+	awsEc2Measures.cpu.averageHigh = awsEc2Measures.cpu.high.reduce((a, b) => a + b) / awsEc2Measures.cpu.high.length;
+	awsEc2Measures.ram.averageLow = awsEc2Measures.ram.low.reduce((a, b) => a + b) / awsEc2Measures.ram.low.length;
+	awsEc2Measures.ram.averageHigh = awsEc2Measures.ram.high.reduce((a, b) => a + b) / awsEc2Measures.ram.high.length;
+
+	const ram = getSelectedItemSetting(selectedService, 'ram');
+	const vcpu = getSelectedItemSetting(selectedService, 'vcpu');
+
+	// Arbitrary values we'll use for making (wrong) estimates.
+	const cpuWattsAt66percent = getPercentValueInRange(
+		66,
+		awsEc2Measures.cpu.averageLow,
+		awsEc2Measures.cpu.averageHigh
+	);
+	const ramWattsAt66percent = getPercentValueInRange(
+		66,
+		awsEc2Measures.ram.averageLow,
+		awsEc2Measures.ram.averageHigh
+	);
+	const cpuWattsAt20percent = getPercentValueInRange(
+		20,
+		awsEc2Measures.cpu.averageLow,
+		awsEc2Measures.cpu.averageHigh
+	);
+	const ramWattsAt20percent = getPercentValueInRange(
+		20,
+		awsEc2Measures.ram.averageLow,
+		awsEc2Measures.ram.averageHigh
+	);
+
+	// Automated tests : 66% ressources used ?
 	if (getSelectedItemSetting(selectedService, 'useTests')) {
-		const n = getSelectedItemSetting(selectedService, 'tests_per_month');
-		const d = getSelectedItemSetting(selectedService, 'tests_duration');
-		// TODO (wip)
+		n = getSelectedItemSetting(selectedService, 'tests_per_month');
+		d = getSelectedItemSetting(selectedService, 'tests_duration'); // in seconds
+		totalWattsPerHour += vcpu * (n / 4 / 7 / 24) * (d / 3600) * cpuWattsAt66percent;
+		totalWattsPerHour += ram * (n / 4 / 7 / 24) * (d / 3600) * ramWattsAt66percent;
 	}
-	// Backup : 25% ressources ?
-	// Commits ?
+
+	// Backup : 20% ressources ?
+	if (getSelectedItemSetting(selectedService, 'useBackup')) {
+		n = getSelectedItemSetting(selectedService, 'backups_per_month');
+		d = getSelectedItemSetting(selectedService, 'backups_duration'); // in seconds
+		totalWattsPerHour += vcpu * (n / 4 / 7 / 24) * (d / 3600) * cpuWattsAt20percent;
+		totalWattsPerHour += ram * (n / 4 / 7 / 24) * (d / 3600) * ramWattsAt20percent;
+	}
+
+	// Hosting a webserver in the cloud implies at least a fraction of potentially
+	// mostly "idle" 24/7 power consumption.
+	// Even if it may depend on virtualized "colocation" where many "served"
+	// projects share the same ressources, it's not 0. But it's a pretty difficult
+	// thing to estimate. We can't generalize how virtual or physical ressources
+	// are allocated for all services we try to asses here (i.e. shared hosting,
+	// dedicated, baremetal, virtualized)...
+	// So the (wrong) estimate we're using here assumes 1/4 vCPU and 1/4 Gb RAM in
+	// fulltime "idle" state as the baseline for a single "webserver" service.
+	if (getSelectedItemSetting(selectedService, 'useHost')) {
+		totalWattsPerHour += 3600 * awsEc2Measures.cpu.averageLow / 4;
+		totalWattsPerHour += 3600 * awsEc2Measures.ram.averageLow / 4;
+	}
+
+	// Convert watts to kilowatts (per hour).
+	return totalWattsPerHour / 1000;
 };
 
 /**
@@ -97,13 +159,20 @@ export const estimateCloudConsumption = selectedService => {
  * See https://journalofcloudcomputing.springeropen.com/articles/10.1186/s13677-020-00185-8
  *
  * @param {Object} selectedService the entity object "decorated" with settings.
+ * @returns {Number} kwh per month.
  */
 export const estimateDataTransferConsumption = selectedService => {
+	let s = 0;
+	let n = 0;
+	let kwhPerMonth = 0;
+
 	if (getSelectedItemSetting(selectedService, 'useBackup')) {
-		const d = getSelectedItemSetting(selectedService, 'backups_duration');
-		const s = getSelectedItemSetting(selectedService, 'backups_total_size');
-		// TODO (wip)
+		s = getSelectedItemSetting(selectedService, 'backups_total_size'); // in Mo
+		n = getSelectedItemSetting(selectedService, 'backups_per_month');
+		kwhPerMonth += 0.06 * s / 1024 * n;
 	}
+
+	return kwhPerMonth;
 };
 
 /**
@@ -112,8 +181,3 @@ export const estimateDataTransferConsumption = selectedService => {
  * @param {Object} selectedService the entity object "decorated" with settings.
  */
 export const esimateServiceConsumption = selectedService => {};
-
-// Eutrophisation, déchets, écotoxicité...
-// 2 pahses : fabriation, usage
-// 1 indicateur : GES
-// -> il manque tout le reste

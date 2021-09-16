@@ -68,23 +68,23 @@ export const getSelectedItemDefaultSetting = (entity, use) => {
 		case "deploys_per_month":
 			return 1;
 		case "deploys_duration":
-			return 120;
+			return 120; // in seconds
 		case "backups_per_month":
 			return 4;
 		case "backups_duration":
-			return 360;
+			return 360; // in seconds
 		case "backups_total_size":
-			return 5000;
+			return 5000; // in Mo
 		case "repos_total_size":
-			return 300;
+			return 300; // in Mo
 		case "repos_commits_per_month":
 			return 50;
 		case "instances_total_size":
-			return 5000;
+			return 5000; // in Mo
 		case "tests_per_month":
 			return 2;
 		case "tests_duration":
-			return 180;
+			return 180; // in seconds
 		case "storage_size":
 			// TODO yeah, that's pretty approximative alright.
 			if ('features' in entity) {
@@ -92,17 +92,17 @@ export const getSelectedItemDefaultSetting = (entity, use) => {
 				// average for GMail, and about 60k per email).
 				// @see scripts/experiments/ecometrics/manual-data/services.json
 				if (entity.features.includes('mail')) {
-					return 1000;
+					return 1000; // in Mo
 				}
 				// Fallback to 300Mb for any other online service using storage.
 				if (entity.features.includes('storage')) {
-					return 300;
+					return 300; // in Mo
 				}
 			}
 			// Can't really assume any data volume as a default measure for any
 			// service not "caught" in the above.
 			return 0;
-		case "vcpu_nb":
+		case "vcpu":
 			return 1;
 		case "ram":
 			return 2;

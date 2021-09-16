@@ -130,15 +130,17 @@ export const estimateCloudConsumption = selectedService => {
 	// thing to estimate. We can't generalize how virtual or physical ressources
 	// are allocated for all services we try to asses here (i.e. shared hosting,
 	// dedicated, baremetal, virtualized)...
-	// So the (wrong) estimate we're using here assumes 1/4 vCPU and 1/4 Gb RAM in
+	// So the (wrong) estimate we're using here assumes 1/2 vCPU and 1/2 Gb RAM in
 	// fulltime "idle" state as the baseline for a single "webserver" service.
 	if (getSelectedItemSetting(selectedService, 'useHost')) {
-		totalWattsPerHour += 3600 * awsEc2Measures.cpu.averageLow / 4;
-		totalWattsPerHour += 3600 * awsEc2Measures.ram.averageLow / 4;
+		totalWattsPerHour += awsEc2Measures.cpu.averageLow / 2;
+		totalWattsPerHour += awsEc2Measures.ram.averageLow / 2;
 	}
 
-	// Convert Watts (j/s) to kWh/month.
-	return totalWattsPerHour / 1000 * 24 * 365 / 12;
+	// Convert Watts to kWh/month.
+	return totalWattsPerHour / 1000 // in kilowatts
+		* 24 // per day
+		* 365 / 12; // per month
 };
 
 /**
@@ -166,10 +168,20 @@ export const estimateDataTransferConsumption = selectedService => {
 	let n = 0;
 	let kwhPerMonth = 0;
 
+	// We still have to account for "non-backup" services which use online storage
+	// as it's often the only metric we can (wrongfully) estimate.
+	// TODO single source of truth for conditional settings such as :
+	// @see entityUsesOnlineStorage() in src/components/experiments/EcoMetricsSelectionSettings.svelte
 	if (getSelectedItemSetting(selectedService, 'useBackup')) {
 		s = getSelectedItemSetting(selectedService, 'backups_total_size'); // in Mo
 		n = getSelectedItemSetting(selectedService, 'backups_per_month');
 		kwhPerMonth += 0.06 * s / 1024 * n;
+	} else if (
+		'features' in selectedService
+		&& (selectedService.features.includes('storage'))
+	) {
+		s = getSelectedItemSetting(selectedService, 'storage_size'); // in Mo per month
+		kwhPerMonth += 0.06 * s / 1024;
 	}
 
 	return kwhPerMonth;
@@ -194,6 +206,9 @@ export const getServiceKwhPerPeriodEstimates = (selectedService, period) => {
 	kwhUsedPerMonth = estimateCloudConsumption(selectedService);
 	if (kwhUsedPerMonth > 0) {
 		switch (period) {
+			case 'day':
+				estimates.cloud = kwhUsedPerMonth * 12 / 365;
+				break;
 			case 'week':
 				estimates.cloud = kwhUsedPerMonth / 4;
 				break;
@@ -210,6 +225,9 @@ export const getServiceKwhPerPeriodEstimates = (selectedService, period) => {
 	kwhUsedPerMonth = estimateDataTransferConsumption(selectedService);
 	if (kwhUsedPerMonth > 0) {
 		switch (period) {
+			case 'day':
+				estimates.transfer = kwhUsedPerMonth * 12 / 365;
+				break;
 			case 'week':
 				estimates.transfer = kwhUsedPerMonth / 4;
 				break;

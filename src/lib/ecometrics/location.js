@@ -35,7 +35,10 @@ export const getLocationCarbonIntensity = (location, ci, locations = []) => {
 	}
 	// Attempt to find fallback value by country.
 	for (j = 0; j < locations.length; j++) {
-		if (location.country === locations[j].country) {
+		if (
+			(location.country.length && location.country === locations[j].country)
+			|| (location.country_code.length && location.country_code === locations[j].country_code)
+		) {
 			for (i = 0; i < ci.length; i++) {
 				const ciEntity = ci[i];
 				if (ciEntity.location === locations[j].id) {
@@ -46,7 +49,7 @@ export const getLocationCarbonIntensity = (location, ci, locations = []) => {
 	}
 	// Attempt to find fallback value by continent.
 	for (j = 0; j < locations.length; j++) {
-		if (location.continent === locations[j].continent) {
+		if (location.continent.length && location.continent === locations[j].continent) {
 			for (i = 0; i < ci.length; i++) {
 				const ciEntity = ci[i];
 				if (ciEntity.location === locations[j].id) {

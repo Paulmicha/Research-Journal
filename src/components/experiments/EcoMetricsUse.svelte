@@ -78,7 +78,8 @@
 	const getEntityCo2Footprint = (entity, kwhPerYear) => kwhPerYear
 		* getLocationCarbonIntensity(
 			entity.selectionSettings.location || $selectionStore.defaultLocation,
-			$carbonIntensityStore
+			$carbonIntensityStore,
+			Object.values($locationEntityStore)
 		)
 		/ 1000;
 
@@ -215,7 +216,7 @@
 			<strong>Warnings</strong>
 		</summary>
 		<p>For services, we can only make very approximative (and probably wrong) estimates. Virtually no data is currently available to make any "realistic" estimates for services running on public cloud vendors (<a href="https://davidmytton.blog/assessing-the-suitability-of-the-greenhouse-gas-protocol-for-calculation-of-emissions-from-public-cloud-computing-workloads/" target="_blank">Mytton, 2020</a>). Services that do <strong>not</strong> run in the cloud are exceptions. This opacity also comes from the complexity and increasingly adaptive, on-demand nature of the way physical resources are allocated (primarily vCPU, RAM, storage).</p>
-		<h3>What is currently not accounted for</h3>
+		<h3>Some of the things currently not accounted for</h3>
 		<ul>
 			<li>Any environmental indicator other than CO2 emissions - i.e. any other <abbr title="Green House Gases">GHG</abbr> emissions, Water Usage Effectiveness (WUE), Eutrophication, Waste, Ecotoxicity...</li>
 			<li>Network impacts for transferring data to the device(s) used for using the services - e.g. antennas (3G, 4G, Wifi), cables, <abbr title="Internet Exchange Point">IXP</abbr>s, etc. Getting estimates for these data volumes per service seem impossible to generalize for such a basic tool. We're not trying to make a professional <abbr title="Lifecycle Analysis">LCA</abbr> tool here.</li>
@@ -310,7 +311,7 @@
 										<td class="val">
 											<strong>{ displayNb(estimates.device[entity.id].co2[period]) }</strong>
 										</td>
-										<td class="unit">Kg&nbsp;CO2&nbsp;per&nbsp;{ period }</td>
+										<td class="unit">KgCO2e&nbsp;per&nbsp;{ period }</td>
 									</tr>
 								</table>
 							</div>
@@ -344,56 +345,64 @@
 								<!-- <pre>{ JSON.stringify(entity, null, 2) }</pre> -->
 								{#if displayServiceDetails(entity)}
 									<details>
-										<summary>Details</summary>
+										<summary>Notes</summary>
 										{#if entity.notes}
 											{#each entity.notes as note}
-												<p>
-													From <a href={ note.source }>source</a> (retrieved on { note.retrieved }) :
-												</p>
+												<div>From <a href={ note.source }>source</a> (retrieved on { note.retrieved }) :</div>
 												{@html note.content }
 											{/each}
 										{/if}
 										{#if getSelectedItemSetting(entity, 'useHost') && entity.type === 'cloud'}
-											<p>Hosting a service like a webserver in the cloud implies at least a fraction of an amount of power consumption that is virtually permanent. But <strong>it's currently an impossible thing to generalize</strong> - i.e. the type of architecture could be shared, dedicated, baremetal, virtualized ; the tech "stack" and choices of technical implementation vary too drastically depending on what is hosted... So the (wrong) estimate we're using here assumes 1/4 vCPU and 1/4 Gb RAM in "idle" state as the baseline for a single "webserver" service, based on averaged findings for <abbr title="Amazon Web Services">AWS</abbr> EC2 instances by <a href="https://medium.com/teads-engineering/estimating-aws-ec2-instances-power-consumption-c9745e347959" target="_blank">Benjamin Davy</a> (published 2021/03/25).</p>
+											<p>Hosting a service like a webserver in the cloud implies at least a fraction of an amount of power consumption that is virtually permanent. But <strong>it's currently an impossible thing to generalize</strong> - among other reasons, because :</p>
+											<ul>
+												<li>internally, the underlying support could be shared, dedicated, baremetal, virtualized</li>
+												<li>the tech stack and choices of technical implementation of the service itself imply enormous differences on server ressources use</li>
+												<li>it also largely depends on the volumes of traffic served (yet another unavailable metric)</li>
+											</ul>
+											<p>So the (wrong) estimate we're using here assumes 1/4 vCPU and 1/4 Gb RAM in "idle" state as the baseline for a single "webserver" service, based on averaged findings for <abbr title="Amazon Web Services">AWS</abbr> EC2 instances by <a href="https://medium.com/teads-engineering/estimating-aws-ec2-instances-power-consumption-c9745e347959" target="_blank">Benjamin Davy</a> (published 2021/03/25).</p>
 										{/if}
 									</details>
 								{/if}
-								<table>
-									{#if entity.selectionSettings.location}
+								{#if estimates.service[entity.id].co2[period] > 0}
+									<table>
+										{#if entity.selectionSettings.location}
+											<tr>
+												<td>
+													Estimated carbon intensity of electricity in { getLocationLabel(entity.selectionSettings.location) }&nbsp;:
+												</td>
+												<td class="val">
+													<strong>{ displayNb(getLocationCarbonIntensity(entity.selectionSettings.location, $carbonIntensityStore, Object.values($locationEntityStore))) }</strong>
+												</td>
+												<td class="unit">gCO2e/kWh</td>
+											</tr>
+										{/if}
 										<tr>
-											<td>
-												Estimated carbon intensity of electricity in { getLocationLabel(entity.selectionSettings.location) }&nbsp;:
+											<td class="push">Estimated cloud power consumption</td>
+											<td class="val">
+												<strong>{ displayNb(estimates.service[entity.id].powerPerType[period].cloud * 1000) }</strong>
+											</td>
+											<td class="unit">W/h&nbsp;per&nbsp;{ period }</td>
+										</tr>
+										<tr>
+											<td class="push">Estimated data transfer consumption</td>
+											<td class="val">
+												<strong>{ displayNb(estimates.service[entity.id].powerPerType[period].transfer * 1000) }</strong>
+											</td>
+											<td class="unit">W/h&nbsp;per&nbsp;{ period }</td>
+										</tr>
+										<tr>
+											<td class="push">
+												&rarr;&nbsp;Estimated footprint&nbsp;:
 											</td>
 											<td class="val">
-												<strong>{ displayNb(getLocationCarbonIntensity(entity.selectionSettings.location, $carbonIntensityStore, Object.values($locationEntityStore))) }</strong>
+												<strong>{ displayNb(estimates.service[entity.id].co2[period] * 1000) }</strong>
 											</td>
-											<td class="unit">gCO2e/kWh</td>
+											<td class="unit">gCO2e&nbsp;per&nbsp;{ period }</td>
 										</tr>
-									{/if}
-									<tr>
-										<td>Estimated cloud power consumption</td>
-										<td class="val">
-											<strong>{ displayNb(estimates.service[entity.id].powerPerType[period].cloud) }</strong>
-										</td>
-										<td class="unit">kW/h&nbsp;per&nbsp;{ period }</td>
-									</tr>
-									<tr>
-										<td>Estimated data transfer consumption (backups)</td>
-										<td class="val">
-											<strong>{ displayNb(estimates.service[entity.id].powerPerType[period].transfer) }</strong>
-										</td>
-										<td class="unit">kW/h&nbsp;per&nbsp;{ period }</td>
-									</tr>
-									<tr>
-										<td>
-											&rarr;&nbsp;Estimated footprint&nbsp;:
-										</td>
-										<td class="val">
-											<strong>{ displayNb(estimates.service[entity.id].co2[period]) }</strong>
-										</td>
-										<td class="unit">Kg&nbsp;CO2&nbsp;per&nbsp;{ period }</td>
-									</tr>
-								</table>
+									</table>
+								{:else}
+									<p>We are currently unable to provide any estimates on any metric for this service.</p>
+								{/if}
 							</div>
 						{/each}
 					</div>
@@ -470,6 +479,7 @@
 	}
 	table {
 		margin: 0;
+		width: 100%;
 	}
 	td {
 		border: 0 none;
@@ -479,13 +489,15 @@
 	td + td {
 		padding-left: var(--space);
 	}
-	.val {
+	td.push {
+		width: 100%;
+	}
+	td.val {
 		text-align: right;
 	}
-	.unit {
+	td.unit {
 		white-space: nowrap;
 	}
-
 	@media (min-width: 80ch) {
 		.f-grid {
 			--gutter: 2.5rem;

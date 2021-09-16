@@ -204,9 +204,9 @@
 	<div class="form-item form-item--l">
 		<label
 			for="storage-size-{ entity.id }"
-			title="try to estimate the approximative volume of data stored online for your use of this service"
+			title="try to estimate the approximative volume of data stored online for your use of this service every month"
 		>
-			Approximative volume of data stored online for this service (in Mo)
+			Approximative volume of data stored online for this service (in Mo) every month
 		</label>
 		<input class="input--s" type="number" min="0" name="storage_size"
 			id="storage-size-{ entity.id }"

@@ -74,7 +74,7 @@ export const getSelectedItemDefaultSetting = (entity, use) => {
 		case "backups_duration":
 			return 360; // in seconds
 		case "backups_total_size":
-			return 5000; // in Mo
+			return 500; // in Mo
 		case "repos_total_size":
 			return 300; // in Mo
 		case "repos_commits_per_month":
@@ -85,18 +85,26 @@ export const getSelectedItemDefaultSetting = (entity, use) => {
 			return 2;
 		case "tests_duration":
 			return 180; // in seconds
-		case "storage_size":
+		case "storage_size": // in Mo per month
 			// TODO yeah, that's pretty approximative alright.
 			if ('features' in entity) {
-				// -> 1Gb for email accounts (based on : 17K emails per account on
-				// average for GMail, and about 60k per email).
-				// @see scripts/experiments/ecometrics/manual-data/services.json
+				// Average size of an email = 60k. Daily emails sent (worldwide) are
+				// between 306.4B and 376.4B (stats 2020 + estimates for 2025).
+				// There are 4.03 billion email users worldwide.
+				// See https://techjury.net/blog/gmail-statistics/
+				// See http://www.marinesatellitesystems.com/index.php?page_id=867
 				if (entity.features.includes('mail')) {
-					return 1000; // in Mo
+					return parseInt(
+						(306.4 + 376.4) / 2 * (365 / 12) // emails sent worldwide per month
+						/ 4.03 // per person
+						* (60 / 1024) // average weight per email in Mo
+						/ 4 // -> about 150 Mo per month ? Seems high... To be more conservative, use a quarter of that.
+					);
 				}
-				// Fallback to 300Mb for any other online service using storage.
+				// Fallback to an arbitrary value for any other online service using
+				// storage.
 				if (entity.features.includes('storage')) {
-					return 300; // in Mo
+					return 100; // in Mo per month
 				}
 			}
 			// Can't really assume any data volume as a default measure for any

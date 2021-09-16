@@ -175,6 +175,11 @@
 				"content": "Once your messages are delivered, they are deleted from our servers. The following scenarios describe circumstances where we may store your messages in the course of delivering them: <ul><li>Undelivered Messages. If a message cannot be delivered immediately (for example, if the recipient is offline), we keep it in encrypted form on our servers for up to 30 days as we try to deliver it. If a message is still undelivered after 30 days, we delete it.</li><li>Media Forwarding. When a user forwards media within a message, we store that media temporarily in encrypted form on our servers to aid in more efficient delivery of additional forwards.</li></ul>",
 				"source": "https://www.whatsapp.com/legal/privacy-policy",
 				"retrieved": "2021-09-15 15:24:33"
+			},
+			{
+				"content": "If you're using iCloud or Drive backups for WhatsApp, you need to add those services manually.",
+				"source": "https://faq.whatsapp.com/search?query=backup&lang=en",
+				"retrieved": "2021-09-16 11:04:54"
 			}
 		]
 	},

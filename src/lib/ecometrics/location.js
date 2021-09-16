@@ -14,7 +14,7 @@ export const getLocationLabel = location => location && ''
 	+ (location.city ? ', ' + location.city : '');
 
 /**
- * Gets location estimated electricity grid carbon intensity.
+ * Gets location estimated electricity grid carbon intensity (gCO2eq / kWh).
  *
  * @param {Object} location the entity.
  * @param {Array} ci the carbon intensity store containing the list of all
@@ -22,7 +22,7 @@ export const getLocationLabel = location => location && ''
  * @param {Array} locations (optional) the location entities to fallback by
  *   country or continent. Defaults to empty array.
  * @returns {Number | Boolean} the carbon intensity matching given location if
- *   found, or false.
+ *   found in gCO2eq / kWh, or false.
  */
 export const getLocationCarbonIntensity = (location, ci, locations = []) => {
 	let i = 0;

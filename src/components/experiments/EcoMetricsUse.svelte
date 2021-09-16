@@ -7,11 +7,11 @@
 		carbonIntensityStore,
 		locationEntityStore
 	} from '../../stores/ecometrics.js';
+	import { preferencesStore } from '../../stores/preferences.js';
 	import { getDeviceImg, getDeviceLabel, getDeviceKwhPerPeriod } from '../../lib/ecometrics/device.js';
 	import {
 		getServiceImg,
-		estimateCloudConsumption,
-		estimateDataTransferConsumption
+		getServiceKwhPerPeriodEstimates
 	} from '../../lib/ecometrics/service.js';
 	import { getLocationCarbonIntensity, getLocationLabel } from '../../lib/ecometrics/location.js';
 	import { getSelectedItemSetting } from '../../lib/ecometrics/selection.js';
@@ -22,6 +22,22 @@
 	let period = 'month';
 	let periodTooltipTrigger;
 	let periodTooltipMethods;
+
+	let totalKwhPerYear = 0;
+	let totalKgCo2PerYear = 0;
+
+	let deviceUseCo2EqChartData = {
+		"labels": [],
+		"datasets": []
+	};
+	let serviceUseCo2EqChartData = {
+		"labels": [],
+		"datasets": []
+	};
+	const estimates = {
+		device: {},
+		service: {}
+	};
 
 	/**
 	 * Toggles the period tooltip and updates its trigger ref if necessary.
@@ -59,34 +75,52 @@
 	/**
 	 * in KgCo2PerYear
 	 */
-	const getDeviceFootprint = entity => getDeviceKwhPerPeriod(entity, 'year')
+	const getEntityCo2Footprint = (entity, kwhPerYear) => kwhPerYear
 		* getLocationCarbonIntensity(
 			entity.selectionSettings.location || $selectionStore.defaultLocation,
 			$carbonIntensityStore
 		)
 		/ 1000;
 
-	let totalKwhPerYear = 0;
-	let totalKgCo2PerYear = 0;
-	let deviceUseCo2EqChartData = {
-		"labels": [],
-		"datasets": []
-	};
-
+	// Whenever current selection gets updated, re-calculate all values.
 	selectionStore.subscribe(selection => {
 		const deviceLabels = [];
 		const datasetDeviceKgCo2PerYear = [];
+		const serviceLabels = [];
+		const datasetServiceKgCo2PerYear = [];
 
 		totalKwhPerYear = 0;
 		totalKgCo2PerYear = 0;
 
-		// TODO services.
+		// Devices.
 		selection.device.forEach(entity => {
-			datasetDeviceKgCo2PerYear.push(
-				getSelectedItemSetting(entity, 'qty') * getDeviceFootprint(entity)
+			estimates.device[entity.id] = {
+				power: {
+					year: getSelectedItemSetting(entity, 'qty') * getDeviceKwhPerPeriod(entity, 'year'),
+					month: getSelectedItemSetting(entity, 'qty') * getDeviceKwhPerPeriod(entity, 'month'),
+					week: getSelectedItemSetting(entity, 'qty') * getDeviceKwhPerPeriod(entity, 'week'),
+					day: getSelectedItemSetting(entity, 'qty') * getDeviceKwhPerPeriod(entity, 'day')
+				}
+			};
+			estimates.device[entity.id].co2 = {
+				year: getEntityCo2Footprint(entity, estimates.device[entity.id].power.year)
+			};
+			estimates.device[entity.id].co2.month = convertValuePerYearToPeriod(
+				estimates.device[entity.id].co2.year,
+				'month'
 			);
+			estimates.device[entity.id].co2.week = convertValuePerYearToPeriod(
+				estimates.device[entity.id].co2.year,
+				'week'
+			);
+			estimates.device[entity.id].co2.day = convertValuePerYearToPeriod(
+				estimates.device[entity.id].co2.year,
+				'day'
+			);
+			totalKwhPerYear += estimates.device[entity.id].power.year;
+			totalKgCo2PerYear += estimates.device[entity.id].co2.year;
 			deviceLabels.push(getDeviceLabel(entity));
-			totalKwhPerYear += getDeviceKwhPerPeriod(entity, 'year');
+			datasetDeviceKgCo2PerYear.push(estimates.device[entity.id].co2.year);
 		});
 		deviceUseCo2EqChartData = {
 			"labels": deviceLabels,
@@ -98,9 +132,57 @@
 			]
 		};
 
-		if (datasetDeviceKgCo2PerYear.length) {
-			totalKgCo2PerYear = datasetDeviceKgCo2PerYear.reduce((x, y) => x + y);
-		}
+		// Services.
+		selection.service.forEach(entity => {
+			// Unlike devices, service power consumption is divided in "types" of
+			// estimates (currently cloud + data transfer).
+			estimates.service[entity.id] = {
+				powerPerType: {
+					year: getServiceKwhPerPeriodEstimates(entity, 'year'),
+					month: getServiceKwhPerPeriodEstimates(entity, 'month'),
+					week: getServiceKwhPerPeriodEstimates(entity, 'week'),
+					day: getServiceKwhPerPeriodEstimates(entity, 'day')
+				}
+			};
+			estimates.service[entity.id].power = {
+				year: estimates.service[entity.id].powerPerType.year.cloud
+					+ estimates.service[entity.id].powerPerType.year.transfer,
+				month: estimates.service[entity.id].powerPerType.month.cloud
+					+ estimates.service[entity.id].powerPerType.month.transfer,
+				week: estimates.service[entity.id].powerPerType.week.cloud
+					+ estimates.service[entity.id].powerPerType.week.transfer,
+				day: estimates.service[entity.id].powerPerType.day.cloud
+					+ estimates.service[entity.id].powerPerType.day.transfer
+			};
+			estimates.service[entity.id].co2 = {
+				year: getEntityCo2Footprint(entity, estimates.service[entity.id].power.year)
+			};
+			estimates.service[entity.id].co2.month = convertValuePerYearToPeriod(
+				estimates.service[entity.id].co2.year,
+				'month'
+			);
+			estimates.service[entity.id].co2.week = convertValuePerYearToPeriod(
+				estimates.service[entity.id].co2.year,
+				'week'
+			);
+			estimates.service[entity.id].co2.day = convertValuePerYearToPeriod(
+				estimates.service[entity.id].co2.year,
+				'day'
+			);
+			totalKwhPerYear += estimates.service[entity.id].power.year;
+			totalKgCo2PerYear += estimates.service[entity.id].co2.year;
+			serviceLabels.push(entity.name);
+			datasetServiceKgCo2PerYear.push(estimates.service[entity.id].co2.year);
+		});
+		serviceUseCo2EqChartData = {
+			"labels": serviceLabels,
+			"datasets": [
+				{
+					"name": "Emissions from power consumption (Kg Co2 per year)",
+					"values": datasetServiceKgCo2PerYear
+				}
+			]
+		};
 	});
 
 	/**
@@ -109,6 +191,16 @@
 	 */
 	const displayServiceDetails = entity => entity.notes.length
 		|| (getSelectedItemSetting(entity, 'useHost') && entity.type === 'cloud');
+
+	/**
+	 * Toggles the collapsible warnings.
+	 */
+	const toggleCollapsibleWarningsState = () => {
+		preferencesStore.update(prefs => {
+			prefs.ecometricsCollapsibleWarningsState = !prefs.ecometricsCollapsibleWarningsState;
+			return prefs;
+		});
+	};
 </script>
 
 <!--
@@ -118,15 +210,21 @@
 -->
 <section class="rich-text">
 	<h2>Devices and Services Use</h2>
-	<p>As a general warning, for services, we can only make very approximative (and probably wrong) estimates. Virtually no data is currently available to make any "realistic" estimates for services running on public cloud vendors (<a href="https://davidmytton.blog/assessing-the-suitability-of-the-greenhouse-gas-protocol-for-calculation-of-emissions-from-public-cloud-computing-workloads/" target="_blank">Mytton, 2020</a>). Services that do <strong>not</strong> run in the cloud are exceptions. This opacity also comes from the complexity and increasingly adaptive, on-demand nature of the way physical resources are allocated (primarily vCPU, RAM, storage).</p>
-	<h3>What is currently not accounted for</h3>
-	<ul>
-		<li>Any environmental indicator other than CO2 emissions - i.e. Water Usage Effectiveness (WUE), Eutrophication, Waste, Ecotoxicity...</li>
-		<li>Network impacts for transferring data to the device(s) used for using the services - e.g. antennas (3G, 4G, Wifi), cables, <abbr title="Internet Exchange Point">IXP</abbr>s, etc. Getting estimates for these data volumes per service seem impossible to generalize for such a basic tool. We're not trying to make a professional <abbr title="Lifecycle Analysis">LCA</abbr> tool here.</li>
-		<li>The PUE (Power Usage Effectiveness) - how much extra energy is needed to operate the data centre (cooling, lighting etc.) of datacenters.</li>
-		<li>The PSF (Pragmatic Scaling Factor) - used to take into account multiple identical runs of algorithms (e.g. for testing or optimisation).</li>
-	</ul>
-	<h3>What impact is estimated</h3>
+	<details open={$preferencesStore.ecometricsCollapsibleWarningsState}>
+		<summary on:click|preventDefault={ toggleCollapsibleWarningsState }>
+			<strong>Warnings</strong>
+		</summary>
+		<p>For services, we can only make very approximative (and probably wrong) estimates. Virtually no data is currently available to make any "realistic" estimates for services running on public cloud vendors (<a href="https://davidmytton.blog/assessing-the-suitability-of-the-greenhouse-gas-protocol-for-calculation-of-emissions-from-public-cloud-computing-workloads/" target="_blank">Mytton, 2020</a>). Services that do <strong>not</strong> run in the cloud are exceptions. This opacity also comes from the complexity and increasingly adaptive, on-demand nature of the way physical resources are allocated (primarily vCPU, RAM, storage).</p>
+		<h3>What is currently not accounted for</h3>
+		<ul>
+			<li>Any environmental indicator other than CO2 emissions - i.e. any other <abbr title="Green House Gases">GHG</abbr> emissions, Water Usage Effectiveness (WUE), Eutrophication, Waste, Ecotoxicity...</li>
+			<li>Network impacts for transferring data to the device(s) used for using the services - e.g. antennas (3G, 4G, Wifi), cables, <abbr title="Internet Exchange Point">IXP</abbr>s, etc. Getting estimates for these data volumes per service seem impossible to generalize for such a basic tool. We're not trying to make a professional <abbr title="Lifecycle Analysis">LCA</abbr> tool here.</li>
+			<li>The Power Usage Effectiveness (PUE) - how much extra energy is needed to operate the data centre (cooling, lighting etc.) - of datacenters.</li>
+			<li>The Pragmatic Scaling Factor (PSF) used to take into account multiple identical runs of algorithms (e.g. for testing or optimisation).</li>
+		</ul>
+		<h3>What is estimated</h3>
+		<p>CO2 equivalent of power consumption (per { period }).</p>
+	</details>
 	<p>
 		Estimated carbon intensity of electricity in selected default location ({ getLocationLabel($selectionStore.defaultLocation) })&nbsp;: <strong>{ displayNb(getLocationCarbonIntensity($selectionStore.defaultLocation, $carbonIntensityStore)) }</strong>&nbsp;gCO2e/kWh
 	</p>
@@ -175,7 +273,7 @@
 				{#if $selectionStore.device.length}
 					<div class="f-grid-item">
 						<h3>Devices</h3>
-						<Chart data={deviceUseCo2EqChartData} type="pie" maxSlices="20" />
+						<Chart data={deviceUseCo2EqChartData} type="pie" maxSlices="33" />
 						{#each $selectionStore.device as entity}
 							<div class="selection-item">
 								<h4 class="selection-label">
@@ -193,7 +291,7 @@
 											<td class="val">
 												<strong>{ displayNb(getLocationCarbonIntensity(entity.selectionSettings.location, $carbonIntensityStore)) }</strong>
 											</td>
-											<td>gCO2e/kWh</td>
+											<td class="unit">gCO2e/kWh</td>
 										</tr>
 									{/if}
 									<tr>
@@ -201,18 +299,18 @@
 											Estimated power consumption for using this device <strong>{ getSelectedItemSetting(entity, 'hours_per_day') }</strong>&nbsp;hours per day on average&nbsp;:
 										</td>
 										<td class="val">
-											<strong>{ displayNb(getDeviceKwhPerPeriod(entity, period)) }</strong>
+											<strong>{ displayNb(estimates.device[entity.id].power[period]) }</strong>
 										</td>
-										<td>Kw/h&nbsp;per&nbsp;{ period }</td>
+										<td class="unit">Kw/h&nbsp;per&nbsp;{ period }</td>
 									</tr>
 									<tr>
 										<td>
 											&rarr;&nbsp;Estimated footprint (for { getSelectedItemSetting(entity, 'qty') } device{ getSelectedItemSetting(entity, 'qty') > 1 ? 's' : '' })&nbsp;:
 										</td>
 										<td class="val">
-											<strong>{ displayNb(getSelectedItemSetting(entity, 'qty') * getDeviceKwhPerPeriod(entity, period) * getLocationCarbonIntensity(entity.selectionSettings.location || $selectionStore.defaultLocation, $carbonIntensityStore) / 1000) }</strong>
+											<strong>{ displayNb(estimates.device[entity.id].co2[period]) }</strong>
 										</td>
-										<td>Kg&nbsp;CO2&nbsp;per&nbsp;{ period }</td>
+										<td class="unit">Kg&nbsp;CO2&nbsp;per&nbsp;{ period }</td>
 									</tr>
 								</table>
 							</div>
@@ -222,6 +320,7 @@
 				{#if $selectionStore.service.length}
 					<div class="f-grid-item rich-text">
 						<h3>Services</h3>
+						<Chart data={serviceUseCo2EqChartData} type="pie" maxSlices="33" />
 						{#each $selectionStore.service as entity}
 							<div class="selection-item">
 								<h4 class="selection-label">
@@ -268,18 +367,31 @@
 											<td class="val">
 												<strong>{ displayNb(getLocationCarbonIntensity(entity.selectionSettings.location, $carbonIntensityStore, Object.values($locationEntityStore))) }</strong>
 											</td>
-											<td>gCO2e/kWh</td>
+											<td class="unit">gCO2e/kWh</td>
 										</tr>
 									{/if}
 									<tr>
 										<td>Estimated cloud power consumption</td>
-										<td class="val">{ displayNb(estimateCloudConsumption(entity)) }</td>
-										<td>kW/h</td>
+										<td class="val">
+											<strong>{ displayNb(estimates.service[entity.id].powerPerType[period].cloud) }</strong>
+										</td>
+										<td class="unit">kW/h&nbsp;per&nbsp;{ period }</td>
 									</tr>
 									<tr>
 										<td>Estimated data transfer consumption (backups)</td>
-										<td class="val">{ displayNb(estimateDataTransferConsumption(entity)) }</td>
-										<td>kW/h per month</td>
+										<td class="val">
+											<strong>{ displayNb(estimates.service[entity.id].powerPerType[period].transfer) }</strong>
+										</td>
+										<td class="unit">kW/h&nbsp;per&nbsp;{ period }</td>
+									</tr>
+									<tr>
+										<td>
+											&rarr;&nbsp;Estimated footprint&nbsp;:
+										</td>
+										<td class="val">
+											<strong>{ displayNb(estimates.service[entity.id].co2[period]) }</strong>
+										</td>
+										<td class="unit">Kg&nbsp;CO2&nbsp;per&nbsp;{ period }</td>
 									</tr>
 								</table>
 							</div>
@@ -369,6 +481,9 @@
 	}
 	.val {
 		text-align: right;
+	}
+	.unit {
+		white-space: nowrap;
 	}
 
 	@media (min-width: 80ch) {

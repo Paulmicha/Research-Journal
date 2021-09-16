@@ -56,7 +56,7 @@ export const getServiceImg = (service, servicesIcons) => {
  * - https://github.com/marmelab/argos
  *
  * @param {Object} selectedService the entity object "decorated" with settings.
- * @returns {Number} total kW/h for all settings on given service.
+ * @returns {Number} total kW/h per month for all settings on given service.
  */
 export const estimateCloudConsumption = selectedService => {
 	let n = 0;
@@ -137,8 +137,8 @@ export const estimateCloudConsumption = selectedService => {
 		totalWattsPerHour += 3600 * awsEc2Measures.ram.averageLow / 4;
 	}
 
-	// Convert watts to kilowatts (per hour).
-	return totalWattsPerHour / 1000;
+	// Convert Watts (j/s) to kWh/month.
+	return totalWattsPerHour / 1000 * 24 * 365 / 12;
 };
 
 /**
@@ -176,8 +176,51 @@ export const estimateDataTransferConsumption = selectedService => {
 };
 
 /**
- * TODO aggregate all available estimates into a single result.
+ * Gets the kwh values of given service over given period.
  *
  * @param {Object} selectedService the entity object "decorated" with settings.
+ * @param {String} period the currently selected period.
+ * @returns {Object} containing all (wrong) estimates - e.g. :
+ *   { cloud: 1.23, transfer: 4.56 }
  */
-export const esimateServiceConsumption = selectedService => {};
+export const getServiceKwhPerPeriodEstimates = (selectedService, period) => {
+	const estimates = {
+		cloud: 0,
+		transfer: 0
+	};
+	let kwhUsedPerMonth = 0;
+
+	// Cloud estimates.
+	kwhUsedPerMonth = estimateCloudConsumption(selectedService);
+	if (kwhUsedPerMonth > 0) {
+		switch (period) {
+			case 'week':
+				estimates.cloud = kwhUsedPerMonth / 4;
+				break;
+			case 'month':
+				estimates.cloud = kwhUsedPerMonth;
+				break;
+			case 'year':
+				estimates.cloud = kwhUsedPerMonth * 12;
+				break;
+		}
+	}
+
+	// Data transfer estimates.
+	kwhUsedPerMonth = estimateDataTransferConsumption(selectedService);
+	if (kwhUsedPerMonth > 0) {
+		switch (period) {
+			case 'week':
+				estimates.transfer = kwhUsedPerMonth / 4;
+				break;
+			case 'month':
+				estimates.transfer = kwhUsedPerMonth;
+				break;
+			case 'year':
+				estimates.transfer = kwhUsedPerMonth * 12;
+				break;
+		}
+	}
+
+	return estimates;
+};

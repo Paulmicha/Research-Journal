@@ -138,6 +138,9 @@
 										// themselves (instead of just the ID).
 										entityToSelect.selectionSettings[oneLetterPropMapInverted[l]] = locationsById[urlEncodedSetting.substring(1)];
 									}
+
+									// TODO test boolean values to convert based on defaults.
+									// WIP
 								}
 							});
 						}
@@ -183,8 +186,8 @@
 		>
 			<TabContent i="0">
 				<section class="rich-text">
-					<h2>Infrastructure building</h2>
-					<p>This is currently not implemented in this tool. It should cover the impacts of extraction (minerals), buildings, networks, antennas, etc.</p>
+					<h2>Infrastructure of the Web</h2>
+					<p>This is currently not implemented as an interactive data visualization.</p>
 					<figure>
 						<blockquote cite="http://gauthierroussilhe.com/post/territoires-centres-de-donnees.html">
 							<p>En 2020, 150 milliards de dollars ont été investi par les géants du cloud, dont la moitié pour construire des nouveaux centres de données. Les plus gros investissements sont dans l’ordre : Amazon, Microsoft, Google, Facebook, Apple, Alibaba et Tencent. S’il y avait 541 hyperscalers dans le monde en juin 2020, Synergy Research Group estime maintenant qu’il y en aurait 625 aujourd'hui.</p>
@@ -193,16 +196,33 @@
 						<figcaption>
 							— Gauthier Roussilhe,
 							<cite>
-								<a href="http://gauthierroussilhe.com/post/territoires-centres-de-donnees.html">Territorialiser les systèmes numériques, l'exemple des centres de données</a>
+								<a href="http://gauthierroussilhe.com/post/territoires-centres-de-donnees.html">Territorialiser les systèmes numériques, l'exemple des centres de données</a> (2021/07/25)
 							</cite>
+						</figcaption>
+					</figure>
+					<figure>
+						<blockquote cite="https://designcommun.fr/cahiers/situer-le-numerique/">
+							<p>au niveau de la production des équipements, notamment les phases d’extraction des matières premières, on observe de nombreux risques de pollution des eaux de surface et souterraines autour des zones d’exploitation minière, notamment dû aux écoulements d’acides liés à l’exposition de métaux à l’air libre ou à l’utilisation de cyanure ou d’acide sulfurique pour séparer un élément chimique du minerai. Les différentes fuites, les ruissellements, voire les ruptures de barrage d’une exploitation minière peuvent contaminer les eaux de tout un écosystème.</p>
+							<p>Les sols et l’air sont aussi pollués par les opérations minières. Les opérations de minage provoquent des émissions de gaz, de poussières et de particules toxiques qui influent sur la qualité de l’air. Les sols sont contaminés par les poussières soulevées par les opérations de minage ainsi que par le déversement de produits chimiques et de différents résidus dans les sols. Ces pollutions ont des effets sur l’ensemble des écosystèmes qui y sont exposés, notamment la faune et la flore. La faune aquatique meurt et disparaît dans les cours d’eau contaminés. Ces écoulements toxiques influent aussi sur la santé de la faune et la croissance des plantes qui reposent sur les eaux de surface et souterraines. Enfin, les opérations de minage provoquent des bruits et des vibrations qui affectent la faune locale et la pousse à quitter leur habitat et à fuir.</p>
+						</blockquote>
+						<figcaption>
+							— Gauthier Roussilhe,
+							<cite>
+								<a href="https://designcommun.fr/cahiers/situer-le-numerique/">
+									Situer le Numérique
+								</a>
+							</cite>
+							(2020/11/11)
 						</figcaption>
 					</figure>
 					<h3>More information :</h3>
 					<ul>
 						<li>
+							📽️
 							<a href="https://www.youtube.com/watch?v=QW9udH0vwlE">
-								Promesses de dématérialisation et matérialité minérale (online event "Under the hood of Sustainable IT" organized by the Belgian Institute for Sustainable IT)
+								Under the hood of Sustainable IT : Promesses de dématérialisation et matérialité minérale
 							</a>
+							- Aurore Stephant, speaker at online event organized by the Belgian Institute for Sustainable IT (2021/09/07)
 						</li>
 					</ul>
 				</section>
@@ -245,6 +265,20 @@
 					<h2>Sources</h2>
 					<ul>
 						<li>
+							<a href="https://github.com/Boavizta/environmental-footprint-data" target="_blank">
+								Boavizta Project - Environmental Footprint Data
+							</a>
+						</li>
+						<li>
+							<a href="https://ecoinfo.cnrs.fr/ecodiag-calcul/" target="_blank">
+								Ecodiag
+							</a>
+							by
+							<a href="https://ecoinfo.cnrs.fr/" target="_blank">
+								Ecoinfo (CNRS)
+							</a>
+						</li>
+						<li>
 							<a href="https://github.com/datagir/monconvertisseurco2" target="_blank">
 								Mon convertisseur CO2
 							</a>
@@ -283,9 +317,75 @@
 				</section>
 			</TabContent>
 			<TabContent i="3">
-				<h2>End of life</h2>
-				<p>Il manque ici des données sur la phase de fin de vie des équipements et des infrastructures (bâtiments, réseaux).</p>
+				<section class="rich-text">
+					<h2>End of Life</h2>
+					<p>This is also currently not implemented as an interactive data visualization.</p>
+					<figure>
+						<blockquote cite="https://theconversation.com/global-electronic-waste-up-21-in-five-years-and-recycling-isnt-keeping-up-141997">
+							<p>Each year, the total amount of electric and electronic equipment the world uses grows by 2.5 million tonnes. Phones, radios, toys, laptops – if it has a power or battery supply it’s likely to join a growing mountain of “e-waste” after use.</p>
+							<p>In 2019 alone, the world generated 53.6 million tonnes of e-waste. That’s about 7.3 kilograms per person and equivalent in weight to 350 cruise ships. Asia produced the lion’s share – 24.9 million tonnes – followed by the Americas (13.1 million tonnes) and Europe (12 million tonnes), while Africa and Oceania generated 2.9 and 0.7 million tonnes respectively.</p>
+							<p>By 2030, the global total is likely to swell to 74.7 million tonnes, almost a doubling of the annual amount of new e-waste in just 16 years. This makes it the world’s fastest growing domestic waste stream, fuelled mainly by more people buying electronic products with shorter life cycles and fewer options for repair.</p>
+						</blockquote>
+						<figcaption>
+							— Vanessa Forti,
+							<cite>
+								<a href="https://theconversation.com/global-electronic-waste-up-21-in-five-years-and-recycling-isnt-keeping-up-141997">
+									Global electronic waste up 21% in five years, and recycling isn’t keeping up
+								</a>
+							</cite>
+							(2020/07/10)
+						</figcaption>
+					</figure>
+					<figure>
+						<blockquote cite="https://designcommun.fr/cahiers/situer-le-numerique/">
+							<p>Face au flux phénoménal de <abbr title="Déchets d'équipements électriques et électroniques">D.E.E.E</abbr>. étant produit et non tracé chaque année (44,3 Mt), des pollutions importantes apparaissent dans les pays où sont stockés et enterrés ces déchets. On estime que 50 tonnes de mercure échappent annuellement des e-déchets mis en décharge, ainsi que 71 kt de plastiques retardateurs de flamme (RFB ou BRF en anglais), des substances extrêmement toxiques pour les milieux vivants et sur les personnes qui y sont exposées. Les sites de décharge et de recyclage informel présentent donc des risques sanitaires et environnementaux importants.</p>
+							<p>Les fuites de substances toxiques liées à l’oxydation des composants électroniques polluent les sols et les cours d’eau affectant les animaux, plantations et poissons qui seront consommés par les communautés aux alentours. Les personnes faisant du recyclage informel risquent de respirer des fumées toxiques en brûlant des fils et des circuits imprimés. Ces travailleurs s’exposent malgré eux à des risques plus importants de blessures ainsi qu’à des dommages génétiques, des déséquilibres de glucose dans le sang, des effets sur les fonctions du foie, et des troubles de la fertilité.</p>
+							<p>[&hellip;] Face à une consommation toujours croissante de matières, le recyclage des e-déchets est toujours aussi peu favorisé, tant par la conception des équipements que par le niveau d’investissement nécessaire pour un centre de recyclage. Les métaux présents dans les équipements numériques sont difficilement récupérables et recyclables car ils sont présents en trop petite quantité, soit parce qu’ils sont utilisés dans un alliage et ne peuvent pas être séparés.</p>
+						</blockquote>
+						<figcaption>
+							— Gauthier Roussilhe,
+							<cite>
+								<a href="https://designcommun.fr/cahiers/situer-le-numerique/">
+									Situer le Numérique
+								</a>
+							</cite>
+							(2020/11/11)
+						</figcaption>
+					</figure>
+					<figure>
+						<blockquote cite="https://www.sciencedirect.com/science/article/abs/pii/S0301420720300805">
+							<p>metal recycling requires high capital investments and so­phisticated technologies for separating most of the special­ ty/rare/precious/base metals. For example, $1 billion has been invested in the Umicore WEEE recycling and refining plant operating in Belgium (Hagelüken and Corti, 2010). This plant extracts 30 tons of gold, 37 tons of platinum group metals, 1000 tons of silver, and 68,500 tons of other metals per year from wastes. That makes it equivalent to the third largest gold mine in the world. For comparison, a standard paper recycling facility requires a base investment of $30–$50 million.</p>
+						</blockquote>
+						<figcaption>
+							— Florian Fizaine,
+							<cite>
+								<a href="https://www.sciencedirect.com/science/article/abs/pii/S0301420720300805">
+									The economics of recycling rate: New insights from waste electrical and electronic equipment
+								</a>
+							</cite>
+							(2020/04/09)
+						</figcaption>
+					</figure>
+					<h3>More information :</h3>
+					<ul>
+						<li>
+							<a href="https://fr.wikipedia.org/wiki/Déchets_d'équipements_électriques_et_électroniques">
+								Déchets d'équipements électriques et électroniques (DEEE, D3E) ou produits électriques et électroniques en fin de vie (PEEFV), en anglais : Waste Electronic and Electrical Equipment (WEEE)
+								— Wikipedia
+							</a>
+						</li>
+					</ul>
+				</section>
 			</TabContent>
 		</Tabs>
 	{/if}
 {/if}
+
+<style>
+	p + p {
+		margin-top: var(--space);
+	}
+	figure + figure {
+		margin-top: calc(var(--space) * 2);
+	}
+</style>

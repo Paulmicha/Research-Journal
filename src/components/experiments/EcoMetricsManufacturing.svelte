@@ -6,6 +6,7 @@
 		randomizedDeviceImgStore,
 		clickedDeviceImgStore
 	} from '../../stores/ecometrics.js';
+	import { preferencesStore } from '../../stores/preferences.js';
 	import { randomizeArray, displayNb, limitDecimals, getValuePercentInRange } from '../../lib/generic_utils.js';
 	import { getDeviceLabel, getDeviceInfo, getDeviceImg } from '../../lib/ecometrics/device.js';
 	import SidePanel from '../SidePanel.svelte';
@@ -169,6 +170,15 @@
 		deviceSidePanelMethods.open();
 	};
 
+	/**
+	 * Toggles the collapsible warnings.
+	 */
+	const toggleCollapsibleWarningsState = () => {
+		preferencesStore.update(prefs => {
+			prefs.ecometricsCollapsibleWarningsState = !prefs.ecometricsCollapsibleWarningsState;
+			return prefs;
+		});
+	};
 </script>
 
 {#if $selectionStore.device.length}
@@ -179,8 +189,32 @@
 
 	<div class="ecometrics-dataviz">
 		<section>
-			<h2>Devices comparison</h2>
-
+			<h2>Devices Manufacturing</h2>
+			<details open={$preferencesStore.ecometricsCollapsibleWarningsState}>
+				<summary on:click|preventDefault={ toggleCollapsibleWarningsState }>
+					Warnings&nbsp;⚠️
+				</summary>
+				<p>This is an informational interactive data visualization webpage, not an <abbr title="Life Cycle Assessment">LCA</abbr> tool.</p>
+				<h3>Some of the things currently not accounted for</h3>
+				<p>Any environmental indicator other than CO2 emissions - i.e. other <abbr title="Green House Gases">GHG</abbr> Emissions, Eutrophication, Industrial Waste, Biodiversity Loss, Fine Particles, Ecotoxicity...</p>
+				<h3>What is estimated</h3>
+				<p>CO2 equivalent of devices manufacturing (sources : see below).</p>
+				<h3>Why</h3>
+				<figure>
+					<blockquote cite="https://designcommun.fr/cahiers/situer-le-numerique/">
+						<p>En valeur absolue, le numérique ne consomme pas autant d’énergie que d’autres secteurs comme le transport ou la bâtiment, toutefois c’est aujourd’hui le secteur qui connaît la plus forte croissance de sa consommation énergétique. Il en va de même avec les émissions de gaz à effet de serre, aucun autre secteur augmente ses émissions à hauteur de 8% par an.</p>
+					</blockquote>
+					<figcaption>
+						— Gauthier Roussilhe,
+						<cite>
+							<a href="https://designcommun.fr/cahiers/situer-le-numerique/">
+								Situer le Numérique
+							</a>
+						</cite>
+						(2020/11/11)
+					</figcaption>
+				</figure>
+			</details>
 			<h3>Totals</h3>
 			<div class="full-vw">
 				<div class="f-grid f-grid--center f-grid--g">

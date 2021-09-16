@@ -52,6 +52,10 @@
 										selectionShortenedPropMap[k] + val.id
 									);
 								}
+							} else if (typeof val === 'boolean') {
+								subParts.push(
+									selectionShortenedPropMap[k] + (val ? '1' : '0')
+								);
 							} else {
 								subParts.push(
 									selectionShortenedPropMap[k] + val
@@ -78,13 +82,15 @@
 	 * Copy shareable link button click handler.
 	 */
 	const copyShareableLink = () => {
-		shareableLinkInput.focus();
-    shareableLinkInput.select();
     try {
-      document.execCommand('copy');
-			toasterMethods.open();
-			setTimeout(toasterMethods.close, 3000);
+			navigator.clipboard.writeText(shareableLinkInput.value)
+				.then(() => {
+					toasterMethods.open();
+					setTimeout(toasterMethods.close, 3000);
+				})
+				.catch(() => shareableLinkInput.classList.remove('u-sr-only'));
     } catch (err) {
+			console.error(err);
 			alert('Something prevents the "copy" action. You will need to copy the link manually.');
 			shareableLinkInput.classList.remove('u-sr-only');
 		}

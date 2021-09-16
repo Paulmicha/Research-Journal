@@ -188,13 +188,6 @@
 	});
 
 	/**
-	 * Determines if a service need to display a <detail> tag for more info.
-	 * @param entity
-	 */
-	const displayServiceDetails = entity => entity.notes.length
-		|| (getSelectedItemSetting(entity, 'useHost') && entity.type === 'cloud');
-
-	/**
 	 * Toggles the collapsible warnings.
 	 */
 	const toggleCollapsibleWarningsState = () => {
@@ -214,18 +207,18 @@
 	<h2>Devices and Services Use</h2>
 	<details open={$preferencesStore.ecometricsCollapsibleWarningsState}>
 		<summary on:click|preventDefault={ toggleCollapsibleWarningsState }>
-			<strong>Warnings</strong>
+			Warnings&nbsp;⚠️
 		</summary>
+		<p>This is an informational interactive data visualization webpage, not an <abbr title="Life Cycle Assessment">LCA</abbr> tool.</p>
 		<p>For services, we can only make very approximative (and probably wrong) estimates. Virtually no data is currently available to make any "realistic" estimates for services running on public cloud vendors (<a href="https://davidmytton.blog/assessing-the-suitability-of-the-greenhouse-gas-protocol-for-calculation-of-emissions-from-public-cloud-computing-workloads/" target="_blank">Mytton, 2020</a>). Services that do <strong>not</strong> run in the cloud are exceptions. This opacity also comes from the complexity and increasingly adaptive, on-demand nature of the way physical resources are allocated (CPU, RAM, storage). Some initiatives may be useful to try and make your own measures, such as <a href="https://github.com/hubblo-org/scaphandre" target="_blank">Scaphandre</a> or <a href="https://github.com/marmelab/argos" target="_blank">Argos</a>.</p>
 		<h3>Some of the things currently not accounted for</h3>
 		<ul>
-			<li>Any environmental indicator other than CO2 emissions - i.e. any other <abbr title="Green House Gases">GHG</abbr> emissions, Water Usage Effectiveness (WUE), Eutrophication, Waste, Ecotoxicity...</li>
-			<li>Network impacts for transferring data to the device(s) used for using the services - e.g. antennas (3G, 4G, Wifi), cables, <abbr title="Internet Exchange Point">IXP</abbr>s, etc. Getting estimates for these data volumes per service seem impossible to generalize for such a basic tool. We're not trying to make a professional <abbr title="Lifecycle Analysis">LCA</abbr> tool here.</li>
-			<li>The Power Usage Effectiveness (PUE) - how much extra energy is needed to operate the data centre (cooling, lighting etc.) - of datacenters.</li>
+			<li>Network impacts for transferring data to the device(s) used for using the services - e.g. antennas (3G, 4G, Wifi), cables, <abbr title="Internet Exchange Point">IXP</abbr>s, etc.</li>
+			<li>The Power Usage Effectiveness (PUE) - how much extra energy is needed to operate the data centre (cooling, lighting etc.) - and Water Usage Effectiveness (WUE) of datacenters.</li>
 			<li>The Pragmatic Scaling Factor (PSF) used to take into account multiple identical runs of algorithms (e.g. for testing or optimisation).</li>
 		</ul>
 		<h3>What is estimated</h3>
-		<p>CO2 equivalent of power consumption (per { period }).</p>
+		<p>CO2 equivalent of power consumption per { period } (sources : see below).</p>
 	</details>
 	<p>
 		Estimated carbon intensity of electricity in selected default location ({ getLocationLabel($selectionStore.defaultLocation) })&nbsp;: <strong>{ displayNb(getLocationCarbonIntensity($selectionStore.defaultLocation, $carbonIntensityStore)) }</strong>&nbsp;gCO2e/kWh
@@ -344,7 +337,7 @@
 								{/if}
 								<!-- Debug. -->
 								<!-- <pre>{ JSON.stringify(entity, null, 2) }</pre> -->
-								{#if displayServiceDetails(entity)}
+								{#if entity.notes.length || estimates.service[entity.id].powerPerType[period].cloud > 0}
 									<details>
 										<summary>Notes</summary>
 										{#if entity.notes}
@@ -353,14 +346,15 @@
 												{@html note.content }
 											{/each}
 										{/if}
-										{#if getSelectedItemSetting(entity, 'useHost') && entity.type === 'cloud'}
-											<p>Hosting a service like a webserver in the cloud implies at least a fraction of an amount of power consumption that is virtually permanent. But <strong>it's currently an impossible thing to generalize</strong> - among other reasons, because :</p>
+										{#if estimates.service[entity.id].powerPerType[period].cloud > 0}
+											<p>Hosting a service in the cloud implies at least a fraction of an amount of permanent power consumption. But <strong>it's currently an impossible thing to generalize</strong> - among other reasons, because :</p>
 											<ul>
 												<li>internally, the underlying support could be shared, dedicated, baremetal, virtualized</li>
 												<li>the tech stack and choices of technical implementation of the service itself imply enormous differences on server ressources use</li>
 												<li>it also largely depends on the volumes of traffic served (yet another unavailable metric)</li>
 											</ul>
-											<p>So the (wrong) estimate we're using here assumes 1/4 vCPU and 1/4 Gb RAM in "idle" state as the baseline for a single "webserver" service, based on averaged findings for <abbr title="Amazon Web Services">AWS</abbr> EC2 instances by <a href="https://medium.com/teads-engineering/estimating-aws-ec2-instances-power-consumption-c9745e347959" target="_blank">Benjamin Davy</a> (published 2021/03/25).</p>
+											<!-- TODO provide additional settings to adjust this ? -->
+											<p>So the (wrong) estimate we're using here assumes 1/2 vCPU and 1/2 Gb RAM in "idle" state as the baseline for a single "webserver" service, based on averaged findings for <abbr title="Amazon Web Services">AWS</abbr> EC2 instances by <a href="https://medium.com/teads-engineering/estimating-aws-ec2-instances-power-consumption-c9745e347959" target="_blank">Benjamin Davy</a> (published 2021/03/25).</p>
 										{/if}
 									</details>
 								{/if}
@@ -445,6 +439,9 @@
 -->
 
 <style>
+	details + p {
+		margin-top: var(--space);
+	}
 	.f-grid {
 		--gutter: 1.66rem;
 	}

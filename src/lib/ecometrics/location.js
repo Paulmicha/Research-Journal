@@ -21,18 +21,21 @@ export const getLocationLabel = location => location && ''
  *   available carbon intensity entities.
  * @param {Array} locations (optional) the location entities to fallback by
  *   country or continent. Defaults to empty array.
- * @returns {Number | Boolean} the carbon intensity matching given location if
- *   found in gCO2eq / kWh, or false.
+ * @returns {Number} the carbon intensity matching given location if found, or
+ *   using fallback matches by country or continent or world average, in
+ *   gCO2eq / kWh.
  */
 export const getLocationCarbonIntensity = (location, ci, locations = []) => {
 	let i = 0;
 	let j = 0;
+
 	for (i = 0; i < ci.length; i++) {
 		const ciEntity = ci[i];
 		if (ciEntity.location === location.id) {
 			return parseFloat(ciEntity.carbon_intensity);
 		}
 	}
+
 	// Attempt to find fallback value by country.
 	for (j = 0; j < locations.length; j++) {
 		if (
@@ -47,6 +50,7 @@ export const getLocationCarbonIntensity = (location, ci, locations = []) => {
 			}
 		}
 	}
+
 	// Attempt to find fallback value by continent.
 	for (j = 0; j < locations.length; j++) {
 		if (location.continent.length && location.continent === locations[j].continent) {
@@ -58,5 +62,8 @@ export const getLocationCarbonIntensity = (location, ci, locations = []) => {
 			}
 		}
 	}
-	return false;
+
+	// If nothing else matches, use the World average.
+	// See https://github.com/GreenAlgorithms/green-algorithms-tool/raw/master/data/CI_aggregated.csv
+	return 475;
 };

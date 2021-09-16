@@ -18,6 +18,7 @@
 	import Chart from 'svelte-frappe-charts';
 	import Tooltip from '../Tooltip.svelte';
   import EcoMetricsCo2Equivalents from './EcoMetricsCo2Equivalents.svelte';
+  import Ellipsis from '../Ellipsis.svelte';
 
 	let period = 'month';
 	let periodTooltipTrigger;
@@ -215,7 +216,7 @@
 		<summary on:click|preventDefault={ toggleCollapsibleWarningsState }>
 			<strong>Warnings</strong>
 		</summary>
-		<p>For services, we can only make very approximative (and probably wrong) estimates. Virtually no data is currently available to make any "realistic" estimates for services running on public cloud vendors (<a href="https://davidmytton.blog/assessing-the-suitability-of-the-greenhouse-gas-protocol-for-calculation-of-emissions-from-public-cloud-computing-workloads/" target="_blank">Mytton, 2020</a>). Services that do <strong>not</strong> run in the cloud are exceptions. This opacity also comes from the complexity and increasingly adaptive, on-demand nature of the way physical resources are allocated (primarily vCPU, RAM, storage).</p>
+		<p>For services, we can only make very approximative (and probably wrong) estimates. Virtually no data is currently available to make any "realistic" estimates for services running on public cloud vendors (<a href="https://davidmytton.blog/assessing-the-suitability-of-the-greenhouse-gas-protocol-for-calculation-of-emissions-from-public-cloud-computing-workloads/" target="_blank">Mytton, 2020</a>). Services that do <strong>not</strong> run in the cloud are exceptions. This opacity also comes from the complexity and increasingly adaptive, on-demand nature of the way physical resources are allocated (CPU, RAM, storage). Some initiatives may be useful to try and make your own measures, such as <a href="https://github.com/hubblo-org/scaphandre" target="_blank">Scaphandre</a> or <a href="https://github.com/marmelab/argos" target="_blank">Argos</a>.</p>
 		<h3>Some of the things currently not accounted for</h3>
 		<ul>
 			<li>Any environmental indicator other than CO2 emissions - i.e. any other <abbr title="Green House Gases">GHG</abbr> emissions, Water Usage Effectiveness (WUE), Eutrophication, Waste, Ecotoxicity...</li>
@@ -368,7 +369,9 @@
 										{#if entity.selectionSettings.location}
 											<tr>
 												<td>
-													Estimated carbon intensity of electricity in { getLocationLabel(entity.selectionSettings.location) }&nbsp;:
+													Specific location for this service&nbsp;: <Ellipsis valign="middle" text="{ getLocationLabel(entity.selectionSettings.location) }" />
+													<br />
+													&rarr;&nbsp;Estimated carbon intensity&nbsp;:
 												</td>
 												<td class="val">
 													<strong>{ displayNb(getLocationCarbonIntensity(entity.selectionSettings.location, $carbonIntensityStore, Object.values($locationEntityStore))) }</strong>
@@ -376,20 +379,24 @@
 												<td class="unit">gCO2e/kWh</td>
 											</tr>
 										{/if}
-										<tr>
-											<td class="push">Estimated cloud power consumption</td>
-											<td class="val">
-												<strong>{ displayNb(estimates.service[entity.id].powerPerType[period].cloud * 1000) }</strong>
-											</td>
-											<td class="unit">W/h&nbsp;per&nbsp;{ period }</td>
-										</tr>
-										<tr>
-											<td class="push">Estimated data transfer consumption</td>
-											<td class="val">
-												<strong>{ displayNb(estimates.service[entity.id].powerPerType[period].transfer * 1000) }</strong>
-											</td>
-											<td class="unit">W/h&nbsp;per&nbsp;{ period }</td>
-										</tr>
+										{#if estimates.service[entity.id].powerPerType[period].cloud > 0}
+											<tr>
+												<td class="push">Estimated cloud power consumption</td>
+												<td class="val">
+													<strong>{ displayNb(estimates.service[entity.id].powerPerType[period].cloud * 1000) }</strong>
+												</td>
+												<td class="unit">W/h&nbsp;per&nbsp;{ period }</td>
+											</tr>
+										{/if}
+										{#if estimates.service[entity.id].powerPerType[period].transfer > 0}
+											<tr>
+												<td class="push">Estimated data transfer consumption</td>
+												<td class="val">
+													<strong>{ displayNb(estimates.service[entity.id].powerPerType[period].transfer * 1000) }</strong>
+												</td>
+												<td class="unit">W/h&nbsp;per&nbsp;{ period }</td>
+											</tr>
+										{/if}
 										<tr>
 											<td class="push">
 												&rarr;&nbsp;Estimated footprint&nbsp;:

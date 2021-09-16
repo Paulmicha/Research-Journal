@@ -268,6 +268,12 @@
 							by David Mytton (2020/08/09)
 						</li>
 						<li>
+							<a href="https://onlinelibrary.wiley.com/doi/full/10.1111/jiec.12630" target="_blank">
+								Electricity Intensity of Internet Data Transmission: Untangling the Estimates
+							</a>
+							by Joshua Aslan, Kieren Mayers, Jonathan G. Koomey, Chris France (2017/08/01)
+						</li>
+						<li>
 							<a href="https://medium.com/teads-engineering/estimating-aws-ec2-instances-power-consumption-c9745e347959" target="_blank">
 								Estimating AWS EC2 Instances Power Consumption
 							</a>

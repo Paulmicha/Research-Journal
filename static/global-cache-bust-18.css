@@ -28,7 +28,7 @@ html {
 		See src/routes/_layout.svelte : the width of the scrollbar is calculated
 		using JS on window:load and put in the --content-width CSS var on <html>.
 	*/
-	--content-bleed: calc((100vw - var(--scrollbar-width) - var(--content-width)) / 2);
+	--content-bleed: calc((100vw - var(--scrollbar-width, 10px) - var(--content-width)) / 2);
 
 	--space-xl: 2rem;
 	--space-l: 1rem;

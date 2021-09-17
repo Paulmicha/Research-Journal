@@ -195,10 +195,7 @@ export const estimateDataTransferConsumption = selectedService => {
 		s = getSelectedItemSetting(selectedService, 'backups_total_size'); // in Mo
 		n = getSelectedItemSetting(selectedService, 'backups_per_month');
 		kwhPerMonth += 0.06 * s / 1024 * n;
-	} else if (
-		'features' in selectedService
-		&& (selectedService.features.includes('storage'))
-	) {
+	} else {
 		s = getSelectedItemSetting(selectedService, 'weekly_transfer_average'); // in Mo per month
 		kwhPerMonth += 0.06 * s / 1024;
 	}

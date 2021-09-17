@@ -215,18 +215,19 @@
 					</figcaption>
 				</figure>
 			</details>
-			<h3>Totals</h3>
-			<div class="full-vw">
-				<div class="f-grid f-grid--center f-grid--g">
-					<!-- <div class="chart-wrap">
-						<Chart data={co2EqChartData} type="bar" valuesOverPoints="1" />
-					</div> -->
-					<div class="chart-wrap">
-						<Chart data={co2EqChartData} type="pie" maxSlices="20" />
+			{#if $selectionStore.device.length > 1}
+				<h3>Totals</h3>
+				<div class="full-vw">
+					<div class="f-grid f-grid--center f-grid--g">
+						<!-- <div class="chart-wrap">
+							<Chart data={co2EqChartData} type="bar" valuesOverPoints="1" />
+						</div> -->
+						<div class="chart-wrap">
+							<Chart data={co2EqChartData} type="pie" maxSlices="20" />
+						</div>
 					</div>
 				</div>
-			</div>
-
+			{/if}
 			<h3>Per device</h3>
 			<p>The size of each one of the <strong>{ $randomizedDeviceImgStore.length }</strong> devices represents its manufacturing impact (in Kg Co2 emissions) relative to those of the other devices in current selection :</p>
 			<div class="full-vw device-pictos">

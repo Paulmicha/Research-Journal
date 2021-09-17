@@ -344,22 +344,22 @@
 					/>
 				</div>
 				<div class="form-item">
-					<label for="backup-cpu-stress-{ entity.id }" title="including ">
+					<label for="backups-cpu-stress-{ entity.id }" title="including ">
 						Average CPU stress during backup (in %)
 					</label>
-					<input class="input--s" type="number" min="1" name="backup_cpu_stress"
-						id="backup-cpu-stress-{ entity.id }"
-						value={ getSelectedItemSetting(entity, 'backup_cpu_stress') }
+					<input class="input--s" type="number" min="1" name="backups_cpu_stress"
+						id="backups-cpu-stress-{ entity.id }"
+						value={ getSelectedItemSetting(entity, 'backups_cpu_stress') }
 						on:change|preventDefault={ updateSettings }
 					/>
 				</div>
 				<div class="form-item">
-					<label for="backup-ram-stress-{ entity.id }" title="including ">
+					<label for="backups-ram-stress-{ entity.id }" title="including ">
 						Average RAM stress during backup (in %)
 					</label>
-					<input class="input--s" type="number" min="1" name="backup_ram_stress"
-						id="backup-ram-stress-{ entity.id }"
-						value={ getSelectedItemSetting(entity, 'backup_ram_stress') }
+					<input class="input--s" type="number" min="1" name="backups_ram_stress"
+						id="backups-ram-stress-{ entity.id }"
+						value={ getSelectedItemSetting(entity, 'backups_ram_stress') }
 						on:change|preventDefault={ updateSettings }
 					/>
 				</div>

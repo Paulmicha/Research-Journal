@@ -10,19 +10,18 @@
 	import { onMount } from 'svelte';
 	import Meta from '../components/Meta.svelte';
 
-	export let segment;
-
 	// Keep scrollbar width up to date to avoid horizontal scrollbars.
 	let d = null;
-	onMount(() => {
-		d = document;
-	});
 	const { page } = stores();
 	const setDocumentScrollbarWidthCssVar = () => d && d.documentElement.style.setProperty(
 		'--scrollbar-width',
-		(window.innerWidth - document.documentElement.clientWidth) + "px"
+		(window.innerWidth - d.documentElement.clientWidth) + "px"
 	);
 	page.subscribe(setDocumentScrollbarWidthCssVar);
+	onMount(() => {
+		d = document;
+		setDocumentScrollbarWidthCssVar();
+	});
 
 	// Make all components inherit globals via Svelte context API.
 	const globals = global_data.default;

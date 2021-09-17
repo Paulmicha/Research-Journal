@@ -524,4 +524,10 @@
 	.tooltip-triggers button {
 		vertical-align: middle;
 	}
+	label {
+		cursor: pointer;
+	}
+	label:hover {
+		color: cornflowerblue;
+	}
 </style>

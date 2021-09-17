@@ -338,7 +338,7 @@
 								{/if}
 								<!-- Debug. -->
 								<!-- <pre>{ JSON.stringify(entity, null, 2) }</pre> -->
-								{#if entity.notes.length || estimates.service[entity.id].powerPerType[period].cloud > 0}
+								{#if entity.notes.length || (getSelectedItemSetting(entity, 'useHost') && entity.type === 'cloud')}
 									<details>
 										<summary>Notes</summary>
 										{#if entity.notes}
@@ -349,15 +349,14 @@
 												</blockquote>
 											{/each}
 										{/if}
-										{#if estimates.service[entity.id].powerPerType[period].cloud > 0}
+										{#if getSelectedItemSetting(entity, 'useHost') && entity.type === 'cloud'}
 											<p>Hosting a service in the cloud implies at least a fraction of an amount of permanent power consumption. But <strong>it's currently an impossible thing to generalize</strong> - among other reasons, because :</p>
 											<ul>
 												<li>internally, the underlying support could be shared, dedicated, baremetal, virtualized</li>
-												<li>the tech stack and choices of technical implementation of the service itself imply enormous differences on server ressources use</li>
+												<li>the tech stack and choices of technical implementation of the service itself imply enormous differences on server ressources use - i.e. static, "serverless", etc.</li>
 												<li>it also largely depends on the volumes of traffic served (yet another unavailable metric)</li>
 											</ul>
-											<!-- TODO provide additional settings to adjust this ? -->
-											<p>So the (wrong) estimate we're using here assumes 1/2 vCPU and 1/2 Gb RAM in "idle" state as the baseline for a single "webserver" service, based on averaged findings for <abbr title="Amazon Web Services">AWS</abbr> EC2 instances by <a href="https://medium.com/teads-engineering/estimating-aws-ec2-instances-power-consumption-c9745e347959" target="_blank">Benjamin Davy</a> (published 2021/03/25).</p>
+											<p>So the (wrong) estimate we're using here is based on averaged findings for <abbr title="Amazon Web Services">AWS</abbr> EC2 instances by <a href="https://medium.com/teads-engineering/estimating-aws-ec2-instances-power-consumption-c9745e347959" target="_blank">Benjamin Davy</a> (published 2021/03/25) and the different factors in "advanced settings" in the collapsible selection list above.</p>
 										{/if}
 									</details>
 								{/if}

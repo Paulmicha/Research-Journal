@@ -1,9 +1,17 @@
+
+<!-- <script context="module">
+	// TODO implement a static counter of all instances of this component to
+	// also have it in the results area of the page without botching the "id"
+	// attributes ?
+</script> -->
+
 <script>
 	import { selectionStore } from '../../stores/ecometrics.js';
 	import {
 		getSelectedItemDefaultSetting,
 		updateSelectedItem,
-		getSelectedItemSetting
+		getSelectedItemSetting,
+		getSelectedEntityTitle
 	} from '../../lib/ecometrics/selection.js';
 	import { getLocationLabel } from '../../lib/ecometrics/location.js';
 	import Tooltip from '../Tooltip.svelte';
@@ -17,8 +25,8 @@
 	// @see src/components/experiments/EcoMetricsSelector.svelte
 	export let toggleLocationTooltip;
 
-	let usesTooltipTrigger;
-	let usesTooltipMethods;
+	let advancedSettingsTooltipTrigger;
+	let advancedSettingsTooltipMethods;
 
 	// Using variables allows to benefit from Svelte's {#if} "auto-update".
 	// let useRepo = getSelectedItemSetting(entity, 'useRepo');
@@ -47,12 +55,16 @@
 		}
 		updateSelectedItem(entity, pos, settings);
 		e.target.blur();
+		// Updates tooltip position.
+		if (advancedSettingsTooltipMethods) {
+			advancedSettingsTooltipMethods.open();
+		}
 	};
 
 	/**
 	 * Determines if the "use cases" tooltip applies to current entity.
 	 */
-	const entityQualifiesForUseCasesTooltip = () => {
+	const entityQualifiesForAdvancedSettings = () => {
 		if ('subcategory' in entity && entity.subcategory === 'server') {
 			return true;
 		}
@@ -62,35 +74,18 @@
 		}
 		return false;
 	};
-
-	/**
-	 * Determines if current entity makes use of online data storage.
-	 */
-	const entityUsesOnlineStorage = () => {
-		if ('features' in entity && (entity.features.includes('storage'))) {
-			return true;
-		}
-		return false;
-	};
 </script>
 
 <!-- Tooltips for selecting use cases and location -->
 <div class="form-item tooltip-triggers">
-	<!--
-		For "server" devices and cloud/paas services, display an opt-in list of
-		use cases.
-	-->
-	{#if entityQualifiesForUseCasesTooltip()}
-		<button
-			class="link link--s"
-			bind:this={ usesTooltipTrigger }
-			aria-describedby={ 'tooltip-uses-' + entity.id }
-			on:click|preventDefault={ usesTooltipMethods.toggle }
-			title="Specify what this is used for"
-		>
-			Use cases
-		</button>
-	{/if}
+	<button
+		class="link link--s"
+		bind:this={ advancedSettingsTooltipTrigger }
+		aria-describedby={ 'tooltip-uses-' + entity.id }
+		on:click|preventDefault={ advancedSettingsTooltipMethods.toggle }
+	>
+		Advanced settings
+	</button>
 	<!-- Any selected entity may override the default location -->
 	<div class="location-wrap">
 		<button
@@ -115,67 +110,333 @@
 </div>
 
 <!-- Tooltip contents for selecting list of uses -->
-{#if usesTooltipTrigger}
+{#if advancedSettingsTooltipTrigger}
 	<Tooltip
 		id={ 'tooltip-uses-' + entity.id }
-		trigger={ usesTooltipTrigger }
-		bind:exposedMethods={ usesTooltipMethods }
+		trigger={ advancedSettingsTooltipTrigger }
+		bind:exposedMethods={ advancedSettingsTooltipMethods }
 	>
-		<!-- <div class="form-item">
-			<label for="use-case-repo-{ entity.id }">
-				as a code repository (e.g. git, svn)
+		<p class="advanced-settings-title">
+			Advanced settings for the
+			<strong>{ getSelectedEntityTitle(entity) }</strong>
+			{ entity.entityType }
+		</p>
+
+		<!-- Allow manual oveeride for average power consumption estimate -->
+		<div class="form-item form-item--l">
+			<label
+				for="power-monthly-average-{ entity.id }"
+				title="If you already have this monthly estimate (in Watts per Hour), it will be used instead of { entity.entityType === 'service' ? "our own (very) approximative calculations for this service - if we have any" : "the value for this device from sources indicated below" }."
+			>
+				Average W/h per month
 			</label>
-			<input
-				type="checkbox" name="useRepo"
-				id="use-case-repo-{ entity.id }"
-				bind:checked={ useRepo }
-				on:change|preventDefault={ updateSettings }
-			/>
-		</div> -->
-		<div class="form-item">
-			<label for="use-case-host-{ entity.id }">
-				as a host (webserver)
-			</label>
-			<input
-				type="checkbox" name="useHost"
-				id="use-case-host-{ entity.id }"
-				bind:checked={ useHost }
-				on:change|preventDefault={ updateSettings }
-			/>
-		</div>
-		<div class="form-item">
-			<label for="use-case-backup-{ entity.id }">
-				as a backup destination
-			</label>
-			<input
-				type="checkbox" name="useBackup"
-				id="use-case-backup-{ entity.id }"
-				bind:checked={ useBackup }
+			<input class="input--s larger-number" type="number" min="0" name="wh_monthly_average"
+				id="power-monthly-average-{ entity.id }"
+				value={ getSelectedItemSetting(entity, 'wh_monthly_average') }
 				on:change|preventDefault={ updateSettings }
 			/>
 		</div>
-		<!-- <div class="form-item">
-			<label for="use-case-deploy-{ entity.id }">
-				as a deployment tool
-			</label>
-			<input
-				type="checkbox" name="useDeploy"
-				id="use-case-deploy-{ entity.id }"
-				bind:checked={ useDeploy }
-				on:change|preventDefault={ updateSettings }
-			/>
-		</div> -->
-		<div class="form-item">
-			<label for="use-case-tests-{ entity.id }">
-				as an automated test runner (<abbr title="continuous integration">CI</abbr> server)
-			</label>
-			<input
-				type="checkbox" name="useTests"
-				id="use-case-tests-{ entity.id }"
-				bind:checked={ useTests }
-				on:change|preventDefault={ updateSettings }
-			/>
-		</div>
+
+		<!--
+			For "server" devices and cloud/paas services, display advanced settings.
+			TODO we could devise some kind of dynamic settings from data source if we
+			keep manually adding more details for services.
+			@see scripts/experiments/ecometrics/manual-data/services.json
+		-->
+		{#if entityQualifiesForAdvancedSettings()}
+			<p class="form-item-info">
+				<strong>Or</strong>&nbsp;:
+				specify its use cases to provide <i>very</i> approximative estimates (see "warnings") :
+			</p>
+			<!-- <div class="form-item">
+				<label for="use-case-repo-{ entity.id }">
+					as a code repository (e.g. git, svn)
+				</label>
+				<input
+					type="checkbox" name="useRepo"
+					id="use-case-repo-{ entity.id }"
+					bind:checked={ useRepo }
+					on:change|preventDefault={ updateSettings }
+				/>
+			</div> -->
+			<div class="form-item">
+				<label for="use-case-host-{ entity.id }">
+					as a host (webserver)
+				</label>
+				<input
+					type="checkbox" name="useHost"
+					id="use-case-host-{ entity.id }"
+					bind:checked={ useHost }
+					on:change|preventDefault={ updateSettings }
+				/>
+			</div>
+			<div class="form-item">
+				<label for="use-case-backup-{ entity.id }">
+					as a backup destination
+				</label>
+				<input
+					type="checkbox" name="useBackup"
+					id="use-case-backup-{ entity.id }"
+					bind:checked={ useBackup }
+					on:change|preventDefault={ updateSettings }
+				/>
+			</div>
+			<!-- <div class="form-item">
+				<label for="use-case-deploy-{ entity.id }">
+					as a deployment tool
+				</label>
+				<input
+					type="checkbox" name="useDeploy"
+					id="use-case-deploy-{ entity.id }"
+					bind:checked={ useDeploy }
+					on:change|preventDefault={ updateSettings }
+				/>
+			</div> -->
+			<div class="form-item">
+				<label for="use-case-tests-{ entity.id }">
+					as an automated test runner (<abbr title="continuous integration">CI</abbr> server)
+				</label>
+				<input
+					type="checkbox" name="useTests"
+					id="use-case-tests-{ entity.id }"
+					bind:checked={ useTests }
+					on:change|preventDefault={ updateSettings }
+				/>
+			</div>
+
+			<hr class="u-m-b u-m-t" />
+
+			{#if useHost}
+				<div class="form-item">
+					<label for="hosting-is-baremetal-{ entity.id }">
+						Instance is "baremetal"
+					</label>
+					<input
+						type="checkbox" name="hosting_is_baremetal"
+						id="hosting-is-baremetal-{ entity.id }"
+						on:change|preventDefault={ updateSettings }
+					/>
+				</div>
+				<div class="form-item">
+					<label for="hosting-is-dedicated-{ entity.id }">
+						Instance is dedicated
+					</label>
+					<input
+						type="checkbox" name="hosting_is_dedicated"
+						id="hosting-is-dedicated-{ entity.id }"
+						on:change|preventDefault={ updateSettings }
+					/>
+				</div>
+			{/if}
+
+			{#if useHost || useTests}
+				<div class="form-item form-item--l">
+					<label
+						for="vcpu-{ entity.id }"
+						title="Indicate the number of vCPU allocated for running this service"
+					>
+						vCPU allocation
+					</label>
+					<input class="input--s" type="number" min="0" name="vcpu"
+						id="vcpu-{ entity.id }"
+						value={ getSelectedItemSetting(entity, 'vcpu') }
+						on:change|preventDefault={ updateSettings }
+					/>
+				</div>
+				<div class="form-item form-item--l">
+					<label
+						for="ram-{ entity.id }"
+						title="If appropriate, indicate the amount of RAM allocated for running this service"
+					>
+						RAM allocation (Gb)
+					</label>
+					<input class="input--s" type="number" min="0" name="ram"
+						id="ram-{ entity.id }"
+						value={ getSelectedItemSetting(entity, 'ram') }
+						on:change|preventDefault={ updateSettings }
+					/>
+				</div>
+			{/if}
+
+			{#if useHost}
+				<div class="form-item">
+					<label for="hosting-cpu-stress-{ entity.id }" title="including ">
+						Average CPU stress for hosting (in %)
+					</label>
+					<input class="input--s" type="number" min="1" name="hosting_cpu_stress"
+						id="hosting-cpu-stress-{ entity.id }"
+						value={ getSelectedItemSetting(entity, 'hosting_cpu_stress') }
+						on:change|preventDefault={ updateSettings }
+					/>
+				</div>
+				<div class="form-item">
+					<label for="hosting-ram-stress-{ entity.id }" title="including ">
+						Average RAM stress for hosting (in %)
+					</label>
+					<input class="input--s" type="number" min="1" name="hosting_ram_stress"
+						id="hosting-ram-stress-{ entity.id }"
+						value={ getSelectedItemSetting(entity, 'hosting_ram_stress') }
+						on:change|preventDefault={ updateSettings }
+					/>
+				</div>
+			{/if}
+
+			<!-- {#if useRepo}
+				<div class="form-item form-item--l">
+					<label
+						for="repos-total-size-{ entity.id }"
+						title="try to estimate the total size of all repos"
+					>
+						Approximative total size of all repositories (in Mo)
+					</label>
+					<input class="input--s" type="number" min="0" name="repos_total_size"
+						id="repos-total-size-{ entity.id }"
+						value={ getSelectedItemSetting(entity, 'repos_total_size') }
+						on:change|preventDefault={ updateSettings }
+					/>
+				</div>
+				<div class="form-item form-item--l">
+					<label
+						for="repos-commits-per-month-{ entity.id }"
+					>
+						Average number of commits per month (all repos)
+					</label>
+					<input class="input--s" type="number" min="0" name="repos_commits_per_month"
+						id="repos-commits-per-month-{ entity.id }"
+						value={ getSelectedItemSetting(entity, 'repos_commits_per_month') }
+						on:change|preventDefault={ updateSettings }
+					/>
+				</div>
+			{/if} -->
+
+			{#if useBackup}
+				<div class="form-item">
+					<label for="backups-per-month-{ entity.id }">
+						Backups per month
+					</label>
+					<input class="input--s" type="number" min="1" name="backups_per_month"
+						id="backups-per-month-{ entity.id }"
+						value={ getSelectedItemSetting(entity, 'backups_per_month') }
+						on:change|preventDefault={ updateSettings }
+					/>
+				</div>
+				<div class="form-item">
+					<label for="backups-duration-{ entity.id }">
+						Average backups duration (in seconds)
+					</label>
+					<input class="input--s larger-number" type="number" min="1" name="backups_duration"
+						id="backups-duration-{ entity.id }"
+						value={ getSelectedItemSetting(entity, 'backups_duration') }
+						on:change|preventDefault={ updateSettings }
+					/>
+				</div>
+				<div class="form-item form-item--l">
+					<label
+						for="backups-total-size-{ entity.id }"
+						title="try to estimate the total size of all backups (i.e. code, assets, database dumps, etc.)"
+					>
+						Approximative total size of all backups (in Mo)
+					</label>
+					<input class="input--s larger-number" type="number" min="0" name="backups_total_size"
+						id="backups-total-size-{ entity.id }"
+						value={ getSelectedItemSetting(entity, 'backups_total_size') }
+						on:change|preventDefault={ updateSettings }
+					/>
+				</div>
+				<div class="form-item">
+					<label for="backup-cpu-stress-{ entity.id }" title="including ">
+						Average CPU stress during backup (in %)
+					</label>
+					<input class="input--s" type="number" min="1" name="backup_cpu_stress"
+						id="backup-cpu-stress-{ entity.id }"
+						value={ getSelectedItemSetting(entity, 'backup_cpu_stress') }
+						on:change|preventDefault={ updateSettings }
+					/>
+				</div>
+				<div class="form-item">
+					<label for="backup-ram-stress-{ entity.id }" title="including ">
+						Average RAM stress during backup (in %)
+					</label>
+					<input class="input--s" type="number" min="1" name="backup_ram_stress"
+						id="backup-ram-stress-{ entity.id }"
+						value={ getSelectedItemSetting(entity, 'backup_ram_stress') }
+						on:change|preventDefault={ updateSettings }
+					/>
+				</div>
+			{/if}
+
+			<!-- {#if useDeploy}
+				<div class="form-item">
+					<label
+						for="deploys-per-month-{ entity.id }"
+						title="on average, during the development phase of the project"
+					>
+						Deploys per month
+					</label>
+					<input class="input--s" type="number" min="1" name="deploys_per_month"
+						id="deploys-per-month-{ entity.id }"
+						value={ getSelectedItemSetting(entity, 'deploys_per_month') }
+						on:change|preventDefault={ updateSettings }
+					/>
+				</div>
+				<div class="form-item">
+					<label for="deploys-duration-{ entity.id }" title="with CI tests">
+						Average deploys duration (in seconds)
+					</label>
+					<input class="input--s" type="number" min="1" name="deploys_duration"
+						id="deploys-duration-{ entity.id }"
+						value={ getSelectedItemSetting(entity, 'deploys_duration') }
+						on:change|preventDefault={ updateSettings }
+					/>
+				</div>
+			{/if} -->
+
+			{#if useTests}
+				<div class="form-item">
+					<label
+						for="tests-per-week-{ entity.id }"
+						title="on average, i.e. unit / integration / functional / visual regression tests, load testing, etc."
+					>
+						Average number of tests per month
+					</label>
+					<input class="input--s" type="number" min="1" name="tests_per_month"
+						id="tests-per-week-{ entity.id }"
+						value={ getSelectedItemSetting(entity, 'tests_per_month') }
+						on:change|preventDefault={ updateSettings }
+					/>
+				</div>
+				<div class="form-item">
+					<label for="tests-duration-{ entity.id }" title="including ">
+						Average tests total duration (in seconds)
+					</label>
+					<input class="input--s" type="number" min="1" name="tests_duration"
+						id="tests-duration-{ entity.id }"
+						value={ getSelectedItemSetting(entity, 'tests_duration') }
+						on:change|preventDefault={ updateSettings }
+					/>
+				</div>
+				<div class="form-item">
+					<label for="tests-cpu-stress-{ entity.id }" title="including ">
+						Average CPU stress during tests (in %)
+					</label>
+					<input class="input--s" type="number" min="1" name="tests_cpu_stress"
+						id="tests-cpu-stress-{ entity.id }"
+						value={ getSelectedItemSetting(entity, 'tests_cpu_stress') }
+						on:change|preventDefault={ updateSettings }
+					/>
+				</div>
+				<div class="form-item">
+					<label for="tests-ram-stress-{ entity.id }" title="including ">
+						Average RAM stress during tests (in %)
+					</label>
+					<input class="input--s" type="number" min="1" name="tests_ram_stress"
+						id="tests-ram-stress-{ entity.id }"
+						value={ getSelectedItemSetting(entity, 'tests_ram_stress') }
+						on:change|preventDefault={ updateSettings }
+					/>
+				</div>
+			{/if}
+		{/if}
 	</Tooltip>
 {/if}
 
@@ -199,179 +460,18 @@
 	</div>
 {/if}
 
-<!-- Every chosen use cases have their own settings -->
-{#if entityUsesOnlineStorage() && !useBackup}
+<!-- Generic measure to estimate the networking impact of data transmission -->
+{#if entity.entityType === 'service' && !useBackup}
 	<div class="form-item form-item--l">
 		<label
-			for="storage-size-{ entity.id }"
-			title="try to estimate the approximative volume of data stored online for your use of this service every month"
+			for="weekly-transfer-average-{ entity.id }"
+			title="If you can, try and provide the average amount of data transferred to and from this service every week (overall, i.e. for you and everyone else in your organisation if appropriate)"
 		>
-			Approximative volume of data stored online for this service (in Mo) every month
+			Average volume of data transferred weekly (in Mo)
 		</label>
-		<input class="input--s" type="number" min="0" name="storage_size"
-			id="storage-size-{ entity.id }"
-			value={ getSelectedItemSetting(entity, 'storage_size') }
-			on:change|preventDefault={ updateSettings }
-		/>
-	</div>
-{/if}
-
-{#if useHost || useTests}
-	<div class="form-item form-item--l">
-		<label
-			for="vcpu-{ entity.id }"
-			title="Indicate the number of vCPU allocated for running this service"
-		>
-			vCPU allocation
-		</label>
-		<input class="input--s" type="number" min="0" name="vcpu"
-			id="vcpu-{ entity.id }"
-			value={ getSelectedItemSetting(entity, 'vcpu') }
-			on:change|preventDefault={ updateSettings }
-		/>
-	</div>
-	<div class="form-item form-item--l">
-		<label
-			for="ram-{ entity.id }"
-			title="If appropriate, indicate the amount of RAM allocated for running this service"
-		>
-			RAM allocation (Gb)
-		</label>
-		<input class="input--s" type="number" min="0" name="ram"
-			id="ram-{ entity.id }"
-			value={ getSelectedItemSetting(entity, 'ram') }
-			on:change|preventDefault={ updateSettings }
-		/>
-	</div>
-{/if}
-
-<!-- {#if useRepo}
-	<div class="form-item form-item--l">
-		<label
-			for="repos-total-size-{ entity.id }"
-			title="try to estimate the total size of all repos"
-		>
-			Approximative total size of all repositories (in Mo)
-		</label>
-		<input class="input--s" type="number" min="0" name="repos_total_size"
-			id="repos-total-size-{ entity.id }"
-			value={ getSelectedItemSetting(entity, 'repos_total_size') }
-			on:change|preventDefault={ updateSettings }
-		/>
-	</div>
-	<div class="form-item form-item--l">
-		<label
-			for="repos-commits-per-month-{ entity.id }"
-		>
-			Average number of commits per month (all repos)
-		</label>
-		<input class="input--s" type="number" min="0" name="repos_commits_per_month"
-			id="repos-commits-per-month-{ entity.id }"
-			value={ getSelectedItemSetting(entity, 'repos_commits_per_month') }
-			on:change|preventDefault={ updateSettings }
-		/>
-	</div>
-{/if} -->
-
-<!-- {#if useHost}
-	<div class="form-item form-item--l">
-		<label
-			for="instances-total-size-{ entity.id }"
-			title="try to estimate the total size of all instances on this host (i.e. dev, stage, prod, code, assets, VMs, docker images and volumes, etc)"
-		>
-			Approximative total size of all instances (in Mo)
-		</label>
-		<input class="input--s" type="number" min="0" name="instances_total_size"
-			id="instances-total-size-{ entity.id }"
-			value={ getSelectedItemSetting(entity, 'instances_total_size') }
-			on:change|preventDefault={ updateSettings }
-		/>
-	</div>
-{/if} -->
-
-{#if useBackup}
-	<div class="form-item">
-		<label for="backups-per-month-{ entity.id }">
-			Backups per month
-		</label>
-		<input class="input--s" type="number" min="1" name="backups_per_month"
-			id="backups-per-month-{ entity.id }"
-			value={ getSelectedItemSetting(entity, 'backups_per_month') }
-			on:change|preventDefault={ updateSettings }
-		/>
-	</div>
-	<!-- <div class="form-item">
-		<label for="backups-duration-{ entity.id }">
-			Average backups duration (in seconds)
-		</label>
-		<input class="input--s" type="number" min="1" name="backups_duration"
-			id="backups-duration-{ entity.id }"
-			value={ getSelectedItemSetting(entity, 'backups_duration') }
-			on:change|preventDefault={ updateSettings }
-		/>
-	</div> -->
-	<div class="form-item form-item--l">
-		<label
-			for="backups-total-size-{ entity.id }"
-			title="try to estimate the total size of all backups (i.e. code, assets, database dumps, etc.)"
-		>
-			Approximative total size of all backups (in Mo)
-		</label>
-		<input class="input--s" type="number" min="0" name="backups_total_size"
-			id="backups-total-size-{ entity.id }"
-			value={ getSelectedItemSetting(entity, 'backups_total_size') }
-			on:change|preventDefault={ updateSettings }
-		/>
-	</div>
-{/if}
-
-<!-- {#if useDeploy}
-	<div class="form-item">
-		<label
-			for="deploys-per-month-{ entity.id }"
-			title="on average, during the development phase of the project"
-		>
-			Deploys per month
-		</label>
-		<input class="input--s" type="number" min="1" name="deploys_per_month"
-			id="deploys-per-month-{ entity.id }"
-			value={ getSelectedItemSetting(entity, 'deploys_per_month') }
-			on:change|preventDefault={ updateSettings }
-		/>
-	</div>
-	<div class="form-item">
-		<label for="deploys-duration-{ entity.id }" title="with CI tests">
-			Average deploys duration (in seconds)
-		</label>
-		<input class="input--s" type="number" min="1" name="deploys_duration"
-			id="deploys-duration-{ entity.id }"
-			value={ getSelectedItemSetting(entity, 'deploys_duration') }
-			on:change|preventDefault={ updateSettings }
-		/>
-	</div>
-{/if} -->
-
-{#if useTests}
-	<div class="form-item">
-		<label
-			for="tests-per-week-{ entity.id }"
-			title="on average, i.e. unit / integration / functional / visual regression tests, load testing, etc."
-		>
-			Average number of tests per month
-		</label>
-		<input class="input--s" type="number" min="1" name="tests_per_month"
-			id="tests-per-week-{ entity.id }"
-			value={ getSelectedItemSetting(entity, 'tests_per_month') }
-			on:change|preventDefault={ updateSettings }
-		/>
-	</div>
-	<div class="form-item">
-		<label for="tests-duration-{ entity.id }" title="including ">
-			Average tests total duration (in seconds)
-		</label>
-		<input class="input--s" type="number" min="1" name="tests_duration"
-			id="tests-duration-{ entity.id }"
-			value={ getSelectedItemSetting(entity, 'tests_duration') }
+		<input class="input--s larger-number" type="number" min="0" name="weekly_transfer_average"
+			id="weekly-transfer-average-{ entity.id }"
+			value={ getSelectedItemSetting(entity, 'weekly_transfer_average') }
 			on:change|preventDefault={ updateSettings }
 		/>
 	</div>
@@ -387,6 +487,22 @@
 	}
 	.form-item > .input--s {
 		width: 3.75rem;
+	}
+	.input--s.larger-number {
+		width: 5.25rem;
+	}
+	.form-item-info {
+		margin: var(--space-s) 0 var(--space-xs) 0;
+		font-size: .8rem;
+		width: 42ch;
+	}
+	.advanced-settings-title {
+		font-size: .66rem;
+		text-align: center;
+		margin: 0 auto var(--space-s) auto;
+		max-width: 42ch;
+		text-transform: uppercase;
+		letter-spacing: .1ch;
 	}
 	.form-item > label {
 		display: inline-block;

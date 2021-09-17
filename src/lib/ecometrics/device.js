@@ -5,7 +5,7 @@
  */
 
 import { randomizeArray, displayNb, limitDecimals, getValuePercentInRange } from '../../lib/generic_utils.js';
-import { getSelectedItemDefaultSetting } from './selection.js';
+import { getSelectedItemSetting } from './selection.js';
 
 /**
  * Formats given device label.
@@ -81,9 +81,13 @@ export const getDeviceImg = (device, devicesIcons) => {
  * @returns {Float}
  */
 export const getDeviceKwhPerPeriod = (device, period) => {
-	const yearlyKwh = parseInt(device.yearly_kwh);
-	const hoursPerDay = parseInt(device.selectionSettings.hours_per_day
-		|| getSelectedItemDefaultSetting(device, 'hours_per_day'));
+	let yearlyKwh = parseInt(device.yearly_kwh);
+	// Manual override when user specifies the wh_monthly_average value.
+	// @see src/components/experiments/EcoMetricsSelectionSettings.svelte
+	if ('selectionSettings' in device && 'wh_monthly_average' in device.selectionSettings) {
+		yearlyKwh = parseInt(device.selectionSettings.wh_monthly_average * 12 / 1000);
+	}
+	const hoursPerDay = parseInt(getSelectedItemSetting(device, 'hours_per_day'));
 	const kwhUsedPerDay = (yearlyKwh / 365) * hoursPerDay;
 	switch (period) {
 		case 'week':

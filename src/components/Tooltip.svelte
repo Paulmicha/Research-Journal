@@ -85,7 +85,7 @@
 		border: 1px solid #CCC;
 		box-shadow: var(--listShadow, 0 2px 3px 0 rgba(44, 62, 80, 0.24));
 		border-radius: 4px;
-		padding: var(--space-s) var(--space);
+		padding: var(--space) var(--space-l);
 		background: white;
 		/* background: #333; */
 		/* color: white; */

@@ -472,3 +472,12 @@ summary:hover {
 .u-center {
 	text-align: center;
 }
+.u-fs-s {
+	font-size: .8rem;
+}
+.u-m-b {
+	margin-bottom: var(--space);
+}
+.u-m-t {
+	margin-top: var(--space);
+}

@@ -220,6 +220,7 @@
 		<h3>What is estimated</h3>
 		<p>CO2 equivalent of power consumption per { period } (sources : see below).</p>
 	</details>
+	<!-- TODO default location selector ? -->
 	<p>
 		Estimated carbon intensity of electricity in selected default location ({ getLocationLabel($selectionStore.defaultLocation) })&nbsp;: <strong>{ displayNb(getLocationCarbonIntensity($selectionStore.defaultLocation, $carbonIntensityStore)) }</strong>&nbsp;gCO2e/kWh
 	</p>
@@ -342,8 +343,10 @@
 										<summary>Notes</summary>
 										{#if entity.notes}
 											{#each entity.notes as note}
-												<div>From <a href={ note.source }>source</a> (retrieved on { note.retrieved }) :</div>
-												{@html note.content }
+												<div>From <a href={ note.source } target="_blank">source</a> (retrieved on { note.retrieved }) :</div>
+												<blockquote cite={ note.source }>
+													{@html note.content }
+												</blockquote>
 											{/each}
 										{/if}
 										{#if estimates.service[entity.id].powerPerType[period].cloud > 0}

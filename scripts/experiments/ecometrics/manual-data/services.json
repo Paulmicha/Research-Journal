@@ -96,6 +96,13 @@
 				"country": "United States of America",
 				"region": "Washington"
 			}
+		],
+		"notes": [
+			{
+				"content": "<p>We’ve got four facilities, two of which are transit hotels which we call points of presence (POPs) and two of which are data centers. To give an idea of our scale, we’ve got petabytes of Git data stored for users of GitHub.com and do around 100Gb/s across transit, internet exchanges, and private network interfaces in order to serve thousands of requests per second. Our network and facilities are built using a hub and spoke design. We operate our own backbone between Seattle and northern Virginia POPs which provides more consistent latencies and throughput via protected fiber.</p><p>The POPs are a few cabinets primarily composed of networking equipment. They’re placed in facilities with a high concentration of transit providers and access to regional internet exchanges. Those facilities don’t store customer data, rather they’re focused on internet and backbone connectivity as well as direct connect and private network interfaces to Amazon Web Services. Today we have a POP in northern Virginia and one in the Seattle metro area, each of which are independently connected to transit providers and the data center in their respective geographic region.</p>",
+				"source": "https://github.blog/2017-10-12-evolution-of-our-data-centers/",
+				"retrieved": "2021-08-29 12:43:01"
+			}
 		]
 	},
 	{
@@ -104,6 +111,13 @@
 		"features": [
 			"hosting",
 			"storage"
+		],
+		"notes": [
+			{
+				"content": "Where Netlify PoPs are located (24 Aug 2020):<br/>Regular CDN (you almost certainly use this one): Frankfurt, Singapore, San Francisco, New York, Sao Paolo, Sydney, Moscow<br/>High performance (available to our Enterprise customers): same locations but additionally: Mumbai, Columbus, Des Moines, Tokyo, Dublin, London, Dubai, Toronto, Busan, Johannesburg, Chennai, Finland",
+				"source": "https://answers.netlify.com/t/is-there-a-list-of-where-netlifys-cdn-pops-are-located/855/6",
+				"retrieved": "2021-09-16 21:55:53"
+			}
 		]
 	},
 	{
@@ -209,7 +223,7 @@
 		"features": ["communication", "mail", "storage", "messages"],
 		"notes": [
 			{
-				"content": "The average Gmail account contains roughly 17K messages.",
+				"content": "Daily emails sent (worldwide) are between 306.4B and 376.4B (stats 2020 + estimates for 2025). There are 4.03 billion email users worldwide.",
 				"source": "https://techjury.net/blog/gmail-statistics/",
 				"retrieved": "2021-09-15 15:50:01"
 			},

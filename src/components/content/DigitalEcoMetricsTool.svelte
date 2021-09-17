@@ -1,7 +1,7 @@
 <script>
 	import { route } from '../../stores/route.js';
 	import { randomizeArray, objectFlip } from '../../lib/generic_utils.js';
-	import { addSelectedItem, selectionShortenedPropMap } from '../../lib/ecometrics/selection.js';
+	import { selectionShortenedPropMap } from '../../lib/ecometrics/selection.js';
 	import {
 		deviceStore,
 		co2EqStore,
@@ -156,12 +156,21 @@
 					}
 				});
 
-				// Finally, update the selection store with all parsed data.
+				// Update the selection store with all parsed data.
 				selectionStore.update(selection => {
 					selection.device = devicesToSelect;
 					selection.service = servicesToSelect;
 					selection.defaultLocation = defaultLocationToSelect || locationsById['10401578'];
 					return selection;
+				});
+
+				// When URLs with preset config are opened, close the collapsible zones
+				// by default (because we assume the importance will not be the settings
+				// or the details but the results).
+				preferencesStore.update(prefs => {
+					prefs.ecometricsDeviceSelectionListState = null;
+					prefs.ecometricsCollapsibleWarningsState = null;
+					return prefs;
 				});
 			}
 		}

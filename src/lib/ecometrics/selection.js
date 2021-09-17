@@ -15,25 +15,36 @@
  * @see src/components/experiments/EcoMetricsSelectionSettings.svelte
  */
 
-import { selectionStore } from '../../stores/ecometrics.js';
+import { selectionStore } from '../../stores/ecometrics';
 
-// @see selectionUseDefaultValue()
+// Used for URL sharing. Maps the settings form input names and selection
+// settings object props (all use the same keys).
+// @see src/components/experiments/EcoMetricsShareLink.svelte
+// @see src/components/content/DigitalEcoMetricsTool.svelte
 // @see src/components/experiments/EcoMetricsSelectionSettings.svelte
 export const selectionShortenedPropMap = {
 	qty: 'q',
-	deploys_per_month: 'd',
-	deploys_duration: 'u',
+	location: 'l',
+	hours_per_day: 'h',
+	wh_monthly_average: 'i',
+	weekly_transfer_average: 'g',
 	backups_per_month: 'b',
 	backups_duration: 'r',
 	backups_total_size: 'z',
-	hours_per_day: 'h',
-	location: 'l',
-	repos_total_size: 'e',
-	repos_commits_per_month: 'm',
-	instances_total_size: 'i',
+	backups_cpu_stress: 'f',
+	backups_ram_stress: 'j',
 	tests_per_month: 't',
 	tests_duration: 'a',
-	storage_size: 'g',
+	tests_cpu_stress: 'k',
+	tests_ram_stress: 'n',
+	hosting_is_baremetal: 'q', // TODO deprecate
+	hosting_is_dedicated: 'v', // TODO deprecate
+	hosting_cpu_stress: 'w',
+	hosting_ram_stress: 'x',
+	deploys_per_month: 'd', // TODO deprecate
+	deploys_duration: 'u', // TODO deprecate
+	repos_total_size: 'e', // TODO deprecate
+	repos_commits_per_month: 'm', // TODO deprecate
 	useRepo: 'p',
 	useHost: 'o',
 	useBackup: 'c',
@@ -65,9 +76,9 @@ export const getSelectedItemDefaultSetting = (entity, use) => {
 				}
 			}
 			return 1;
-		case "deploys_per_month":
+		case "deploys_per_month": // TODO deprecate ?
 			return 1;
-		case "deploys_duration":
+		case "deploys_duration": // TODO deprecate ?
 			return 120; // in seconds
 		case "backups_per_month":
 			return 4;
@@ -75,18 +86,28 @@ export const getSelectedItemDefaultSetting = (entity, use) => {
 			return 360; // in seconds
 		case "backups_total_size":
 			return 500; // in Mo
-		case "repos_total_size":
+		case "backups_cpu_stress":
+			return 15; // in %
+		case "backups_ram_stress":
+			return 15; // in %
+		case "repos_total_size": // TODO deprecate ?
 			return 300; // in Mo
-		case "repos_commits_per_month":
+		case "repos_commits_per_month": // TODO deprecate ?
 			return 50;
-		case "instances_total_size":
-			return 5000; // in Mo
+		case "wh_monthly_average":
+			if (entity.entityType === 'device') {
+				return parseInt(entity.yearly_kwh / 12 * 1000);
+			}
+			return 0; // in kWh/month
 		case "tests_per_month":
 			return 2;
 		case "tests_duration":
 			return 180; // in seconds
-		case "storage_size": // in Mo per month
-			// TODO yeah, that's pretty approximative alright.
+		case "tests_cpu_stress":
+			return 66; // in %
+		case "tests_ram_stress":
+			return 66; // in %
+		case "weekly_transfer_average": // in Mo
 			if ('features' in entity) {
 				// Average size of an email = 60k. Daily emails sent (worldwide) are
 				// between 306.4B and 376.4B (stats 2020 + estimates for 2025).
@@ -95,25 +116,26 @@ export const getSelectedItemDefaultSetting = (entity, use) => {
 				// See http://www.marinesatellitesystems.com/index.php?page_id=867
 				if (entity.features.includes('mail')) {
 					return parseInt(
-						(306.4 + 376.4) / 2 * (365 / 12) // emails sent worldwide per month
+						(306.4 + 376.4) / 2 * 7 // emails sent worldwide per week
 						/ 4.03 // per person
 						* (60 / 1024) // average weight per email in Mo
-						/ 4 // -> about 150 Mo per month ? Seems high... To be more conservative, use a quarter of that.
+						/ 2 // -> about 150 Mo per month ? Seems high... To be more conservative, use half of that.
 					);
 				}
-				// Fallback to an arbitrary value for any other online service using
-				// storage.
-				if (entity.features.includes('storage')) {
-					return 100; // in Mo per month
-				}
 			}
-			// Can't really assume any data volume as a default measure for any
-			// service not "caught" in the above.
 			return 0;
 		case "vcpu":
 			return 1;
 		case "ram":
 			return 2;
+		case "hosting_is_baremetal":
+			return false;
+		case "hosting_is_dedicated":
+			return false;
+		case "hosting_cpu_stress":
+			return 5;
+		case "hosting_ram_stress":
+			return 15;
 		case "useRepo":
 		case "useHost":
 		case "useBackup":
@@ -125,7 +147,7 @@ export const getSelectedItemDefaultSetting = (entity, use) => {
 };
 
 /**
- * Returns the current selected entity setting value.
+ * Returns the current selected entity setting value or its default value.
  */
 export const getSelectedItemSetting = (entity, key) => {
 	if ('selectionSettings' in entity && key in entity.selectionSettings) {
@@ -202,4 +224,14 @@ export const getSelectedEntity = (selection, entityType, id) => {
 			return entity;
 		}
 	}
+};
+
+/**
+ * Returns selected entity title.
+ */
+export const getSelectedEntityTitle = (entity) => {
+	if (entity.entityType === 'device') {
+		return entity.manufacturer + ' ' + entity.name;
+	}
+	return entity.name;
 };

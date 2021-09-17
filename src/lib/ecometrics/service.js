@@ -62,6 +62,14 @@ export const estimateCloudConsumption = selectedService => {
 	let n = 0;
 	let d = 0;
 	let totalWattsPerHour = 0;
+	let cpuWatts = 0;
+	let ramWatts = 0;
+
+	// Manual override when user uses the wh_monthly_average input.
+	const whPerMonthOverride = getSelectedItemSetting(selectedService, 'wh_monthly_average');
+	if (whPerMonthOverride) {
+		return whPerMonthOverride / 1000; // Converted to monthly kilo watts per hour average.
+	}
 
 	// We'll use the average gap in W/vCPU measures between idle and 100% from
 	// Benjamin Davy's research + the same for W/GB for RAM.
@@ -85,56 +93,67 @@ export const estimateCloudConsumption = selectedService => {
 	const ram = getSelectedItemSetting(selectedService, 'ram');
 	const vcpu = getSelectedItemSetting(selectedService, 'vcpu');
 
-	// Arbitrary values we'll use for making (wrong) estimates.
-	const cpuWattsAt66percent = getPercentValueInRange(
-		66,
-		awsEc2Measures.cpu.averageLow,
-		awsEc2Measures.cpu.averageHigh
-	);
-	const ramWattsAt66percent = getPercentValueInRange(
-		66,
-		awsEc2Measures.ram.averageLow,
-		awsEc2Measures.ram.averageHigh
-	);
-	const cpuWattsAt20percent = getPercentValueInRange(
-		20,
-		awsEc2Measures.cpu.averageLow,
-		awsEc2Measures.cpu.averageHigh
-	);
-	const ramWattsAt20percent = getPercentValueInRange(
-		20,
-		awsEc2Measures.ram.averageLow,
-		awsEc2Measures.ram.averageHigh
-	);
-
-	// Automated tests : 66% ressources used ?
+	// Automated tests.
 	if (getSelectedItemSetting(selectedService, 'useTests')) {
 		n = getSelectedItemSetting(selectedService, 'tests_per_month');
 		d = getSelectedItemSetting(selectedService, 'tests_duration'); // in seconds
-		totalWattsPerHour += vcpu * (n / 4 / 7 / 24) * (d / 3600) * cpuWattsAt66percent;
-		totalWattsPerHour += ram * (n / 4 / 7 / 24) * (d / 3600) * ramWattsAt66percent;
+		cpuWatts = getPercentValueInRange(
+			getSelectedItemSetting(selectedService, 'tests_cpu_stress'),
+			awsEc2Measures.cpu.averageLow,
+			awsEc2Measures.cpu.averageHigh
+		);
+		ramWatts = getPercentValueInRange(
+			getSelectedItemSetting(selectedService, 'tests_ram_stress'),
+			awsEc2Measures.ram.averageLow,
+			awsEc2Measures.ram.averageHigh
+		);
+		totalWattsPerHour += vcpu * (n / 4 / 7 / 24) * (d / 3600) * cpuWatts;
+		totalWattsPerHour += ram * (n / 4 / 7 / 24) * (d / 3600) * ramWatts;
 	}
 
-	// Backup : 20% ressources ?
+	// Backup.
 	if (getSelectedItemSetting(selectedService, 'useBackup')) {
 		n = getSelectedItemSetting(selectedService, 'backups_per_month');
 		d = getSelectedItemSetting(selectedService, 'backups_duration'); // in seconds
-		totalWattsPerHour += vcpu * (n / 4 / 7 / 24) * (d / 3600) * cpuWattsAt20percent;
-		totalWattsPerHour += ram * (n / 4 / 7 / 24) * (d / 3600) * ramWattsAt20percent;
+		cpuWatts = getPercentValueInRange(
+			getSelectedItemSetting(selectedService, 'backups_cpu_stress'),
+			awsEc2Measures.cpu.averageLow,
+			awsEc2Measures.cpu.averageHigh
+		);
+		ramWatts = getPercentValueInRange(
+			getSelectedItemSetting(selectedService, 'backups_ram_stress'),
+			awsEc2Measures.ram.averageLow,
+			awsEc2Measures.ram.averageHigh
+		);
+		totalWattsPerHour += vcpu * (n / 4 / 7 / 24) * (d / 3600) * cpuWatts;
+		totalWattsPerHour += ram * (n / 4 / 7 / 24) * (d / 3600) * ramWatts;
 	}
 
-	// Hosting a webserver in the cloud implies at least a fraction of potentially
-	// mostly "idle" 24/7 power consumption.
-	// Even if it may depend on virtualized "colocation" where many "served"
-	// projects share the same ressources, it's not 0. But it's a pretty difficult
-	// thing to estimate. We can't generalize how virtual or physical ressources
-	// are allocated for all services we try to asses here (i.e. shared hosting,
-	// dedicated, baremetal, virtualized)...
-	// So the (wrong) estimate we're using here assumes 1/2 vCPU and 1/2 Gb RAM in
-	// fulltime "idle" state as the baseline for a single "webserver" service.
+	// Hosting.
 	if (getSelectedItemSetting(selectedService, 'useHost')) {
-		totalWattsPerHour += awsEc2Measures.cpu.averageLow / 2;
-		totalWattsPerHour += awsEc2Measures.ram.averageLow / 2;
+		cpuWatts = getPercentValueInRange(
+			getSelectedItemSetting(selectedService, 'hosting_cpu_stress'),
+			awsEc2Measures.cpu.averageLow,
+			awsEc2Measures.cpu.averageHigh
+		);
+		ramWatts = getPercentValueInRange(
+			getSelectedItemSetting(selectedService, 'hosting_ram_stress'),
+			awsEc2Measures.ram.averageLow,
+			awsEc2Measures.ram.averageHigh
+		);
+		// WIP assume baremetal or dedicated instances will have bigger impacts.
+		// TODO use a different approach (else how would we factor serverless
+		// functions, jamstack / static sites...)
+		if (getSelectedItemSetting(selectedService, 'hosting_is_baremetal')) {
+			cpuWatts = cpuWatts * 5;
+			ramWatts = cpuWatts * 5;
+		}
+		if (getSelectedItemSetting(selectedService, 'hosting_is_dedicated')) {
+			cpuWatts = cpuWatts * 2;
+			ramWatts = cpuWatts * 2;
+		}
+		totalWattsPerHour += vcpu * cpuWatts;
+		totalWattsPerHour += ram * ramWatts;
 	}
 
 	// Convert Watts to kWh/month.
@@ -180,7 +199,7 @@ export const estimateDataTransferConsumption = selectedService => {
 		'features' in selectedService
 		&& (selectedService.features.includes('storage'))
 	) {
-		s = getSelectedItemSetting(selectedService, 'storage_size'); // in Mo per month
+		s = getSelectedItemSetting(selectedService, 'weekly_transfer_average'); // in Mo per month
 		kwhPerMonth += 0.06 * s / 1024;
 	}
 

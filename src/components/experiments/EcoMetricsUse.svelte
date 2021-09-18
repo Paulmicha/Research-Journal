@@ -210,10 +210,12 @@
 			Warnings&nbsp;⚠️
 		</summary>
 		<p>This is an informational interactive data visualization webpage, not an <abbr title="Life Cycle Assessment">LCA</abbr> tool.</p>
-		<p>For services, we can only make very approximative (and probably wrong) estimates. Virtually no data is currently available to make any "realistic" estimates for services running on public cloud vendors (<a href="https://davidmytton.blog/assessing-the-suitability-of-the-greenhouse-gas-protocol-for-calculation-of-emissions-from-public-cloud-computing-workloads/" target="_blank">Mytton, 2020</a>). Services that do <strong>not</strong> run in the cloud are exceptions. This opacity also comes from the complexity and increasingly adaptive, on-demand nature of the way physical resources are allocated (CPU, RAM, storage). Some initiatives may be useful to try and make your own measures, such as <a href="https://github.com/hubblo-org/scaphandre" target="_blank">Scaphandre</a> or <a href="https://github.com/marmelab/argos" target="_blank">Argos</a>.</p>
+		<p>For services, we can only make very approximative (and probably wrong) estimates. Insufficient data is currently available to make any "realistic" estimates for services running on public cloud vendors (<a href="https://davidmytton.blog/assessing-the-suitability-of-the-greenhouse-gas-protocol-for-calculation-of-emissions-from-public-cloud-computing-workloads/" target="_blank">Mytton, 2020</a>). At the time of writing (2021-09-18), I was only able to find metrics from 2 providers : <a href="https://pue.dc5.scaleway.com/en/" target="_blank">Scaleway</a> and <a href="https://www.cnbc.com/2021/04/20/microsoft-tells-cloud-customers-about-data-center-energy-efficiency.html" target="_blank">Microsoft</a>.</p>
+		<p>Precisely differenciating datacenters, points of presence (PoP), and hyperscalers can even prove difficult : <q cite="http://www.theses.fr/2019SACLT036" lang="fr">la définition du data center est suffisamment floue pour englober des objets très différents, de l’armoire informatique à des bâtiments de plusieurs dizaines de milliers de mètres carrés. Face à cette hétérogénéité, les acteurs du monde du data center utilisent différents types de distinctions, s’appuyant sur la taille (« hyperscale », « intermédiaire », « petit »), l’activité économique des opérateurs (colocation, entreprise, hébergeur), le niveau de sécurité de l’information (Tier 3, Tier 4)</q> (<a href="http://www.theses.fr/2019SACLT036" target="_blank">Marquet, 2019</a>). We can think of these as the main components of the infrastructure of "the cloud".</p>
+		<p>Services that do <strong>not</strong> run in the cloud are exceptions. Difficulties to get reliable metrics also come from the complexity and increasingly adaptive, on-demand nature of the way physical resources are allocated (CPU, RAM, storage). Some initiatives may be useful to try and make your own measures, such as <a href="https://github.com/hubblo-org/scaphandre" target="_blank">Scaphandre</a> or <a href="https://github.com/marmelab/argos" target="_blank">Argos</a>.</p>
 		<h3>Some of the things currently not accounted for</h3>
 		<ul>
-			<li>Some impacts of data transmission to the device(s) used for using the services, e.g. <q cite="https://journalofcloudcomputing.springeropen.com/articles/10.1186/s13677-020-00185-8">internal network traffic which makes up a significant amount of data transfer and is doubling every 12–15  months</q>, mobile traffic (edge, 3G, 4G, etc)... <q cite="https://journalofcloudcomputing.springeropen.com/articles/10.1186/s13677-020-00185-8">71% of the global population is expected to have mobile connectivity by 2023 and smartphone traffic [is] growing 7% annually</q> (ibid).</li>
+			<li>Some impacts of data transmission to the device(s) used for using the services, e.g. <q cite="https://journalofcloudcomputing.springeropen.com/articles/10.1186/s13677-020-00185-8">internal network traffic which makes up a significant amount of data transfer and is doubling every 12–15  months</q>, mobile traffic (edge, 3G, 4G, etc)... <q cite="https://journalofcloudcomputing.springeropen.com/articles/10.1186/s13677-020-00185-8">71% of the global population is expected to have mobile connectivity by 2023 and smartphone traffic [is] growing 7% annually</q> (<a href="https://davidmytton.blog/assessing-the-suitability-of-the-greenhouse-gas-protocol-for-calculation-of-emissions-from-public-cloud-computing-workloads/" target="_blank">Mytton, 2020</a>).</li>
 			<li>The Power Usage Effectiveness (PUE) - how much extra energy is needed to operate the data centre (cooling, lighting etc.) - and Water Usage Effectiveness (WUE) of datacenters.</li>
 			<li>The Pragmatic Scaling Factor (PSF) used to take into account multiple identical runs of algorithms (e.g. for testing or optimisation).</li>
 		</ul>
@@ -331,13 +333,13 @@
 								</h4>
 								<!-- Debug. -->
 								<!-- <pre>{ JSON.stringify(entity, null, 2) }</pre> -->
-								{#if entity.notes.length || (getSelectedItemSetting(entity, 'useHost') && entity.type === 'cloud')}
+								{#if entity.notes.length || (getSelectedItemSetting(entity, 'useHost'))}
 									<details>
 										<summary>Notes</summary>
 										{#if entity.notes}
 											{#each entity.notes as note}
 												{#if 'info' in note}
-													<div class="u-m-b">ℹ️&nbsp;{@html note.info }</div>
+													<div class="u-m-b">⚠️&nbsp;{@html note.info }</div>
 												{:else}
 													<div>From <a href={ note.source } target="_blank">source</a> (retrieved on { note.retrieved }) :</div>
 													<blockquote cite={ note.source }>
@@ -346,12 +348,12 @@
 												{/if}
 											{/each}
 										{/if}
-										{#if getSelectedItemSetting(entity, 'useHost') && entity.type === 'cloud'}
-											<p>Hosting a service in the cloud implies at least a fraction of an amount of permanent power consumption. But <strong>it's currently an impossible thing to generalize</strong> - among other reasons, because :</p>
+										{#if getSelectedItemSetting(entity, 'useHost')}
+											<p>⚠️&nbsp;Hosting a service in "the cloud" implies at least a fraction of an amount of permanent power consumption. But <strong>it's currently an impossible thing to generalize</strong> - among other reasons, because :</p>
 											<ul>
 												<li>internally, the underlying support could be shared, dedicated, baremetal, virtualized</li>
-												<li>the tech stack and choices of technical implementation of the service itself imply enormous differences on server ressources use - i.e. static, "serverless", etc.</li>
-												<li>it also largely depends on the volumes of traffic served (yet another unavailable metric)</li>
+												<li>the tech stack and choices of technical implementation of the service itself imply enormous differences on server ressources use - i.e. static, "serverless", etc. Furthermore, <q cite="https://www.cnbc.com/2021/04/20/microsoft-tells-cloud-customers-about-data-center-energy-efficiency.html">hyperscale data centers are 98% more efficient than on-premises data centers that companies, governments and schools operate for themselves.</q> (<a href="https://www.cnbc.com/2021/04/20/microsoft-tells-cloud-customers-about-data-center-energy-efficiency.html" target="_blank">source</a>, 2021/04/20)</li>
+												<li>it also largely depends on the volumes of traffic served (yet another metric currently not factored in this tool)</li>
 											</ul>
 											<p>So the (wrong) estimate we're using here is based on averaged findings for <abbr title="Amazon Web Services">AWS</abbr> EC2 instances by <a href="https://medium.com/teads-engineering/estimating-aws-ec2-instances-power-consumption-c9745e347959" target="_blank">Benjamin Davy</a> (published 2021/03/25) and the different factors in "advanced settings" in the collapsible selection list above.</p>
 										{/if}
@@ -439,14 +441,6 @@
 		<EcoMetricsCo2Equivalents totalKgEqCo2={ convertValuePerYearToPeriod(totalKgCo2PerYear, period) } />
 	</section>
 {/if}
-
-<!-- TODO Information "singleton" tooltip for data transfers. -->
-<!--
-	estimate of 0.06 kWh/GB for 2015 is a new estimate proposed in this study,
-	based on Krug and colleagues (2014) with updated data for 2015 from Krug
-	(2016). kWh/GB = kilowatt-hours per gigabyte.
-	See https://onlinelibrary.wiley.com/doi/full/10.1111/jiec.12630
--->
 
 <style>
 	details + p {

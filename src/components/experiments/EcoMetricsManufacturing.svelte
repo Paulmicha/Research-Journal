@@ -120,6 +120,22 @@
 				}
 			});
 		}
+		// TODO that would require to "wrap" the <Tab> component in another one
+		// specific to this particular use case, where its instance would react to
+		// the changes in the preferencesStore and make the switch.
+		// -> For now, just provide an explanation text.
+		// else if (
+		// 	selection.service.length
+		// 	&& ('ecometricsLastActiveTab' in $preferencesStore ? $preferencesStore.ecometricsLastActiveTab : 1) == 1
+		// ) {
+			// When there's no device (only services) and the current selected tab is
+			// "Manufacturing", there would be nothing to show, so switch by default
+			// to the "Use" tab.
+			// preferencesStore.update(prefs => {
+			// 	prefs.ecometricsLastActiveTab = 2;
+			// 	return prefs;
+			// });
+		// }
 
 		co2EqChartData = {
 			"labels": labels,
@@ -266,6 +282,9 @@
 			<EcoMetricsCo2Equivalents totalKgEqCo2={$totalsStore.kg_co2eq.value} />
 		</section>
 	</div>
+{:else}
+	<h2>There's no device in current selection</h2>
+	<p>For services impacts, go to the "Use" tab above.</p>
 {/if}
 
 <style>

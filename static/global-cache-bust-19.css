@@ -200,6 +200,10 @@ blockquote {
 	font-style: italic;
 }
 
+q {
+	font-style: italic;
+}
+
 dl {
 	display: grid;
 	grid-template-columns: max-content auto;

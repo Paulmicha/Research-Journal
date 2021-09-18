@@ -1,4 +1,5 @@
 <script>
+	import { getContext } from 'svelte';
 	import {
 		deviceStore,
 		selectionStore,
@@ -22,6 +23,10 @@
 	import EcoMetricsSelectLocation from './EcoMetricsSelectLocation.svelte';
 	import EcoMetricsSelectionSettings from './EcoMetricsSelectionSettings.svelte';
 
+	// [minor] Deal with main layout width adjustments when scrollbar (dis)appears.
+	// @see src/routes/_layout.svelte()
+	const { setDocumentScrollbarWidthCssVar } = getContext('global_data');
+
 	let totalNbOfDevices = 0;
 	let totalNbOfServices = 0;
 
@@ -37,6 +42,13 @@
 			});
 		}
 		totalNbOfServices = selection.service.length;
+		// TODO find better workaround to maintain correct main layout width due to
+		// scrollbar.
+		// @see src/routes/_layout.svelte()
+		setTimeout(setDocumentScrollbarWidthCssVar, 100);
+		setTimeout(setDocumentScrollbarWidthCssVar, 300);
+		setTimeout(setDocumentScrollbarWidthCssVar, 500);
+		setTimeout(setDocumentScrollbarWidthCssVar, 1000);
 	});
 
 	/**
@@ -217,13 +229,15 @@
 				</tbody>
 			</table>
 			<div class="bottom-zone">
-				<button class="btn btn--s" on:click={clearSelection}>Clear selection</button>
+				<button class="btn btn--s" on:click|preventDefault={clearSelection}>
+					Clear selection
+				</button>
 				<EcoMetricsShareLink />
 			</div>
 		</form>
 	</details>
 {:else}
-	<p>↑ Please select one or more devices.</p>
+	<p>↑ Please select one or more devices and/or services.</p>
 {/if}
 
 <style>

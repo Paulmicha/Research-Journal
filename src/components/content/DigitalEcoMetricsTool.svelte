@@ -198,7 +198,7 @@
 					<h2>Infrastructure of the Web</h2>
 					<p>This is currently not implemented as an interactive data visualization.</p>
 					<figure>
-						<blockquote cite="http://gauthierroussilhe.com/post/territoires-centres-de-donnees.html">
+						<blockquote cite="http://gauthierroussilhe.com/post/territoires-centres-de-donnees.html" lang="fr">
 							<p>En 2020, 150 milliards de dollars ont été investi par les géants du cloud, dont la moitié pour construire des nouveaux centres de données. Les plus gros investissements sont dans l’ordre : Amazon, Microsoft, Google, Facebook, Apple, Alibaba et Tencent. S’il y avait 541 hyperscalers dans le monde en juin 2020, Synergy Research Group estime maintenant qu’il y en aurait 625 aujourd'hui.</p>
 							<p>Comment tous ces nouveaux centres sont installés, quel a été l’impact de leur construction, de la fabrication du matériel, quelles sont leurs demandes locales en électricité et en eau, quels sont les conflits d’usage liés à cela, est-ce que ces développements sont compatibles avec un monde à +2°C ? Quid des réseaux de télécommunication [...] ?</p>
 						</blockquote>
@@ -210,7 +210,7 @@
 						</figcaption>
 					</figure>
 					<figure>
-						<blockquote cite="https://designcommun.fr/cahiers/situer-le-numerique/">
+						<blockquote cite="https://designcommun.fr/cahiers/situer-le-numerique/" lang="fr">
 							<p>au niveau de la production des équipements, notamment les phases d’extraction des matières premières, on observe de nombreux risques de pollution des eaux de surface et souterraines autour des zones d’exploitation minière, notamment dû aux écoulements d’acides liés à l’exposition de métaux à l’air libre ou à l’utilisation de cyanure ou d’acide sulfurique pour séparer un élément chimique du minerai. Les différentes fuites, les ruissellements, voire les ruptures de barrage d’une exploitation minière peuvent contaminer les eaux de tout un écosystème.</p>
 							<p>Les sols et l’air sont aussi pollués par les opérations minières. Les opérations de minage provoquent des émissions de gaz, de poussières et de particules toxiques qui influent sur la qualité de l’air. Les sols sont contaminés par les poussières soulevées par les opérations de minage ainsi que par le déversement de produits chimiques et de différents résidus dans les sols. Ces pollutions ont des effets sur l’ensemble des écosystèmes qui y sont exposés, notamment la faune et la flore. La faune aquatique meurt et disparaît dans les cours d’eau contaminés. Ces écoulements toxiques influent aussi sur la santé de la faune et la croissance des plantes qui reposent sur les eaux de surface et souterraines. Enfin, les opérations de minage provoquent des bruits et des vibrations qui affectent la faune locale et la pousse à quitter leur habitat et à fuir.</p>
 						</blockquote>
@@ -346,7 +346,7 @@
 						</figcaption>
 					</figure>
 					<figure>
-						<blockquote cite="https://designcommun.fr/cahiers/situer-le-numerique/">
+						<blockquote cite="https://designcommun.fr/cahiers/situer-le-numerique/" lang="fr">
 							<p>Face au flux phénoménal de <abbr title="Déchets d'équipements électriques et électroniques">D.E.E.E</abbr>. étant produit et non tracé chaque année (44,3 Mt), des pollutions importantes apparaissent dans les pays où sont stockés et enterrés ces déchets. On estime que 50 tonnes de mercure échappent annuellement des e-déchets mis en décharge, ainsi que 71 kt de plastiques retardateurs de flamme (RFB ou BRF en anglais), des substances extrêmement toxiques pour les milieux vivants et sur les personnes qui y sont exposées. Les sites de décharge et de recyclage informel présentent donc des risques sanitaires et environnementaux importants.</p>
 							<p>Les fuites de substances toxiques liées à l’oxydation des composants électroniques polluent les sols et les cours d’eau affectant les animaux, plantations et poissons qui seront consommés par les communautés aux alentours. Les personnes faisant du recyclage informel risquent de respirer des fumées toxiques en brûlant des fils et des circuits imprimés. Ces travailleurs s’exposent malgré eux à des risques plus importants de blessures ainsi qu’à des dommages génétiques, des déséquilibres de glucose dans le sang, des effets sur les fonctions du foie, et des troubles de la fertilité.</p>
 							<p>[&hellip;] Face à une consommation toujours croissante de matières, le recyclage des e-déchets est toujours aussi peu favorisé, tant par la conception des équipements que par le niveau d’investissement nécessaire pour un centre de recyclage. Les métaux présents dans les équipements numériques sont difficilement récupérables et recyclables car ils sont présents en trop petite quantité, soit parce qu’ils sont utilisés dans un alliage et ne peuvent pas être séparés.</p>
@@ -379,9 +379,9 @@
 					<ul>
 						<li>
 							<a href="https://fr.wikipedia.org/wiki/Déchets_d'équipements_électriques_et_électroniques">
-								Déchets d'équipements électriques et électroniques (DEEE, D3E) ou produits électriques et électroniques en fin de vie (PEEFV), en anglais : Waste Electronic and Electrical Equipment (WEEE)
-								— Wikipedia
+								Waste Electronic and Electrical Equipment (WEEE) / Déchets d'équipements électriques et électroniques (DEEE, D3E) ou produits électriques et électroniques en fin de vie (PEEFV)
 							</a>
+							— Wikipedia
 						</li>
 					</ul>
 				</section>

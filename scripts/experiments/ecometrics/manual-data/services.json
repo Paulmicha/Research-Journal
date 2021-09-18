@@ -52,6 +52,13 @@
 				"country": "Netherlands",
 				"city": "Amsterdam"
 			}
+		],
+		"notes": [
+			{
+				"content": "real-time PUE (power usage effectiveness) and WUE (water usage effectiveness) at our DC5 Datacenter in France.",
+				"source": "https://pue.dc5.scaleway.com/en/",
+				"retrieved": "2021-09-18 10:26:55"
+			}
 		]
 	},
 	{

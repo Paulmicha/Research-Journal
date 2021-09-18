@@ -27,6 +27,7 @@
 	const globals = global_data.default;
 	globals.translations = translation_data.default;
 	globals.menu_main = menu_main.default;
+	globals.setDocumentScrollbarWidthCssVar = setDocumentScrollbarWidthCssVar;
 	setContext('global_data', globals);
 </script>
 

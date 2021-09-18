@@ -213,7 +213,7 @@
 		<p>For services, we can only make very approximative (and probably wrong) estimates. Virtually no data is currently available to make any "realistic" estimates for services running on public cloud vendors (<a href="https://davidmytton.blog/assessing-the-suitability-of-the-greenhouse-gas-protocol-for-calculation-of-emissions-from-public-cloud-computing-workloads/" target="_blank">Mytton, 2020</a>). Services that do <strong>not</strong> run in the cloud are exceptions. This opacity also comes from the complexity and increasingly adaptive, on-demand nature of the way physical resources are allocated (CPU, RAM, storage). Some initiatives may be useful to try and make your own measures, such as <a href="https://github.com/hubblo-org/scaphandre" target="_blank">Scaphandre</a> or <a href="https://github.com/marmelab/argos" target="_blank">Argos</a>.</p>
 		<h3>Some of the things currently not accounted for</h3>
 		<ul>
-			<li>Network impacts for transferring data to the device(s) used for using the services - e.g. antennas (3G, 4G, Wifi), cables, <abbr title="Internet Exchange Point">IXP</abbr>s, etc.</li>
+			<li>All impacts of data transmission to the device(s) used for using the services, e.g. <q cite="https://journalofcloudcomputing.springeropen.com/articles/10.1186/s13677-020-00185-8">internal network traffic which makes up a significant amount of data transfer and is doubling every 12–15  months</q>, mobile traffic (edge, 3G, 4G, etc)... <q cite="https://journalofcloudcomputing.springeropen.com/articles/10.1186/s13677-020-00185-8">71% of the global population is expected to have mobile connectivity by 2023 and smartphone traffic [is] growing 7% annually</q>.</li>
 			<li>The Power Usage Effectiveness (PUE) - how much extra energy is needed to operate the data centre (cooling, lighting etc.) - and Water Usage Effectiveness (WUE) of datacenters.</li>
 			<li>The Pragmatic Scaling Factor (PSF) used to take into account multiple identical runs of algorithms (e.g. for testing or optimisation).</li>
 		</ul>
@@ -329,17 +329,6 @@
 									</span>
 									<span>{ entity.name }</span>
 								</h4>
-								{#if entity.services.length}
-									<p>This service depends on : {#each entity.services as sid, i}
-										{#if i !== 0}, {/if}
-										<span class="selection-label-inline">
-											<span class="selection-icon">
-												{@html getServiceImg($serviceStore.services[sid], $serviceStore.servicesIcons) }
-											</span>
-											<span>{ $serviceStore.services[sid].name }</span>
-										</span>
-									{/each}</p>
-								{/if}
 								<!-- Debug. -->
 								<!-- <pre>{ JSON.stringify(entity, null, 2) }</pre> -->
 								{#if entity.notes.length || (getSelectedItemSetting(entity, 'useHost') && entity.type === 'cloud')}
@@ -347,10 +336,14 @@
 										<summary>Notes</summary>
 										{#if entity.notes}
 											{#each entity.notes as note}
-												<div>From <a href={ note.source } target="_blank">source</a> (retrieved on { note.retrieved }) :</div>
-												<blockquote cite={ note.source }>
-													{@html note.content }
-												</blockquote>
+												{#if 'info' in note}
+													<div class="u-m-b">ℹ️&nbsp;{@html note.info }</div>
+												{:else}
+													<div>From <a href={ note.source } target="_blank">source</a> (retrieved on { note.retrieved }) :</div>
+													<blockquote cite={ note.source }>
+														{@html note.content }
+													</blockquote>
+												{/if}
 											{/each}
 										{/if}
 										{#if getSelectedItemSetting(entity, 'useHost') && entity.type === 'cloud'}
@@ -363,6 +356,17 @@
 											<p>So the (wrong) estimate we're using here is based on averaged findings for <abbr title="Amazon Web Services">AWS</abbr> EC2 instances by <a href="https://medium.com/teads-engineering/estimating-aws-ec2-instances-power-consumption-c9745e347959" target="_blank">Benjamin Davy</a> (published 2021/03/25) and the different factors in "advanced settings" in the collapsible selection list above.</p>
 										{/if}
 									</details>
+								{/if}
+								{#if entity.services.length}
+									<p>This service depends on : {#each entity.services as sid, i}
+										{#if i !== 0}, {/if}
+										<span class="selection-label-inline">
+											<span class="selection-icon">
+												{@html getServiceImg($serviceStore.services[sid], $serviceStore.servicesIcons) }
+											</span>
+											<span>{ $serviceStore.services[sid].name }</span>
+										</span>
+									{/each}</p>
 								{/if}
 								{#if estimates.service[entity.id].co2[period] > 0}
 									<table>

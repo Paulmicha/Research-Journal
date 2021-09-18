@@ -145,12 +145,12 @@ export const estimateCloudConsumption = selectedService => {
 		// TODO use a different approach (else how would we factor serverless
 		// functions, jamstack / static sites...)
 		if (getSelectedItemSetting(selectedService, 'hosting_is_baremetal')) {
-			cpuWatts = cpuWatts * 5;
-			ramWatts = cpuWatts * 5;
+			cpuWatts = cpuWatts * 3;
+			ramWatts = cpuWatts * 3;
 		}
 		if (getSelectedItemSetting(selectedService, 'hosting_is_dedicated')) {
-			cpuWatts = cpuWatts * 2;
-			ramWatts = cpuWatts * 2;
+			cpuWatts = cpuWatts * 1.5;
+			ramWatts = cpuWatts * 1.5;
 		}
 		totalWattsPerHour += vcpu * cpuWatts;
 		totalWattsPerHour += ram * ramWatts;

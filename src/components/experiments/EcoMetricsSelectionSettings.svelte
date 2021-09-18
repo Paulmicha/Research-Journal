@@ -127,6 +127,7 @@
 			<label
 				for="power-monthly-average-{ entity.id }"
 				title="If you already have this monthly estimate (in Watts per Hour), it will be used instead of { entity.entityType === 'service' ? "our own (very) approximative calculations for this service - if we have any" : "the value for this device from sources indicated below" }."
+				tabindex="0"
 			>
 				Average W/h per month
 			</label>
@@ -144,6 +145,7 @@
 			@see scripts/experiments/ecometrics/manual-data/services.json
 		-->
 		{#if entityQualifiesForAdvancedSettings()}
+			<hr class="u-m-t" />
 			<p class="form-item-info">
 				<strong>Or</strong>&nbsp;:
 				specify its use cases to provide <i>very</i> approximative estimates (see "warnings") :
@@ -192,7 +194,7 @@
 					on:change|preventDefault={ updateSettings }
 				/>
 			</div> -->
-			<div class="form-item">
+			<div class="form-item u-m-b">
 				<label for="use-case-tests-{ entity.id }">
 					as an automated test runner (<abbr title="continuous integration">CI</abbr> server)
 				</label>
@@ -204,11 +206,12 @@
 				/>
 			</div>
 
-			<hr class="u-m-b u-m-t" />
-
 			{#if useHost}
 				<div class="form-item">
-					<label for="hosting-is-baremetal-{ entity.id }">
+					<label for="hosting-is-baremetal-{ entity.id }"
+						title="Temporary experimental factor on CPU and RAM power consumption estimates (× 3) - this will be removed in the next release of this tool"
+						tabindex="0"
+					>
 						Instance is "baremetal"
 					</label>
 					<input
@@ -217,8 +220,11 @@
 						on:change|preventDefault={ updateSettings }
 					/>
 				</div>
-				<div class="form-item">
-					<label for="hosting-is-dedicated-{ entity.id }">
+				<div class="form-item u-m-b">
+					<label for="hosting-is-dedicated-{ entity.id }"
+						title="Temporary experimental factor on CPU and RAM power consumption estimates (× 1.5) - this will be removed in the next release of this tool"
+						tabindex="0"
+					>
 						Instance is dedicated
 					</label>
 					<input
@@ -234,6 +240,7 @@
 					<label
 						for="vcpu-{ entity.id }"
 						title="Indicate the number of vCPU allocated for running this service"
+						tabindex="0"
 					>
 						vCPU allocation
 					</label>
@@ -247,6 +254,7 @@
 					<label
 						for="ram-{ entity.id }"
 						title="If appropriate, indicate the amount of RAM allocated for running this service"
+						tabindex="0"
 					>
 						RAM allocation (Gb)
 					</label>
@@ -260,7 +268,7 @@
 
 			{#if useHost}
 				<div class="form-item">
-					<label for="hosting-cpu-stress-{ entity.id }" title="including ">
+					<label for="hosting-cpu-stress-{ entity.id }">
 						Average CPU stress for hosting (in %)
 					</label>
 					<input class="input--s" type="number" min="1" name="hosting_cpu_stress"
@@ -270,7 +278,7 @@
 					/>
 				</div>
 				<div class="form-item">
-					<label for="hosting-ram-stress-{ entity.id }" title="including ">
+					<label for="hosting-ram-stress-{ entity.id }">
 						Average RAM stress for hosting (in %)
 					</label>
 					<input class="input--s" type="number" min="1" name="hosting_ram_stress"
@@ -286,6 +294,7 @@
 					<label
 						for="repos-total-size-{ entity.id }"
 						title="try to estimate the total size of all repos"
+						tabindex="0"
 					>
 						Approximative total size of all repositories (in Mo)
 					</label>
@@ -334,6 +343,7 @@
 					<label
 						for="backups-total-size-{ entity.id }"
 						title="try to estimate the total size of all backups (i.e. code, assets, database dumps, etc.)"
+						tabindex="0"
 					>
 						Approximative total size of all backups (in Mo)
 					</label>
@@ -344,7 +354,7 @@
 					/>
 				</div>
 				<div class="form-item">
-					<label for="backups-cpu-stress-{ entity.id }" title="including ">
+					<label for="backups-cpu-stress-{ entity.id }">
 						Average CPU stress during backup (in %)
 					</label>
 					<input class="input--s" type="number" min="1" name="backups_cpu_stress"
@@ -354,7 +364,7 @@
 					/>
 				</div>
 				<div class="form-item">
-					<label for="backups-ram-stress-{ entity.id }" title="including ">
+					<label for="backups-ram-stress-{ entity.id }">
 						Average RAM stress during backup (in %)
 					</label>
 					<input class="input--s" type="number" min="1" name="backups_ram_stress"
@@ -370,6 +380,7 @@
 					<label
 						for="deploys-per-month-{ entity.id }"
 						title="on average, during the development phase of the project"
+						tabindex="0"
 					>
 						Deploys per month
 					</label>
@@ -380,7 +391,7 @@
 					/>
 				</div>
 				<div class="form-item">
-					<label for="deploys-duration-{ entity.id }" title="with CI tests">
+					<label for="deploys-duration-{ entity.id }" title="with CI tests" tabindex="0">
 						Average deploys duration (in seconds)
 					</label>
 					<input class="input--s" type="number" min="1" name="deploys_duration"
@@ -396,6 +407,7 @@
 					<label
 						for="tests-per-week-{ entity.id }"
 						title="on average, i.e. unit / integration / functional / visual regression tests, load testing, etc."
+						tabindex="0"
 					>
 						Average number of tests per month
 					</label>
@@ -406,7 +418,7 @@
 					/>
 				</div>
 				<div class="form-item">
-					<label for="tests-duration-{ entity.id }" title="including ">
+					<label for="tests-duration-{ entity.id }">
 						Average tests total duration (in seconds)
 					</label>
 					<input class="input--s" type="number" min="1" name="tests_duration"
@@ -416,7 +428,7 @@
 					/>
 				</div>
 				<div class="form-item">
-					<label for="tests-cpu-stress-{ entity.id }" title="including ">
+					<label for="tests-cpu-stress-{ entity.id }">
 						Average CPU stress during tests (in %)
 					</label>
 					<input class="input--s" type="number" min="1" name="tests_cpu_stress"
@@ -426,7 +438,7 @@
 					/>
 				</div>
 				<div class="form-item">
-					<label for="tests-ram-stress-{ entity.id }" title="including ">
+					<label for="tests-ram-stress-{ entity.id }">
 						Average RAM stress during tests (in %)
 					</label>
 					<input class="input--s" type="number" min="1" name="tests_ram_stress"
@@ -466,6 +478,7 @@
 		<label
 			for="weekly-transfer-average-{ entity.id }"
 			title="If you can, try and provide the average amount of data transferred to and from this service every week (overall, i.e. for you and everyone else in your organisation if appropriate)"
+			tabindex="0"
 		>
 			Average volume of data transferred weekly (in Mo)
 		</label>
@@ -482,7 +495,7 @@
 		display: flex;
 		align-items: center;
 		justify-content: space-between;
-		widows: 100%;
+		width: 100%;
 		font-size: .8rem;
 	}
 	.form-item > .input--s {
@@ -524,10 +537,32 @@
 	.tooltip-triggers button {
 		vertical-align: middle;
 	}
-	label {
+	label[title] {
+		position: relative;
 		cursor: pointer;
 	}
-	label:hover {
+	label[title]::before {
+		content: 'ℹ️';
+		position: relative;
+		top: -.1em;
+		padding-right: var(--space-xs);
+		font-size: .8em;
+	}
+	label[title]:hover,
+	label[title]:focus {
 		color: cornflowerblue;
+	}
+	label[title]:focus::after {
+		content: attr(title);
+		position: absolute;
+		left: var(--space);
+		top: calc(100% + var(--space-xs));
+		z-index: 1;
+		border: 1px solid #CFCFCF;
+		padding: var(--space-xs) var(--space-s);
+		width: 36ch;
+		text-align: left;
+		background-color: white;
+		box-shadow: 0 2px 3px 0 rgba(44, 62, 80, 0.24);
 	}
 </style>

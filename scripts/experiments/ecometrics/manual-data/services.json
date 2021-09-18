@@ -71,6 +71,13 @@
 				"type": "cloud",
 				"name": "Google Cloud Platform"
 			}
+		],
+		"notes": [
+			{
+				"content": "Our GitLab.com core infrastructure is primarily hosted in Google Cloud Platform's (GCP) <code>us-east1</code> region",
+				"source": "https://about.gitlab.com/handbook/engineering/infrastructure/production/architecture/",
+				"retrieved": "2021-08-29 10:32:03"
+			}
 		]
 	},
 	{
@@ -191,9 +198,7 @@
 				"retrieved": "2021-09-15 15:24:33"
 			},
 			{
-				"content": "If you're using iCloud or Drive backups for WhatsApp, you need to add those services manually.",
-				"source": "https://faq.whatsapp.com/search?query=backup&lang=en",
-				"retrieved": "2021-09-16 11:04:54"
+				"info": "If you're using iCloud or Drive backups for WhatsApp, you need to add those services manually."
 			}
 		]
 	},

@@ -380,6 +380,48 @@ input[type='submit'].is-active {
 	background-color: cornflowerblue;
 	color: white;
 }
+.btn.btn--rounded {
+	position: relative;
+	border: 0 none;
+	background-color: transparent;
+	color: inherit;
+}
+.btn.btn--s.btn--rounded {
+	margin-left: var(--space-xs);
+	padding: 0;
+}
+.btn.btn--rounded::before {
+	content: '';
+	position: absolute;
+	z-index: -1;
+	border: 1px solid #888;
+	border-radius: 50%;
+	top: -.5ch;
+	left: -.5ch;
+	width: 5ch;
+	height: 5ch;
+	background-color: white;
+}
+.btn.btn--rounded:hover::before,
+.btn.btn--rounded:focus::before {
+	background-color: #CFCFCF;
+}
+.btn.btn--s.btn--rounded::before {
+	top: -.5ch;
+	left: -.75ch;
+	width: 2.75ch;
+	height: 2.75ch;
+}
+/* .btn.btn--s.btn--rounded {
+	display: inline-block;
+	border: 1px solid #888;
+	border-radius: 50%;
+	width: 1ch;
+	height: 1ch;
+	vertical-align: middle;
+	line-height: 0;
+	background-color: white;
+} */
 
 input[type='color'],
 input[type='date'],

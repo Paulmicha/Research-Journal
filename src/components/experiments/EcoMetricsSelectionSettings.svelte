@@ -74,6 +74,29 @@
 		}
 		return false;
 	};
+
+	/**
+	 * Reverts given setting to its default value.
+	 */
+	const reset = setting => {
+		const settings = entity.selectionSettings;
+		delete settings[setting];
+		const tooltipWasOpen = advancedSettingsTooltipMethods.getCurrentState();
+		updateSelectedItem(entity, pos, settings);
+		if (tooltipWasOpen) {
+			// TODO find better workaround when tooltip does not stay open when
+			// calling open() immediately here.
+			setTimeout(() => {
+				advancedSettingsTooltipMethods.open();
+			}, 10);
+			setTimeout(() => {
+				advancedSettingsTooltipMethods.open();
+			}, 150);
+			setTimeout(() => {
+				advancedSettingsTooltipMethods.open();
+			}, 750);
+		}
+	};
 </script>
 
 <!-- Tooltips for selecting use cases and location -->
@@ -131,6 +154,14 @@
 			>
 				Average W/h per month
 			</label>
+			{#if getSelectedItemSetting(entity, 'wh_monthly_average') !== getSelectedItemDefaultSetting(entity, 'wh_monthly_average')}
+				<button class="btn btn--s btn--rounded"
+					title="Reset to default value"
+					on:click|preventDefault={ () => reset('wh_monthly_average') }
+				>
+					↻
+				</button>
+			{/if}
 			<input class="input--s larger-number" type="number" min="0" name="wh_monthly_average"
 				id="power-monthly-average-{ entity.id }"
 				value={ getSelectedItemSetting(entity, 'wh_monthly_average') }
@@ -244,6 +275,14 @@
 					>
 						vCPU allocation
 					</label>
+					{#if getSelectedItemSetting(entity, 'vcpu') !== getSelectedItemDefaultSetting(entity, 'vcpu')}
+						<button class="btn btn--s btn--rounded"
+							title="Reset to default value"
+							on:click|preventDefault={ () => reset('vcpu') }
+						>
+							↻
+						</button>
+					{/if}
 					<input class="input--s" type="number" min="0" name="vcpu"
 						id="vcpu-{ entity.id }"
 						value={ getSelectedItemSetting(entity, 'vcpu') }
@@ -258,6 +297,14 @@
 					>
 						RAM allocation (Gb)
 					</label>
+					{#if getSelectedItemSetting(entity, 'ram') !== getSelectedItemDefaultSetting(entity, 'ram')}
+						<button class="btn btn--s btn--rounded"
+							title="Reset to default value"
+							on:click|preventDefault={ () => reset('ram') }
+						>
+							↻
+						</button>
+					{/if}
 					<input class="input--s" type="number" min="0" name="ram"
 						id="ram-{ entity.id }"
 						value={ getSelectedItemSetting(entity, 'ram') }
@@ -271,6 +318,14 @@
 					<label for="hosting-cpu-stress-{ entity.id }">
 						Average CPU stress for hosting (in %)
 					</label>
+					{#if getSelectedItemSetting(entity, 'hosting_cpu_stress') !== getSelectedItemDefaultSetting(entity, 'hosting_cpu_stress')}
+						<button class="btn btn--s btn--rounded"
+							title="Reset to default value"
+							on:click|preventDefault={ () => reset('hosting_cpu_stress') }
+						>
+							↻
+						</button>
+					{/if}
 					<input class="input--s" type="number" min="1" name="hosting_cpu_stress"
 						id="hosting-cpu-stress-{ entity.id }"
 						value={ getSelectedItemSetting(entity, 'hosting_cpu_stress') }
@@ -281,6 +336,14 @@
 					<label for="hosting-ram-stress-{ entity.id }">
 						Average RAM stress for hosting (in %)
 					</label>
+					{#if getSelectedItemSetting(entity, 'hosting_ram_stress') !== getSelectedItemDefaultSetting(entity, 'hosting_ram_stress')}
+						<button class="btn btn--s btn--rounded"
+							title="Reset to default value"
+							on:click|preventDefault={ () => reset('hosting_ram_stress') }
+						>
+							↻
+						</button>
+					{/if}
 					<input class="input--s" type="number" min="1" name="hosting_ram_stress"
 						id="hosting-ram-stress-{ entity.id }"
 						value={ getSelectedItemSetting(entity, 'hosting_ram_stress') }
@@ -323,6 +386,14 @@
 					<label for="backups-per-month-{ entity.id }">
 						Backups per month
 					</label>
+					{#if getSelectedItemSetting(entity, 'backups_per_month') !== getSelectedItemDefaultSetting(entity, 'backups_per_month')}
+						<button class="btn btn--s btn--rounded"
+							title="Reset to default value"
+							on:click|preventDefault={ () => reset('backups_per_month') }
+						>
+							↻
+						</button>
+					{/if}
 					<input class="input--s" type="number" min="1" name="backups_per_month"
 						id="backups-per-month-{ entity.id }"
 						value={ getSelectedItemSetting(entity, 'backups_per_month') }
@@ -333,6 +404,14 @@
 					<label for="backups-duration-{ entity.id }">
 						Average backups duration (in seconds)
 					</label>
+					{#if getSelectedItemSetting(entity, 'backups_duration') !== getSelectedItemDefaultSetting(entity, 'backups_duration')}
+						<button class="btn btn--s btn--rounded"
+							title="Reset to default value"
+							on:click|preventDefault={ () => reset('backups_duration') }
+						>
+							↻
+						</button>
+					{/if}
 					<input class="input--s larger-number" type="number" min="1" name="backups_duration"
 						id="backups-duration-{ entity.id }"
 						value={ getSelectedItemSetting(entity, 'backups_duration') }
@@ -347,6 +426,14 @@
 					>
 						Approximative total size of all backups (in Mo)
 					</label>
+					{#if getSelectedItemSetting(entity, 'backups_total_size') !== getSelectedItemDefaultSetting(entity, 'backups_total_size')}
+						<button class="btn btn--s btn--rounded"
+							title="Reset to default value"
+							on:click|preventDefault={ () => reset('backups_total_size') }
+						>
+							↻
+						</button>
+					{/if}
 					<input class="input--s larger-number" type="number" min="0" name="backups_total_size"
 						id="backups-total-size-{ entity.id }"
 						value={ getSelectedItemSetting(entity, 'backups_total_size') }
@@ -357,6 +444,14 @@
 					<label for="backups-cpu-stress-{ entity.id }">
 						Average CPU stress during backup (in %)
 					</label>
+					{#if getSelectedItemSetting(entity, 'backups_cpu_stress') !== getSelectedItemDefaultSetting(entity, 'backups_cpu_stress')}
+						<button class="btn btn--s btn--rounded"
+							title="Reset to default value"
+							on:click|preventDefault={ () => reset('backups_cpu_stress') }
+						>
+							↻
+						</button>
+					{/if}
 					<input class="input--s" type="number" min="1" name="backups_cpu_stress"
 						id="backups-cpu-stress-{ entity.id }"
 						value={ getSelectedItemSetting(entity, 'backups_cpu_stress') }
@@ -367,6 +462,14 @@
 					<label for="backups-ram-stress-{ entity.id }">
 						Average RAM stress during backup (in %)
 					</label>
+					{#if getSelectedItemSetting(entity, 'backups_ram_stress') !== getSelectedItemDefaultSetting(entity, 'backups_ram_stress')}
+						<button class="btn btn--s btn--rounded"
+							title="Reset to default value"
+							on:click|preventDefault={ () => reset('backups_ram_stress') }
+						>
+							↻
+						</button>
+					{/if}
 					<input class="input--s" type="number" min="1" name="backups_ram_stress"
 						id="backups-ram-stress-{ entity.id }"
 						value={ getSelectedItemSetting(entity, 'backups_ram_stress') }
@@ -411,6 +514,14 @@
 					>
 						Average number of tests per month
 					</label>
+					{#if getSelectedItemSetting(entity, 'tests_per_month') !== getSelectedItemDefaultSetting(entity, 'tests_per_month')}
+						<button class="btn btn--s btn--rounded"
+							title="Reset to default value"
+							on:click|preventDefault={ () => reset('tests_per_month') }
+						>
+							↻
+						</button>
+					{/if}
 					<input class="input--s" type="number" min="1" name="tests_per_month"
 						id="tests-per-week-{ entity.id }"
 						value={ getSelectedItemSetting(entity, 'tests_per_month') }
@@ -421,6 +532,14 @@
 					<label for="tests-duration-{ entity.id }">
 						Average tests total duration (in seconds)
 					</label>
+					{#if getSelectedItemSetting(entity, 'tests_duration') !== getSelectedItemDefaultSetting(entity, 'tests_duration')}
+						<button class="btn btn--s btn--rounded"
+							title="Reset to default value"
+							on:click|preventDefault={ () => reset('tests_duration') }
+						>
+							↻
+						</button>
+					{/if}
 					<input class="input--s" type="number" min="1" name="tests_duration"
 						id="tests-duration-{ entity.id }"
 						value={ getSelectedItemSetting(entity, 'tests_duration') }
@@ -431,6 +550,14 @@
 					<label for="tests-cpu-stress-{ entity.id }">
 						Average CPU stress during tests (in %)
 					</label>
+					{#if getSelectedItemSetting(entity, 'tests_cpu_stress') !== getSelectedItemDefaultSetting(entity, 'tests_cpu_stress')}
+						<button class="btn btn--s btn--rounded"
+							title="Reset to default value"
+							on:click|preventDefault={ () => reset('tests_cpu_stress') }
+						>
+							↻
+						</button>
+					{/if}
 					<input class="input--s" type="number" min="1" name="tests_cpu_stress"
 						id="tests-cpu-stress-{ entity.id }"
 						value={ getSelectedItemSetting(entity, 'tests_cpu_stress') }
@@ -441,6 +568,14 @@
 					<label for="tests-ram-stress-{ entity.id }">
 						Average RAM stress during tests (in %)
 					</label>
+					{#if getSelectedItemSetting(entity, 'tests_ram_stress') !== getSelectedItemDefaultSetting(entity, 'tests_ram_stress')}
+						<button class="btn btn--s btn--rounded"
+							title="Reset to default value"
+							on:click|preventDefault={ () => reset('tests_ram_stress') }
+						>
+							↻
+						</button>
+					{/if}
 					<input class="input--s" type="number" min="1" name="tests_ram_stress"
 						id="tests-ram-stress-{ entity.id }"
 						value={ getSelectedItemSetting(entity, 'tests_ram_stress') }
@@ -522,6 +657,9 @@
 		flex-grow: 1;
 		margin-right: var(--space-s);
 		text-align: right;
+	}
+	.form-item > .btn.btn--s.btn--rounded {
+		margin: 0 var(--space-s) 0 0;
 	}
 	.form-item.tooltip-triggers {
 		justify-content: flex-end;

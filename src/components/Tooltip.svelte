@@ -62,8 +62,9 @@
 	}
 
 	const getCurrentTrigger = () => swappedTrigger || trigger;
+	const getCurrentState = () => isOpen;
 
-	export const exposedMethods = { open, close, toggle, recreate, getCurrentTrigger };
+	export const exposedMethods = { open, close, toggle, recreate, getCurrentTrigger, getCurrentState };
 </script>
 
 <Dismissable dismiss={ close } exclusions={ clickOutsideExclusions }>

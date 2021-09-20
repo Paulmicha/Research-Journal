@@ -45,14 +45,10 @@ const arr2Props = (csvLine, keys) => {
 const props2Arr = eqObj => {
 	const flattenedValues = [];
 	Object.keys(eqObj).forEach(prop => {
-		if (prop in eqObj) {
-			if (Array.isArray(eqObj[prop]) || typeof(eqObj[prop]) === 'object') {
-				flattenedValues.push(JSON.stringify(eqObj[prop]));
-			} else {
-				flattenedValues.push(eqObj[prop]);
-			}
+		if (Array.isArray(eqObj[prop]) || typeof(eqObj[prop]) === 'object') {
+			flattenedValues.push(JSON.stringify(eqObj[prop]));
 		} else {
-			flattenedValues.push('');
+			flattenedValues.push(eqObj[prop]);
 		}
 	});
 	return flattenedValues;

@@ -94,6 +94,8 @@ const token_aliases = {
 	"desc": "description",
 	"content": "description",
 	"contenu": "description",
+	"p": "date_published",
+	"dt": "date_published",
 	"t": "tags",
 	"tag": "tags",
 	"mots-cles": "tags",
@@ -233,6 +235,9 @@ const tokenize_message = (text) => {
 	// Start from the end to gradually prune the text up to the first match.
 	Array.from(text.matchAll(/\/([^:/]+)\h?:/gmi)).reverse().forEach(match => {
 		const token = normalize_token_name(match[1]);
+		if (!token) {
+			return;
+		}
 		const to_prune = text.substring(match.index);
 		result[token] = to_prune.replace(match[0], '').trim().replace(/(^,)|(,$)/g, "");
 		if (!result[token].length) {
@@ -248,7 +253,7 @@ const tokenize_message = (text) => {
  * Normalizes token names.
  *
  * Performs translitteration + lowercase (slugify), and reduce synonyms or
- * aliases to "canonical" values.
+ * aliases to "canonical" values. Filters out invalid values.
  *
  * @example
  *   token = normalize_token_name("DéScriPtion");
@@ -265,7 +270,10 @@ const normalize_token_name = (token) => {
 			token = token_aliases[alias];
 		}
 	});
-	return token;
+	if ([...new Set(Object.values(token_aliases))].includes(token)) {
+		return token;
+	}
+	return false;
 }
 
 /**
@@ -273,25 +281,16 @@ const normalize_token_name = (token) => {
  */
 const parseReactions = reactions => {
 	const result = [];
-
 	reactions.forEach(reaction => {
 		if (!reaction.emoji || !reaction.emoji.imageUrl) {
 			return;
 		}
 		const fileName = path.basename(reaction.emoji.imageUrl);
-		const imgPath = `static/media/emojis/${fileName}`;
-
-		// Update : remove emoji files copy due to Error: ENOENT: no such file or
-		// directory, copyfile 'private/channels/https://twemoji.maxcdn.com/2/72x72/1f9d9-200d-2640.png' -> 'static/media/emojis/1f9d9-200d-2640.png'
-		// fs.copyFile(`private/channels/${reaction.emoji.imageUrl}`, imgPath, err => err && console.log(err));
-
 		result.push({
 			name: reaction.emoji.name,
-			count: reaction.count,
-			imgPath
+			count: reaction.count
 		});
 	});
-
 	return result;
 };
 

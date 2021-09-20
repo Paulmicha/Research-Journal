@@ -79,22 +79,16 @@
 	 * Reverts given setting to its default value.
 	 */
 	const reset = setting => {
-		const settings = entity.selectionSettings;
-		delete settings[setting];
+		delete entity.selectionSettings[setting];
 		const tooltipWasOpen = advancedSettingsTooltipMethods.getCurrentState();
-		updateSelectedItem(entity, pos, settings);
+		// TODO figure out exactly why this closes the tooltip if it was open.
+		updateSelectedItem(entity, pos, entity.selectionSettings);
 		if (tooltipWasOpen) {
 			// TODO find better workaround when tooltip does not stay open when
 			// calling open() immediately here.
 			setTimeout(() => {
 				advancedSettingsTooltipMethods.open();
-			}, 10);
-			setTimeout(() => {
-				advancedSettingsTooltipMethods.open();
-			}, 150);
-			setTimeout(() => {
-				advancedSettingsTooltipMethods.open();
-			}, 750);
+			}, 33);
 		}
 	};
 </script>

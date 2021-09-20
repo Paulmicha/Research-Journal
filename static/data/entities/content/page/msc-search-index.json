@@ -3,11 +3,11 @@
 	"title": "MSc Search index",
 	"description": "Custom search index for public URLs extracted from different channels.",
 	"data": {
-		"channels_urls": "data/entities/experiment/search_index.json"
+		"channels_urls": "data/search_index_preview.json"
 	},
 	"content": [
 		{
-			"c": "ExpChannelsIndex",
+			"c": "MScSearchIndex",
 			"props": {}
 		}
 	]

@@ -3,7 +3,7 @@
 	"title": "MSc Search index",
 	"description": "Custom search index for public URLs extracted from different channels.",
 	"data": {
-		"channels_urls": "data/search_index_preview.json"
+		"search_index": "data/search_index_preview.json"
 	},
 	"content": [
 		{

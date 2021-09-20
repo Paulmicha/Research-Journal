@@ -36,7 +36,9 @@ data.documents.forEach(doc => {
 keys = keys.sort();
 data.documents = data.documents.map(doc => {
 	const orderedObj = {};
-	keys.forEach(key => doc[key] ? orderedObj[key] = doc[key] : orderedObj[key] = '');
+	keys.forEach(
+		key => doc[key] ? orderedObj[key] = doc[key] : orderedObj[key] = ''
+	);
 	return orderedObj;
 });
 
@@ -75,6 +77,8 @@ initSqlJs().then(SQL => {
 		console.log(error);
 	}
 });
+
+// TODO deprecate this file.
 // Write as JSON file (the whole set to compare the size with the sqlite file).
 try {
 	write_file(
@@ -85,13 +89,20 @@ try {
 	console.log(error);
 }
 
-// Write the preview JSON file.
+// Write the preview JSON file which contains the last change (unix) timestamp.
+// It will be used to bust the client-side cached version of the database.
+// @see src/stores/mscSearchIndex.js
+// @see src/components/content/MScSearchIndex.svelte
 try {
 	write_file(
 		'static/data/search_index_preview.json',
 		JSON.stringify({
 			documents: last30DocsPreview,
-			total: data.documents.length
+			total: data.documents.length,
+			// This assumes contents will change on every run. If not, manually revert
+			// to previous value in the generated file. TODO automate this case.
+			unixTime: Math.floor(Date.now() / 1000),
+			dbSize: fs.statSync('static/data/search_index.sqlite').size / 1024 // in ko
 		})
 	);
 } catch (error) {

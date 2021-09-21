@@ -34,7 +34,105 @@ data.documents.forEach(doc => {
 	});
 });
 keys = keys.sort();
-data.documents = data.documents.map(doc => {
+
+// Assign IDs for easier filtering using separate tables and joins.
+keys.unshift('id');
+data.tags = [];
+data.has_tags = [];
+data.persons = [];
+data.has_persons = [];
+data.reactions = [];
+data.has_reactions = [];
+
+/**
+ * Only adds entry to dataset if not duplicate.
+ *
+ * @param {String} table name
+ * @param {Object} o entity object
+ * @param {Array} keys used to match previously created entitis.
+ * @returns {Number} the ID of the newly created entity, or of the matching
+ *   previously created entity (if any).
+ */
+const uniqueEntry = (table, o, keys) => {
+	for (let i = 0; i < data[table].length; i++) {
+		const entry = data[table][i];
+		let match = '';
+		let compare = '';
+		keys.foreach(key => {
+			match += o[key] + '.';
+			compare += entry[key] + '.';
+		});
+		if (match == compare) {
+			return entry.id;
+		}
+	});
+	data[key].push(o);
+	return 'id' in o ? o.id : true;
+};
+
+data.documents = data.documents.map((doc, i) => {
+	doc.id = i;
+
+	// Prepare "tags" filter.
+	if (doc?.tags?.length) {
+		const tags = doc.tags.split(',').map(name => name.trim());
+		tags.forEach(name => {
+			const id = uniqueEntry('tags', { id: data.tags.length, name }, ['name']);
+			// data.has_tags.push({
+			// 	id_tag: id,
+			// 	id: doc.id,
+			// 	table: 'documents'
+			// });
+			uniqueEntry(
+				'has_tags',
+				{
+					id_tag: id,
+					id: doc.id,
+					table: 'documents'
+				},
+				['id_tag', 'id', 'table']
+			);
+		});
+	}
+
+	// Prepare "persons" filter.
+	const docPersons = [];
+	if (doc?.author?.length) {
+		docPersons.push(doc.author);
+	}
+	if (doc?.names?.length) {
+		docPersons = [
+			...docPersons,
+			...doc.names.split(',').map(name => name.trim())
+		];
+	}
+	if (docPersons.length) {
+		docPersons.forEach(name => {
+			const id = uniqueEntry(
+				'persons',
+				{ id: data.persons.length, name },
+				['name']
+			);
+			// data.has_persons.push({
+			// 	id_person: id,
+			// 	id: doc.id,
+			// 	table: 'documents'
+			// });
+			uniqueEntry(
+				'has_persons',
+				{
+					id_person: id,
+					id: doc.id,
+					table: 'documents'
+				},
+				['id_person', 'id', 'table']
+			);
+		});
+	}
+
+	// TODO prepare "reactions" filter.
+
+	// Finally, return the normalized document object.
 	const orderedObj = {};
 	keys.forEach(
 		key => doc[key] ? orderedObj[key] = doc[key] : orderedObj[key] = ''
@@ -58,6 +156,19 @@ for (let i = 0; i < 30; i++) {
 // Write as sqlite file.
 initSqlJs().then(SQL => {
 	var db = new SQL.Database();
+
+	// TODO (wip) create and fill all filters table.
+	// db.run(`CREATE TABLE tags (id, name);`);
+	// data.documents.forEach(doc => {
+	// 	if (doc.tags.length) {
+	// 		db.run(
+	// 			`INSERT INTO tags VALUES (${ keys.map(c => '?').join(',') })`,
+	// 			props2Arr(doc)
+	// 		)
+	// 	}
+	// });
+	// db.run(`CREATE TABLE persons (id, name);`);
+	// db.run(`CREATE TABLE reactions (id, name, nb);`);
 
 	db.run(`CREATE TABLE documents (${ keys.join(', ') });`);
 	data.documents.forEach(doc => db.run(

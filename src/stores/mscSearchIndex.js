@@ -1,7 +1,10 @@
 import { writable } from 'svelte/store';
-// import localforage from 'localforage';
 
-export const documentStore = writable({});
+export const documentStore = writable({
+	unixTime: 0, // In seconds.
+	totalDocs: 0,
+	results: []
+});
 
 // To avoid re-fetching the SQLite database, use a combination of localStorage
 // and indexedDB (with the "localforage" package). This creates an offline cache
@@ -11,7 +14,8 @@ export const documentStore = writable({});
 // @see src/components/content/MScSearchIndex.svelte
 // TODO incremental updates unless data structure changes are implemented ?
 let defaultDocumentCacheStoreVal = {
-	unixTime: 0 // In seconds - format : Math.floor(Date.now() / 1000)
+	unixTime: 0, // In seconds - format : Math.floor(Date.now() / 1000).
+	totalDocs: 0
 };
 const createBrowserDocumentCacheStore = () => {
 	const storedVal = localStorage.getItem('mscSearchIndexCache');

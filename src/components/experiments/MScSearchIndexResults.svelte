@@ -1,6 +1,5 @@
 <script>
 	import { documentStore } from '../../stores/mscSearchIndex';
-	export let totalDocs = 0;
 
 	/**
 	 * Helper to count total number of reactions.
@@ -47,7 +46,7 @@
 		const isDesc = btn.classList.contains('is-desc');
 
 		let newState;
-		const documents = [...$documentStore];
+		const documents = [...$documentStore.results];
 
 		switch (key) {
 			case 'date_shared':
@@ -80,19 +79,22 @@
 		}
 
 		// Update docs in their new order.
-		documentsStore.set(documents);
+		documentStore.update(o => {
+			o.results = documents;
+			return o;
+		});
 
 		// Re-apply active filters (if any).
-		if (selectedFilterItems) {
-			switch (filterOp) {
-				case 'and':
-					applySelectFilterAnd();
-					break;
-				case 'or':
-					applySelectFilterOr();
-					break;
-			}
-		}
+		// if (selectedFilterItems) {
+		// 	switch (filterOp) {
+		// 		case 'and':
+		// 			applySelectFilterAnd();
+		// 			break;
+		// 		case 'or':
+		// 			applySelectFilterOr();
+		// 			break;
+		// 	}
+		// }
 
 		// Sync sort links state classes.
 		const allSortLinks = Array.from(btn.closest('thead').querySelectorAll('.sort'));
@@ -109,7 +111,7 @@
 	};
 </script>
 
-<p><strong>{ $documentStore.results.length } / { totalDocs }</strong> results</p>
+<p><strong>{ $documentStore.results.length }</strong> results</p>
 
 <div class="full-vw">
 	<table>

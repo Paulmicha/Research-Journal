@@ -355,9 +355,12 @@ const build_channels_urls_index = () => {
 			urlObj.searchParams.delete('utm_campaign');
 			urlObj.searchParams.delete('utm_medium');
 			urlObj.searchParams.delete('utm_source');
+			urlObj.searchParams.delete('utm_content');
 			urlObj.searchParams.delete('ul_campaign');
-			urlObj.searchParams.delete('ul_source');
 			urlObj.searchParams.delete('ul_medium');
+			urlObj.searchParams.delete('ul_source');
+			urlObj.searchParams.delete('ul_content');
+			urlObj.searchParams.delete('CMP');
 			if (urlObj.hash.startsWith('#nlref=')) {
 				urlObj.hash = '';
 			}

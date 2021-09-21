@@ -102,7 +102,8 @@ try {
 			// This assumes contents will change on every run. If not, manually revert
 			// to previous value in the generated file. TODO automate this case.
 			unixTime: Math.floor(Date.now() / 1000),
-			dbSize: fs.statSync('static/data/search_index.sqlite').size / 1024 // in ko
+			dbSize: fs.statSync('static/data/search_index.sqlite').size / 1024, // in ko
+			jsonSize: fs.statSync('static/data/search_index.json').size / 1024 // in ko (TODO deprecate)
 		})
 	);
 } catch (error) {

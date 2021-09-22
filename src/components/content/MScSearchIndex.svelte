@@ -1,6 +1,6 @@
 <script>
 	import { displayNb } from '../../lib/generic_utils';
-	import { initDb } from '../../lib/search_index';
+	import { initDb, getResults } from '../../lib/search_index';
 	import { route } from '../../stores/route';
 	import { documentStore, documentCacheStore } from '../../stores/mscSearchIndex';
 	import MScSearchIndexFilters from '../experiments/MScSearchIndexFilters.svelte';
@@ -55,29 +55,8 @@
 	 */
 	const load = async forceReload => {
 		let totalDocs = 0;
-		const results = [];
 		const db = await getDb(forceReload);
-
-		const res = db.exec("SELECT COUNT(url) as total FROM documents");
-		totalDocs = res[0].values[0][0];
-
-		const stmt = db.prepare("SELECT * FROM documents LIMIT 0,30");
-		stmt.bind();
-		while (stmt.step()) {
-			const row = stmt.getAsObject();
-			// Attempt to convert every value starting with '[' or '{' to object.
-			// @see props2Arr() in scripts/experiments/ecometrics/utils.js
-			Object.keys(row).forEach(key => {
-				if (row[key].substring(0, 1) === '[' || row[key].substring(0, 1) === '{') {
-					try {
-						row[key] = JSON.parse(row[key]);
-					} catch (error) {}
-				}
-			});
-			results.push(row);
-		}
-		stmt.free();
-
+		const results = getResults(db);
 		if (!$documentCacheStore.unixTime || typeof forceReload !== 'undefined') {
 			documentCacheStore.update(o => {
 				o.unixTime = $documentStore.unixTime;
@@ -85,7 +64,6 @@
 				return o;
 			});
 		}
-
 		return { results, db, totalDocs };
 	};
 

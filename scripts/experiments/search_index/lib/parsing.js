@@ -316,6 +316,19 @@ const normalizeTypes = doc => {
 };
 
 /**
+ * Makes sure there is no line break in the tags extracted value.
+ *
+ * @param {String} tagStr the CSV value representing tags.
+ * @returns {String} beginning of the CSV string up until the 1st line break (if
+ *   any).
+ */
+const cleanTags = tagStr => tagStr
+	.split(/\R/)
+	.map(s => s.trim())
+	.filter(s => s.length)
+	.shift();
+
+/**
  * Builds our custom data miner cache.
  */
 const build_channels_urls_index = () => {
@@ -370,7 +383,7 @@ const build_channels_urls_index = () => {
 				if (!('tags' in doc)) {
 					doc.tags = raw_data.channel.name;
 				} else if (!doc.tags.includes(raw_data.channel.name)) {
-					doc.tags = `${raw_data.channel.name}, ${doc.tags}`;
+					doc.tags = `${raw_data.channel.name}, ${cleanTags(doc.tags)}`;
 				}
 			}
 

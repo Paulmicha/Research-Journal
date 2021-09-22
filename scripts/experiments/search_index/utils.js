@@ -22,7 +22,7 @@ const uniqueEntry = (data, table, o, matchKeys) => {
 			match += o[key] + '.';
 			compare += entry[key] + '.';
 		});
-		if (match == compare) {
+		if (match === compare) {
 			return entry.id;
 		}
 	}

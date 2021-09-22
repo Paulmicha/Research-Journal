@@ -36,53 +36,75 @@ data.documents.forEach(doc => {
 });
 keys = keys.sort();
 
-// Assign IDs for easier filtering using separate tables and joins.
+// Assign IDs for easier filtering using separate tables and joins. Remove the
+// keys that would contain data moved to separate tables.
 keys.unshift('id');
+keys = keys.filter(key => !['tags', 'reactions', 'author', 'names'].includes(key));
+
 data.tag = [];
 data.has_tag = [];
 data.person = [];
 data.has_person = [];
 data.reaction = [];
 data.has_reaction = [];
+data.preview = [];
+
+// We'll still use a json file output, but only for a preview of the last 30
+// most recent documents.
+// @see src/components/content/MScSearchIndex.svelte
+for (let i = 0; i < 30; i++) {
+	data.preview.push(data.documents[i]);
+}
 
 data.documents = data.documents.map((doc, i) => {
-	doc.id = i;
+	// The documents are ordered from the most recent to the older -> primary key
+	// increment should start from the older.
+	doc.id = data.documents.length - i;
 
 	// Prepare "tags" filter.
 	if (doc?.tags?.length) {
 		const tags = doc.tags.split(',').map(name => name.trim());
 		tags.forEach(name => {
-			const id = uniqueEntry(data, 'tag', { id: data.tag.length, name }, ['name']);
+			const id = uniqueEntry(data, 'tag', { id: data.tag.length + 1, name }, ['name']);
 			uniqueEntry(
 				data,
 				'has_tag',
 				{
 					id_tag: id,
 					id: doc.id,
-					table_name: 'document'
+					db_table: 'document'
 				},
-				['id_tag', 'id', 'table_name']
+				['id_tag', 'id', 'db_table']
 			);
 		});
 	}
 
-	// Prepare "persons" filter.
-	let docPersons = [];
+	// Prepare "persons" filter (2 types of relation : 'author' and 'mention').
 	if (doc?.author?.length) {
-		docPersons.push(doc.author);
+		const id = uniqueEntry(
+			data,
+			'person',
+			{ id: data.person.length + 1, name: doc.author },
+			['name']
+		);
+		uniqueEntry(
+			data,
+			'has_person',
+			{
+				id_person: id,
+				id: doc.id,
+				db_table: 'document',
+				type: 'author'
+			},
+			['id_person', 'id', 'db_table']
+		);
 	}
 	if (doc?.names?.length) {
-		docPersons = [
-			...docPersons,
-			...doc.names.split(',').map(name => name.trim())
-		];
-	}
-	if (docPersons.length) {
-		docPersons.forEach(name => {
+		doc.names.split(',').map(name => name.trim()).forEach(name => {
 			const id = uniqueEntry(
 				data,
 				'person',
-				{ id: data.person.length, name },
+				{ id: data.person.length + 1, name },
 				['name']
 			);
 			uniqueEntry(
@@ -91,9 +113,10 @@ data.documents = data.documents.map((doc, i) => {
 				{
 					id_person: id,
 					id: doc.id,
-					table_name: 'document'
+					db_table: 'document',
+					type: 'mention'
 				},
-				['id_person', 'id', 'table_name']
+				['id_person', 'id', 'db_table']
 			);
 		});
 	}
@@ -104,7 +127,7 @@ data.documents = data.documents.map((doc, i) => {
 			const id = uniqueEntry(
 				data,
 				'reaction',
-				{ id: data.reaction.length, name: reaction.name },
+				{ id: data.reaction.length + 1, name: reaction.name },
 				['name']
 			);
 			uniqueEntry(
@@ -113,10 +136,10 @@ data.documents = data.documents.map((doc, i) => {
 				{
 					id_reaction: id,
 					id: doc.id,
-					table_name: 'document',
+					db_table: 'document',
 					qty: reaction.count
 				},
-				['id_reaction', 'id', 'table_name', 'qty']
+				['id_reaction', 'id', 'db_table', 'qty']
 			);
 		});
 	}
@@ -129,14 +152,6 @@ data.documents = data.documents.map((doc, i) => {
 	return orderedObj;
 });
 
-// We'll still use a json file output, but only for a preview of the last 30
-// most recent documents.
-// @see src/components/content/MScSearchIndex.svelte
-const last30DocsPreview = [];
-for (let i = 0; i < 30; i++) {
-	last30DocsPreview.push(data.documents[i]);
-}
-
 // Debug.
 // console.log(keys);
 // console.log(data.documents);
@@ -147,12 +162,13 @@ for (let i = 0; i < 30; i++) {
 initSqlJs().then(SQL => {
 	var db = new SQL.Database();
 
+	db.run(createTableQuery('document', keys));
 	db.run(createTableQuery('tag', ['id', 'name']));
-	db.run(createTableQuery('has_tag', ['id_tag', 'id', 'table_name']));
+	db.run(createTableQuery('has_tag', ['id_tag', 'id', 'db_table']));
 	db.run(createTableQuery('person', ['id', 'name']));
-	db.run(createTableQuery('has_person', ['id_person', 'id', 'table_name']));
+	db.run(createTableQuery('has_person', ['id_person', 'id', 'db_table', 'type']));
 	db.run(createTableQuery('reaction', ['id', 'name']));
-	db.run(createTableQuery('has_reaction', ['id_reaction', 'id', 'table_name', 'qty']));
+	db.run(createTableQuery('has_reaction', ['id_reaction', 'id', 'db_table', 'qty']));
 
 	const allAtOnce = ['tag', 'person', 'reaction'];
 	allAtOnce.forEach(t => {
@@ -166,8 +182,6 @@ initSqlJs().then(SQL => {
 		));
 	});
 
-	// TODO (wip) remove filterable values from document table.
-	db.run(`CREATE TABLE document (${ keys.join(', ') });`);
 	data.documents.forEach(doc => db.run(
 		`INSERT INTO document VALUES (${ keys.map(c => '?').join(',') })`,
 		props2Arr(doc)
@@ -186,17 +200,6 @@ initSqlJs().then(SQL => {
 	}
 });
 
-// TODO deprecate this file.
-// Write as JSON file (the whole set to compare the size with the sqlite file).
-try {
-	write_file(
-		'static/data/search_index.json',
-		JSON.stringify(data)
-	);
-} catch (error) {
-	console.log(error);
-}
-
 // Write the preview JSON file which contains the last change (unix) timestamp.
 // It will be used to bust the client-side cached version of the database.
 // @see src/stores/mscSearchIndex.js
@@ -205,13 +208,12 @@ try {
 	write_file(
 		'static/data/search_index_preview.json',
 		JSON.stringify({
-			documents: last30DocsPreview,
+			documents: data.preview,
 			total: data.documents.length,
 			// This assumes contents will change on every run. If not, manually revert
 			// to previous value in the generated file. TODO automate this case.
 			unixTime: Math.floor(Date.now() / 1000),
-			dbSize: fs.statSync('static/data/search_index.sqlite').size / 1024, // in ko
-			jsonSize: fs.statSync('static/data/search_index.json').size / 1024 // in ko (TODO deprecate)
+			dbSize: fs.statSync('static/data/search_index.sqlite').size / 1024 // in ko
 		})
 	);
 } catch (error) {

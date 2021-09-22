@@ -16,7 +16,7 @@
 			// Special case : Emojis.
 			// TODO implement custom replacements for filtering by emojis using
 			// natural language ?
-			if ('reactions' in doc && doc.reactions.length) {
+			if ('reactions' in doc && Array.isArray(doc.reactions)) {
 				doc.reactions.forEach(reaction => {
 					selectItems.push({
 						key: 'reactions',
@@ -26,7 +26,7 @@
 				});
 			}
 			multiSelectSearchesInKeys.forEach(key => {
-				if (key in doc) {
+				if (key in doc && doc[key]) {
 					doc[key].replace(/;/g, ',').split(',').forEach(val => {
 						val = val.trim();
 						if (!val.length) {

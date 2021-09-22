@@ -13,6 +13,7 @@ const fs = require('fs');
 const { write_file } = require('../../fs');
 const { build_channels_urls_index } = require('./lib/parsing');
 const { props2Arr } = require('../ecometrics/utils');
+const { uniqueEntry, createTableQuery } = require('./utils');
 const initSqlJs = require('../../../static/sql-wasm.js');
 
 const data = build_channels_urls_index();
@@ -37,38 +38,12 @@ keys = keys.sort();
 
 // Assign IDs for easier filtering using separate tables and joins.
 keys.unshift('id');
-data.tags = [];
-data.has_tags = [];
-data.persons = [];
-data.has_persons = [];
-data.reactions = [];
-data.has_reactions = [];
-
-/**
- * Only adds entry to dataset if not duplicate.
- *
- * @param {String} table name
- * @param {Object} o entity object
- * @param {Array} keys used to match previously created entitis.
- * @returns {Number} the ID of the newly created entity, or of the matching
- *   previously created entity (if any).
- */
-const uniqueEntry = (table, o, keys) => {
-	for (let i = 0; i < data[table].length; i++) {
-		const entry = data[table][i];
-		let match = '';
-		let compare = '';
-		keys.foreach(key => {
-			match += o[key] + '.';
-			compare += entry[key] + '.';
-		});
-		if (match == compare) {
-			return entry.id;
-		}
-	});
-	data[key].push(o);
-	return 'id' in o ? o.id : true;
-};
+data.tag = [];
+data.has_tag = [];
+data.person = [];
+data.has_person = [];
+data.reaction = [];
+data.has_reaction = [];
 
 data.documents = data.documents.map((doc, i) => {
 	doc.id = i;
@@ -77,26 +52,22 @@ data.documents = data.documents.map((doc, i) => {
 	if (doc?.tags?.length) {
 		const tags = doc.tags.split(',').map(name => name.trim());
 		tags.forEach(name => {
-			const id = uniqueEntry('tags', { id: data.tags.length, name }, ['name']);
-			// data.has_tags.push({
-			// 	id_tag: id,
-			// 	id: doc.id,
-			// 	table: 'documents'
-			// });
+			const id = uniqueEntry(data, 'tag', { id: data.tag.length, name }, ['name']);
 			uniqueEntry(
-				'has_tags',
+				data,
+				'has_tag',
 				{
 					id_tag: id,
 					id: doc.id,
-					table: 'documents'
+					table_name: 'document'
 				},
-				['id_tag', 'id', 'table']
+				['id_tag', 'id', 'table_name']
 			);
 		});
 	}
 
 	// Prepare "persons" filter.
-	const docPersons = [];
+	let docPersons = [];
 	if (doc?.author?.length) {
 		docPersons.push(doc.author);
 	}
@@ -109,28 +80,46 @@ data.documents = data.documents.map((doc, i) => {
 	if (docPersons.length) {
 		docPersons.forEach(name => {
 			const id = uniqueEntry(
-				'persons',
-				{ id: data.persons.length, name },
+				data,
+				'person',
+				{ id: data.person.length, name },
 				['name']
 			);
-			// data.has_persons.push({
-			// 	id_person: id,
-			// 	id: doc.id,
-			// 	table: 'documents'
-			// });
 			uniqueEntry(
-				'has_persons',
+				data,
+				'has_person',
 				{
 					id_person: id,
 					id: doc.id,
-					table: 'documents'
+					table_name: 'document'
 				},
-				['id_person', 'id', 'table']
+				['id_person', 'id', 'table_name']
 			);
 		});
 	}
 
-	// TODO prepare "reactions" filter.
+	// Prepare "reactions" filter.
+	if (doc.reactions?.length) {
+		doc.reactions.forEach(reaction => {
+			const id = uniqueEntry(
+				data,
+				'reaction',
+				{ id: data.reaction.length, name: reaction.name },
+				['name']
+			);
+			uniqueEntry(
+				data,
+				'has_reaction',
+				{
+					id_reaction: id,
+					id: doc.id,
+					table_name: 'document',
+					qty: reaction.count
+				},
+				['id_reaction', 'id', 'table_name', 'qty']
+			);
+		});
+	}
 
 	// Finally, return the normalized document object.
 	const orderedObj = {};
@@ -151,28 +140,36 @@ for (let i = 0; i < 30; i++) {
 // Debug.
 // console.log(keys);
 // console.log(data.documents);
+// console.log(data);
 // return;
 
 // Write as sqlite file.
 initSqlJs().then(SQL => {
 	var db = new SQL.Database();
 
-	// TODO (wip) create and fill all filters table.
-	// db.run(`CREATE TABLE tags (id, name);`);
-	// data.documents.forEach(doc => {
-	// 	if (doc.tags.length) {
-	// 		db.run(
-	// 			`INSERT INTO tags VALUES (${ keys.map(c => '?').join(',') })`,
-	// 			props2Arr(doc)
-	// 		)
-	// 	}
-	// });
-	// db.run(`CREATE TABLE persons (id, name);`);
-	// db.run(`CREATE TABLE reactions (id, name, nb);`);
+	db.run(createTableQuery('tag', ['id', 'name']));
+	db.run(createTableQuery('has_tag', ['id_tag', 'id', 'table_name']));
+	db.run(createTableQuery('person', ['id', 'name']));
+	db.run(createTableQuery('has_person', ['id_person', 'id', 'table_name']));
+	db.run(createTableQuery('reaction', ['id', 'name']));
+	db.run(createTableQuery('has_reaction', ['id_reaction', 'id', 'table_name', 'qty']));
 
-	db.run(`CREATE TABLE documents (${ keys.join(', ') });`);
+	const allAtOnce = ['tag', 'person', 'reaction'];
+	allAtOnce.forEach(t => {
+		data[t].forEach(o => db.run(
+			`INSERT INTO ${t} VALUES (${ Object.keys(o).map(c => '?').join(',') })`,
+			props2Arr(o)
+		));
+		data['has_' + t].forEach(o => db.run(
+			`INSERT INTO has_${t} VALUES (${ Object.keys(o).map(c => '?').join(',') })`,
+			props2Arr(o)
+		));
+	});
+
+	// TODO (wip) remove filterable values from document table.
+	db.run(`CREATE TABLE document (${ keys.join(', ') });`);
 	data.documents.forEach(doc => db.run(
-		`INSERT INTO documents VALUES (${ keys.map(c => '?').join(',') })`,
+		`INSERT INTO document VALUES (${ keys.map(c => '?').join(',') })`,
 		props2Arr(doc)
 	));
 

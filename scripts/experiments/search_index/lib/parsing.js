@@ -282,10 +282,9 @@ const normalize_token_name = (token) => {
 const parseReactions = reactions => {
 	const result = [];
 	reactions.forEach(reaction => {
-		if (!reaction.emoji || !reaction.emoji.imageUrl) {
+		if (!reaction.emoji) {
 			return;
 		}
-		const fileName = path.basename(reaction.emoji.imageUrl);
 		result.push({
 			name: reaction.emoji.name,
 			count: reaction.count

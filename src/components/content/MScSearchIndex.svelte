@@ -54,7 +54,6 @@
 	 * @see src/components/content/DigitalEcoMetricsSqlite.svelte
 	 */
 	const load = async forceReload => {
-		isLoading = true;
 		let totalDocs = 0;
 		const results = [];
 		const db = await getDb(forceReload);
@@ -87,7 +86,6 @@
 			});
 		}
 
-		isLoading = false;
 		return { results, db, totalDocs };
 	};
 
@@ -95,6 +93,8 @@
 	 * Updates locally cached data.
 	 */
 	const refresh = () => {
+		isLoading = true;
+
 		const updated = load(true);
 		documentStore.update(o => {
 			o.db = updated.db;
@@ -102,6 +102,8 @@
 			o.totalDocs = updated.totalDocs;
 			return o;
 		});
+
+		isLoading = false;
 	};
 
 	// Initial state contains either the last 30 entries coming from
@@ -124,14 +126,14 @@
 				initialState.db = cached.db;
 				initialState.results = cached.results;
 			}
-			isLoading = true;
 			documentStore.set(initialState);
+
 			isLoading = false;
 		}
 	});
 </script>
 
-{#if $documentStore.results.length}
+{#if !isLoading}
 	{#if $documentCacheStore.unixTime > 0}
 		{#if $documentStore.unixTime != $documentCacheStore.unixTime}
 			<p>
@@ -143,24 +145,21 @@
 		{/if}
 		<MScSearchIndexFilters />
 	{:else}
-		{#if !isLoading}
-			<div class="rich-text">
-				<p>
-					This page currently shows the last 30 entries indexed. The full dataset contains { displayNb(totalDocs) } entries. You can load a local copy of the database to browse and filter all entries :
-				</p>
-				<button class="btn load u-m-b" on:click|preventDefault={ load }>
-					Load the full dataset ({ displayNb(dbSize) }&nbsp;ko)
-				</button>
-			</div>
-		{/if}
+		<div class="rich-text">
+			<p>
+				This page currently shows the last 30 entries indexed. The full dataset contains { displayNb(totalDocs) } entries. You can load a local copy of the database to browse and filter all entries :
+			</p>
+			<button class="btn load u-m-b" on:click|preventDefault={ load }>
+				Load the full dataset ({ displayNb(dbSize) }&nbsp;ko)
+			</button>
+		</div>
 	{/if}
 {/if}
 
 <div class="wrap">
 	{#if isLoading}
 		<LoadingSpinner size="10vmin" border="1vmin" />
-	{/if}
-	{#if $documentStore.totalDocs}
+	{:else}
 		<MScSearchIndexResults />
 	{/if}
 </div>

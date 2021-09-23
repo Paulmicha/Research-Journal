@@ -96,7 +96,8 @@
 
 		// Devices.
 		selection.device.forEach(entity => {
-			estimates.device[entity.id] = {
+			const k = entity.selectionSettings.pos + '_' + entity.id;
+			estimates.device[k] = {
 				power: {
 					year: getSelectedItemSetting(entity, 'qty') * getDeviceKwhPerPeriod(entity, 'year'),
 					month: getSelectedItemSetting(entity, 'qty') * getDeviceKwhPerPeriod(entity, 'month'),
@@ -104,25 +105,25 @@
 					day: getSelectedItemSetting(entity, 'qty') * getDeviceKwhPerPeriod(entity, 'day')
 				}
 			};
-			estimates.device[entity.id].co2 = {
-				year: getEntityCo2Footprint(entity, estimates.device[entity.id].power.year)
+			estimates.device[k].co2 = {
+				year: getEntityCo2Footprint(entity, estimates.device[k].power.year)
 			};
-			estimates.device[entity.id].co2.month = convertValuePerYearToPeriod(
-				estimates.device[entity.id].co2.year,
+			estimates.device[k].co2.month = convertValuePerYearToPeriod(
+				estimates.device[k].co2.year,
 				'month'
 			);
-			estimates.device[entity.id].co2.week = convertValuePerYearToPeriod(
-				estimates.device[entity.id].co2.year,
+			estimates.device[k].co2.week = convertValuePerYearToPeriod(
+				estimates.device[k].co2.year,
 				'week'
 			);
-			estimates.device[entity.id].co2.day = convertValuePerYearToPeriod(
-				estimates.device[entity.id].co2.year,
+			estimates.device[k].co2.day = convertValuePerYearToPeriod(
+				estimates.device[k].co2.year,
 				'day'
 			);
-			totalKwhPerYear += estimates.device[entity.id].power.year;
-			totalKgCo2PerYear += estimates.device[entity.id].co2.year;
+			totalKwhPerYear += estimates.device[k].power.year;
+			totalKgCo2PerYear += estimates.device[k].co2.year;
 			deviceLabels.push(getDeviceLabel(entity));
-			datasetDeviceKgCo2PerYear.push(estimates.device[entity.id].co2.year);
+			datasetDeviceKgCo2PerYear.push(estimates.device[k].co2.year);
 		});
 		deviceUseCo2EqChartData = {
 			"labels": deviceLabels,
@@ -138,7 +139,8 @@
 		selection.service.forEach(entity => {
 			// Unlike devices, service power consumption is divided in "types" of
 			// estimates (currently cloud + data transfer).
-			estimates.service[entity.id] = {
+			const k = entity.selectionSettings.pos + '_' + entity.id;
+			estimates.service[k] = {
 				powerPerType: {
 					year: getServiceKwhPerPeriodEstimates(entity, 'year'),
 					month: getServiceKwhPerPeriodEstimates(entity, 'month'),
@@ -146,35 +148,35 @@
 					day: getServiceKwhPerPeriodEstimates(entity, 'day')
 				}
 			};
-			estimates.service[entity.id].power = {
-				year: estimates.service[entity.id].powerPerType.year.cloud
-					+ estimates.service[entity.id].powerPerType.year.transfer,
-				month: estimates.service[entity.id].powerPerType.month.cloud
-					+ estimates.service[entity.id].powerPerType.month.transfer,
-				week: estimates.service[entity.id].powerPerType.week.cloud
-					+ estimates.service[entity.id].powerPerType.week.transfer,
-				day: estimates.service[entity.id].powerPerType.day.cloud
-					+ estimates.service[entity.id].powerPerType.day.transfer
+			estimates.service[k].power = {
+				year: estimates.service[k].powerPerType.year.cloud
+					+ estimates.service[k].powerPerType.year.transfer,
+				month: estimates.service[k].powerPerType.month.cloud
+					+ estimates.service[k].powerPerType.month.transfer,
+				week: estimates.service[k].powerPerType.week.cloud
+					+ estimates.service[k].powerPerType.week.transfer,
+				day: estimates.service[k].powerPerType.day.cloud
+					+ estimates.service[k].powerPerType.day.transfer
 			};
-			estimates.service[entity.id].co2 = {
-				year: getEntityCo2Footprint(entity, estimates.service[entity.id].power.year)
+			estimates.service[k].co2 = {
+				year: getEntityCo2Footprint(entity, estimates.service[k].power.year)
 			};
-			estimates.service[entity.id].co2.month = convertValuePerYearToPeriod(
-				estimates.service[entity.id].co2.year,
+			estimates.service[k].co2.month = convertValuePerYearToPeriod(
+				estimates.service[k].co2.year,
 				'month'
 			);
-			estimates.service[entity.id].co2.week = convertValuePerYearToPeriod(
-				estimates.service[entity.id].co2.year,
+			estimates.service[k].co2.week = convertValuePerYearToPeriod(
+				estimates.service[k].co2.year,
 				'week'
 			);
-			estimates.service[entity.id].co2.day = convertValuePerYearToPeriod(
-				estimates.service[entity.id].co2.year,
+			estimates.service[k].co2.day = convertValuePerYearToPeriod(
+				estimates.service[k].co2.year,
 				'day'
 			);
-			totalKwhPerYear += estimates.service[entity.id].power.year;
-			totalKgCo2PerYear += estimates.service[entity.id].co2.year;
+			totalKwhPerYear += estimates.service[k].power.year;
+			totalKgCo2PerYear += estimates.service[k].co2.year;
 			serviceLabels.push(entity.name);
-			datasetServiceKgCo2PerYear.push(estimates.service[entity.id].co2.year);
+			datasetServiceKgCo2PerYear.push(estimates.service[k].co2.year);
 		});
 		serviceUseCo2EqChartData = {
 			"labels": serviceLabels,
@@ -271,6 +273,7 @@
 				{#if $selectionStore.device.length}
 					<div class="f-grid-item">
 						<h3>Devices</h3>
+						<p class="u-center"><strong>{ displayNb(convertValuePerYearToPeriod(deviceUseCo2EqChartData.datasets[0].values.reduce((p, c) => p + c), period)) }</strong>&nbsp;KgCO2e&nbsp;per&nbsp;{ period }</p>
 						{#if $selectionStore.device.length > 1}
 							<Chart data={deviceUseCo2EqChartData} type="pie" maxSlices="13" />
 						{/if}
@@ -299,7 +302,7 @@
 											Estimated power consumption for using this device <strong>{ getSelectedItemSetting(entity, 'hours_per_day') }</strong>&nbsp;hours per day on average&nbsp;:
 										</td>
 										<td class="val">
-											<strong>{ displayNb(estimates.device[entity.id].power[period]) }</strong>
+											<strong>{ displayNb(estimates.device[entity.selectionSettings.pos + '_' + entity.id].power[period]) }</strong>
 										</td>
 										<td class="unit">Kw/h&nbsp;per&nbsp;{ period }</td>
 									</tr>
@@ -308,7 +311,7 @@
 											&rarr;&nbsp;Estimated footprint (for { getSelectedItemSetting(entity, 'qty') } device{ getSelectedItemSetting(entity, 'qty') > 1 ? 's' : '' })&nbsp;:
 										</td>
 										<td class="val">
-											<strong>{ displayNb(estimates.device[entity.id].co2[period]) }</strong>
+											<strong>{ displayNb(estimates.device[entity.selectionSettings.pos + '_' + entity.id].co2[period]) }</strong>
 										</td>
 										<td class="unit">KgCO2e&nbsp;per&nbsp;{ period }</td>
 									</tr>
@@ -320,6 +323,7 @@
 				{#if $selectionStore.service.length}
 					<div class="f-grid-item rich-text">
 						<h3>Services</h3>
+						<p class="u-center"><strong>{ displayNb(convertValuePerYearToPeriod(serviceUseCo2EqChartData.datasets[0].values.reduce((p, c) => p + c), period)) }</strong>&nbsp;KgCO2e&nbsp;per&nbsp;{ period }</p>
 						{#if $selectionStore.service.length > 1}
 							<Chart data={serviceUseCo2EqChartData} type="pie" maxSlices="13" />
 						{/if}
@@ -370,7 +374,7 @@
 										</span>
 									{/each}</p>
 								{/if}
-								{#if estimates.service[entity.id].co2[period] > 0}
+								{#if estimates.service[entity.selectionSettings.pos + '_' + entity.id].co2[period] > 0}
 									<table>
 										{#if entity.selectionSettings.location}
 											<tr>
@@ -385,20 +389,20 @@
 												<td class="unit">gCO2e/kWh</td>
 											</tr>
 										{/if}
-										{#if estimates.service[entity.id].powerPerType[period].cloud > 0}
+										{#if estimates.service[entity.selectionSettings.pos + '_' + entity.id].powerPerType[period].cloud > 0}
 											<tr>
 												<td class="push">Estimated cloud power consumption</td>
 												<td class="val">
-													<strong>{ displayNb(estimates.service[entity.id].powerPerType[period].cloud * 1000) }</strong>
+													<strong>{ displayNb(estimates.service[entity.selectionSettings.pos + '_' + entity.id].powerPerType[period].cloud * 1000) }</strong>
 												</td>
 												<td class="unit">W/h&nbsp;per&nbsp;{ period }</td>
 											</tr>
 										{/if}
-										{#if estimates.service[entity.id].powerPerType[period].transfer > 0}
+										{#if estimates.service[entity.selectionSettings.pos + '_' + entity.id].powerPerType[period].transfer > 0}
 											<tr>
 												<td class="push">Estimated data transfer consumption</td>
 												<td class="val">
-													<strong>{ displayNb(estimates.service[entity.id].powerPerType[period].transfer * 1000) }</strong>
+													<strong>{ displayNb(estimates.service[entity.selectionSettings.pos + '_' + entity.id].powerPerType[period].transfer * 1000) }</strong>
 												</td>
 												<td class="unit">W/h&nbsp;per&nbsp;{ period }</td>
 											</tr>
@@ -408,7 +412,7 @@
 												&rarr;&nbsp;Estimated footprint&nbsp;:
 											</td>
 											<td class="val">
-												<strong>{ displayNb(estimates.service[entity.id].co2[period] * 1000) }</strong>
+												<strong>{ displayNb(estimates.service[entity.selectionSettings.pos + '_' + entity.id].co2[period] * 1000) }</strong>
 											</td>
 											<td class="unit">gCO2e&nbsp;per&nbsp;{ period }</td>
 										</tr>

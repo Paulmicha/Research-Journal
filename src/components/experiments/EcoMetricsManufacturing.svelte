@@ -232,7 +232,8 @@
 				</figure>
 			</details>
 			{#if $selectionStore.device.length > 1}
-				<h3>Totals</h3>
+				<h3 class="u-center">Total</h3>
+				<p class="u-center"><strong>{ displayNb($totalsStore.kg_co2eq.value) }</strong> Kg CO2 Equivalents</p>
 				<div class="full-vw">
 					<div class="f-grid f-grid--center f-grid--g">
 						<!-- <div class="chart-wrap">

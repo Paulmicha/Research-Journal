@@ -33,8 +33,16 @@
 	<hr>
 	<div class="wrap">
 		{ footer.license_prefix }
-		<a href="{ footer.license_url }">
+		<a href="{ footer.license_url }" target="_blank">
 			<abbr title="{ footer.license_title }">{ footer.license_text }</abbr>
+		</a>
+		&ndash;
+		<a title="Source code" href="https://github.com/Paulmicha/research-journal" target="_blank">
+			🐈
+		</a>
+		is
+		<a href="https://www.gnu.org/licenses/lgpl-3.0.html" target="_blank">
+			<abbr title="GNU Lesser General Public License">lgpl-3.0</abbr>
 		</a>
 	</div>
 </footer>

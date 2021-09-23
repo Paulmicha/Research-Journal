@@ -272,7 +272,7 @@
 					<div class="f-grid-item">
 						<h3>Devices</h3>
 						{#if $selectionStore.device.length > 1}
-							<Chart data={deviceUseCo2EqChartData} type="pie" maxSlices="33" />
+							<Chart data={deviceUseCo2EqChartData} type="pie" maxSlices="13" />
 						{/if}
 						{#each $selectionStore.device as entity}
 							<div class="selection-item">
@@ -321,7 +321,7 @@
 					<div class="f-grid-item rich-text">
 						<h3>Services</h3>
 						{#if $selectionStore.service.length > 1}
-							<Chart data={serviceUseCo2EqChartData} type="pie" maxSlices="33" />
+							<Chart data={serviceUseCo2EqChartData} type="pie" maxSlices="13" />
 						{/if}
 						{#each $selectionStore.service as entity}
 							<div class="selection-item">

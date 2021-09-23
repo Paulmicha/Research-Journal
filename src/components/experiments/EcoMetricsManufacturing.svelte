@@ -239,7 +239,7 @@
 							<Chart data={co2EqChartData} type="bar" valuesOverPoints="1" />
 						</div> -->
 						<div class="chart-wrap">
-							<Chart data={co2EqChartData} type="pie" maxSlices="20" />
+							<Chart data={co2EqChartData} type="pie" maxSlices="13" />
 						</div>
 					</div>
 				</div>

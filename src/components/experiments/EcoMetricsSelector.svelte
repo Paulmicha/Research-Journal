@@ -88,13 +88,18 @@
 
 		// For the location selector on individual selected entities, update the
 		// selectionStore.
-		if (!currentTrigger.hasAttribute('data-entity-id') || !currentTrigger.hasAttribute('data-entity-type')) {
+		if (
+			!currentTrigger.hasAttribute('data-entity-id')
+			|| !currentTrigger.hasAttribute('data-entity-type')
+			|| !currentTrigger.hasAttribute('data-entity-pos')
+		) {
 			return;
 		}
 		const entity = getSelectedEntity(
 			$selectionStore,
 			currentTrigger.getAttribute('data-entity-type'),
-			currentTrigger.getAttribute('data-entity-id')
+			currentTrigger.getAttribute('data-entity-id'),
+			currentTrigger.getAttribute('data-entity-pos')
 		);
 		if (!entity) {
 			return;
@@ -176,7 +181,7 @@
 					</tr>
 				</thead>
 				<tbody>
-					{#each $selectionStore.device as device, i}
+					{#each $selectionStore.device as device}
 						<tr>
 							<td>
 								<span class="selection-icon" title="{ device.subcategory }">
@@ -188,20 +193,19 @@
 								<EcoMetricsSelectionSettings
 									{ toggleLocationTooltip }
 									entity={ device }
-									pos={ i }
 								/>
 							</td>
 							<td>
 								<button
 									class="btn btn--s"
-									on:click|preventDefault={ () => removeSelectedItem(device, i) }
+									on:click|preventDefault={ () => removeSelectedItem(device) }
 								>
 									Remove
 								</button>
 							</td>
 						</tr>
 					{/each}
-					{#each $selectionStore.service as service, i}
+					{#each $selectionStore.service as service}
 						<tr>
 							<td>
 								<span class="selection-icon selection-icon--s">
@@ -213,13 +217,12 @@
 								<EcoMetricsSelectionSettings
 									{ toggleLocationTooltip }
 									entity={ service }
-									pos={ i }
 								/>
 							</td>
 							<td>
 								<button
 									class="btn btn--s"
-									on:click|preventDefault={ () => removeSelectedItem(service, i) }
+									on:click|preventDefault={ () => removeSelectedItem(service) }
 								>
 									Remove
 								</button>

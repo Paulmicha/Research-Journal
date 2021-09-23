@@ -2,7 +2,7 @@
 <!-- <script context="module">
 	// TODO implement a static counter of all instances of this component to
 	// also have it in the results area of the page without botching the "id"
-	// attributes ?
+	// attributes ? Would need to rework the "singleton" Tooltip for locations.
 </script> -->
 
 <script>
@@ -19,7 +19,6 @@
 
 	// Device or service data input.
 	export let entity;
-	export let pos;
 
 	// Reuse the location tooltip "singleton".
 	// @see src/components/experiments/EcoMetricsSelector.svelte
@@ -53,7 +52,7 @@
 		} else {
 			delete settings[e.target.name];
 		}
-		updateSelectedItem(entity, pos, settings);
+		updateSelectedItem(entity, settings);
 		e.target.blur();
 		// Updates tooltip position.
 		if (advancedSettingsTooltipMethods) {
@@ -82,7 +81,7 @@
 		delete entity.selectionSettings[setting];
 		const tooltipWasOpen = advancedSettingsTooltipMethods.getCurrentState();
 		// TODO figure out exactly why this closes the tooltip if it was open.
-		updateSelectedItem(entity, pos, entity.selectionSettings);
+		updateSelectedItem(entity, entity.selectionSettings);
 		if (tooltipWasOpen) {
 			// TODO find better workaround when tooltip does not stay open when
 			// calling open() immediately here.
@@ -111,6 +110,7 @@
 			on:click|preventDefault={ toggleLocationTooltip }
 			data-entity-id={ entity.id }
 			data-entity-type={ entity.entityType }
+			data-entity-pos={ entity.selectionSettings.pos }
 			title="Change the location for this particular { entity.entityType }"
 		>
 			{#if entity.selectionSettings.location && entity.selectionSettings.location.id != $selectionStore.defaultLocation.id}
@@ -242,6 +242,7 @@
 					<input
 						type="checkbox" name="hosting_is_baremetal"
 						id="hosting-is-baremetal-{ entity.id }"
+						checked={ getSelectedItemSetting(entity, 'hosting_is_baremetal') }
 						on:change|preventDefault={ updateSettings }
 					/>
 				</div>
@@ -255,6 +256,7 @@
 					<input
 						type="checkbox" name="hosting_is_dedicated"
 						id="hosting-is-dedicated-{ entity.id }"
+						checked={ getSelectedItemSetting(entity, 'hosting_is_dedicated') }
 						on:change|preventDefault={ updateSettings }
 					/>
 				</div>

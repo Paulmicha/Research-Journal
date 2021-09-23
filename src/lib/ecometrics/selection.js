@@ -37,7 +37,7 @@ export const selectionShortenedPropMap = {
 	tests_duration: 'a',
 	tests_cpu_stress: 'k',
 	tests_ram_stress: 'n',
-	hosting_is_baremetal: 'q', // TODO deprecate
+	hosting_is_baremetal: 'A', // TODO deprecate
 	hosting_is_dedicated: 'v', // TODO deprecate
 	hosting_cpu_stress: 'w',
 	hosting_ram_stress: 'x',
@@ -168,6 +168,11 @@ export const addSelectedItem = async entity => {
 	}
 	selectionStore.update(selection => {
 		selection[entity.entityType].push(entity);
+		// Maintain positions in order.
+		selection[entity.entityType] = selection[entity.entityType].map((e, i) => {
+			e.selectionSettings.pos = i;
+			return e;
+		});
 		return selection;
 	});
 };
@@ -175,11 +180,16 @@ export const addSelectedItem = async entity => {
 /**
  * Removes selected item from the list.
  */
-export const removeSelectedItem = (entity, pos) => {
+export const removeSelectedItem = entity => {
 	selectionStore.update(selection => {
 		selection[entity.entityType].forEach((o, i) => {
-			if (o.id === entity.id && i === pos) {
+			if (o.id === entity.id && o.selectionSettings.pos === entity.selectionSettings.pos) {
 				selection[entity.entityType].splice(i, 1);
+				// Maintain positions in order.
+				selection[entity.entityType] = selection[entity.entityType].map((e, i) => {
+					e.selectionSettings.pos = i;
+					return e;
+				});
 				return;
 			}
 		});
@@ -191,10 +201,10 @@ export const removeSelectedItem = (entity, pos) => {
 /**
  * Updates selected device.
  */
-export const updateSelectedItem = (entity, pos, settings) => {
+export const updateSelectedItem = (entity, settings) => {
 	selectionStore.update(selection => {
 		selection[entity.entityType].forEach((o, i) => {
-			if (o.id === entity.id && i === pos) {
+			if (o.id === entity.id && o.selectionSettings.pos === entity.selectionSettings.pos) {
 				selection[entity.entityType][i].selectionSettings = settings;
 				return;
 			}
@@ -215,12 +225,12 @@ export const clearSelection = () => {
 };
 
 /**
- * Returns selected entity by entity type and id.
+ * Returns selected entity by entity type and id and pos.
  */
-export const getSelectedEntity = (selection, entityType, id) => {
+export const getSelectedEntity = (selection, entityType, id, pos) => {
 	for (let i = 0; i < selection[entityType].length; i++) {
 		const entity = selection[entityType][i];
-		if (id === entity.id) {
+		if (id === entity.id && entity.selectionSettings.pos === parseInt(pos)) {
 			return entity;
 		}
 	}

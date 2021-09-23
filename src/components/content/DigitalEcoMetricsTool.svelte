@@ -93,27 +93,27 @@
 				const servicesToSelect = [];
 				let defaultLocationToSelect = false;
 
-				o.query.s.split(';').forEach((urlEncodedEntity, i) => {
+				o.query.s.split(';').forEach(urlEncodedEntity => {
 					const parts = urlEncodedEntity.split('/');
 					const id = parts[0].substring(1);
-					let entityToSelect;
+					let entityToSelect = null;
 
 					switch (parts[0].substring(0, 1)) {
 						case 'd':
-							entityToSelect = devicesById[id];
+							entityToSelect = {...devicesById[id]};
+							// Position follows the order of items in the URL.
+							entityToSelect.selectionSettings = { pos: devicesToSelect.length };
 							break;
 						case 's':
-							entityToSelect = servicesById[id];
+							entityToSelect = {...servicesById[id]};
+							// Position follows the order of items in the URL.
+							entityToSelect.selectionSettings = { pos: servicesToSelect.length };
 							break;
 						case 'l':
 							defaultLocationToSelect = locationsById[id];
 							// Exit early because in this case, we're reading the default
 							// location entity, which has no settings.
 							return;
-					}
-
-					if (!('selectionSettings' in entityToSelect)) {
-						entityToSelect.selectionSettings = {};
 					}
 
 					// When there is nothing more than the entity ID, it means that all
@@ -157,12 +157,16 @@
 				});
 
 				// Update the selection store with all parsed data.
-				selectionStore.update(selection => {
-					selection.device = devicesToSelect;
-					selection.service = servicesToSelect;
-					selection.defaultLocation = defaultLocationToSelect || locationsById['10401578'];
-					return selection;
-				});
+				// TODO workaround attempt to fix glitch in devices images in the
+				// manufacturing tab.
+				setTimeout(() => {
+					selectionStore.update(selection => {
+						selection.device = devicesToSelect;
+						selection.service = servicesToSelect;
+						selection.defaultLocation = defaultLocationToSelect || locationsById['10401578'];
+						return selection;
+					});
+				}, 150);
 
 				// When URLs with preset config are opened, close the collapsible zones
 				// by default (because we assume the importance will not be the settings

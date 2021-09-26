@@ -7,8 +7,8 @@
 #		# From project docroot :
 #		scripts/experiments/ecometrics/fetch.sh
 #   # Results :
-#		# - static/data/ecometrics.json
-#		# - static/data/ecometrics.sqlite
+#		# - content/ecometrics.json
+#		# - content/ecometrics.sqlite
 #
 
 ##

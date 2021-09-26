@@ -16,7 +16,7 @@
 # @example
 #		# From project docroot :
 #		scripts/experiments/search_index/fetch.sh
-#   # -> Results : see static/data/entities/experiment/search_index.json
+#   # -> Results : see content/entities/experiment/search_index.json
 #
 
 # Tout exporter :

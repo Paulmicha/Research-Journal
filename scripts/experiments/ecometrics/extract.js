@@ -35,7 +35,7 @@ const { serviceNormalizeItem, servicesPostprocess } = require('./entities/servic
 const initSqlJs = require('../../../static/sql-wasm.js');
 
 // This "data" var contains everything that will get written.
-// @see static/data/ecometrics.json
+// @see content/ecometrics.json
 const data = {};
 
 // Data sources.
@@ -178,11 +178,11 @@ initSqlJs().then(SQL => {
 	// console.log(res[0].values.map(v => v[0]));
 
 	try {
-		if (fs.existsSync('static/data/ecometrics.sqlite')) {
-			fs.unlinkSync('static/data/ecometrics.sqlite');
+		if (fs.existsSync('content/ecometrics.sqlite')) {
+			fs.unlinkSync('content/ecometrics.sqlite');
 		}
 		write_file(
-			'static/data/ecometrics.sqlite',
+			'content/ecometrics.sqlite',
 			new Buffer.from(db.export())
 		);
 	} catch (error) {
@@ -192,11 +192,11 @@ initSqlJs().then(SQL => {
 
 // Write as json file.
 try {
-	if (fs.existsSync('static/data/ecometrics.json')) {
-		fs.unlinkSync('static/data/ecometrics.json');
+	if (fs.existsSync('content/ecometrics.json')) {
+		fs.unlinkSync('content/ecometrics.json');
 	}
 	write_file(
-		'static/data/ecometrics.json',
+		'content/ecometrics.json',
 		JSON.stringify(data)
 	);
 } catch (error) {

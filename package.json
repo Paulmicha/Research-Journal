@@ -1,54 +1,24 @@
 {
   "name": "research-journal",
-  "description": "For the MSc Strategy and Design for the Anthropocene",
   "version": "0.0.1",
   "scripts": {
-    "dev": "sapper dev",
-    "build": "node scripts/before_build.js && sapper build --legacy",
-    "export": "node scripts/before_build.js && sapper export --legacy",
-    "start": "node __sapper__/build"
-  },
-  "dependencies": {
-    "compression": "^1.7.1",
-    "polka": "^1.0.0-next.15",
-    "sirv": "^1.0.12",
-    "sql.js": "^1.5.0"
+    "dev": "svelte-kit dev",
+    "build": "svelte-kit build",
+    "preview": "svelte-kit preview"
   },
   "devDependencies": {
-    "@babel/core": "^7.14.6",
-    "@babel/plugin-syntax-dynamic-import": "^7.0.0",
-    "@babel/plugin-transform-runtime": "^7.14.5",
-    "@babel/preset-env": "^7.14.7",
-    "@babel/runtime": "^7.14.6",
-    "@popperjs/core": "^2.9.3",
-    "@rollup/plugin-babel": "^5.3.0",
-    "@rollup/plugin-commonjs": "^14.0.0",
-    "@rollup/plugin-json": "^4.1.0",
-    "@rollup/plugin-node-resolve": "^8.0.0",
-    "@rollup/plugin-replace": "^2.4.2",
-    "@rollup/plugin-url": "^5.0.0",
-    "@sindresorhus/slugify": "^1.1.2",
-    "d3-array": "^2.12.1",
-    "d3-scale": "^3.3.0",
-    "husky": "^4.3.8",
+    "@sindresorhus/slugify": "^2.1.0",
+    "@sveltejs/adapter-static": "^1.0.0-next.19",
+    "@sveltejs/kit": "next",
     "localforage": "^1.10.0",
-    "mkdirp": "^1.0.4",
-    "rollup": "^2.53.2",
-    "rollup-plugin-svelte": "^6.1.1",
-    "rollup-plugin-terser": "^7.0.0",
-    "sapper": "^0.28.0",
-    "sql.js": "^1.5.0",
-    "svelte": "^3.38.3",
-    "svelte-canvas": "^0.6.1",
-    "svelte-frappe-charts": "^1.8.4",
-    "svelte-popover": "^2.0.8",
-    "svelte-preprocess": "^4.7.4",
-    "svelte-select": "^3.17.0",
-    "uuid": "^8.3.2"
+    "svelte": "^3.34.0",
+    "svelte-canvas": "^0.7.0",
+    "svelte-select": "^4.4.3"
   },
-  "husky": {
-    "hooks": {
-      "pre-commit": "node scripts/git_hooks/pre_commit.js"
-    }
+  "type": "module",
+  "dependencies": {
+    "@fontsource/fira-mono": "^4.5.0",
+    "@lukeed/uuid": "^2.0.0",
+    "cookie": "^0.4.1"
   }
 }

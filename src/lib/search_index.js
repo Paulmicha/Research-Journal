@@ -4,7 +4,7 @@
  * Contains shared utilities for the "search index" experiment.
  */
 
-import localforage from 'localforage';
+// import localforage from 'localforage';
 
 /**
  * Utility to dynamically load scripts.
@@ -33,27 +33,27 @@ export const initDb = async forceReload => {
 	if (typeof initSqlJs === 'undefined') {
 		await injectScript('/sql-wasm.js');
 	}
-	if (typeof forceReload === 'undefined') {
-		try {
-			sqliteFileContents = await localforage.getItem('search_index');
-			if (sqliteFileContents) {
-				console.log('sqliteFileContents have been loaded using localforage.');
-			}
-		} catch (error) {
-			console.error(error);
-		}
-	}
+	// if (typeof forceReload === 'undefined') {
+	// 	try {
+	// 		sqliteFileContents = await localforage.getItem('search_index');
+	// 		if (sqliteFileContents) {
+	// 			console.log('sqliteFileContents have been loaded using localforage.');
+	// 		}
+	// 	} catch (error) {
+	// 		console.error(error);
+	// 	}
+	// }
 	if (!sqliteFileContents || typeof forceReload !== 'undefined') {
 		[SQL, buf] = await Promise.all([
 			initSqlJs({ locateFile: file => `./${file}` }),
-			fetch('/data/search_index.sqlite').then(res => res.arrayBuffer())
+			fetch('/search_index.sqlite').then(res => res.arrayBuffer())
 		]);
-		try {
-			await localforage.setItem('search_index', buf);
-			console.log('sqliteFileContents have been downloaded and stored in your browser using localforage (indexedDB or fallback).');
-		} catch (error) {
-			console.error(error);
-		}
+		// try {
+		// 	await localforage.setItem('search_index', buf);
+		// 	console.log('sqliteFileContents have been downloaded and stored in your browser using localforage (indexedDB or fallback).');
+		// } catch (error) {
+		// 	console.error(error);
+		// }
 	} else {
 		SQL = await initSqlJs({ locateFile: file => `./${file}` });
 		buf = sqliteFileContents;

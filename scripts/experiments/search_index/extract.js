@@ -188,11 +188,11 @@ initSqlJs().then(SQL => {
 	));
 
 	try {
-		if (fs.existsSync('static/data/search_index.sqlite')) {
-			fs.unlinkSync('static/data/search_index.sqlite');
+		if (fs.existsSync('content/search_index.sqlite')) {
+			fs.unlinkSync('content/search_index.sqlite');
 		}
 		write_file(
-			'static/data/search_index.sqlite',
+			'content/search_index.sqlite',
 			new Buffer.from(db.export())
 		);
 	} catch (error) {
@@ -206,14 +206,14 @@ initSqlJs().then(SQL => {
 // @see src/components/content/MScSearchIndex.svelte
 try {
 	write_file(
-		'static/data/search_index_preview.json',
+		'content/search_index_preview.json',
 		JSON.stringify({
 			documents: data.preview,
 			total: data.documents.length,
 			// This assumes contents will change on every run. If not, manually revert
 			// to previous value in the generated file. TODO automate this case.
 			unixTime: Math.floor(Date.now() / 1000),
-			dbSize: fs.statSync('static/data/search_index.sqlite').size / 1024 // in ko
+			dbSize: fs.statSync('content/search_index.sqlite').size / 1024 // in ko
 		})
 	);
 } catch (error) {

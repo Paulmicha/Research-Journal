@@ -1,5 +1,5 @@
 <script>
-	import { route } from '$lib/stores/route.js';
+	import { page } from '$app/stores';
 	import { randomizeArray, objectFlip } from '$lib/generic_utils.js';
 	import { selectionShortenedPropMap } from '$lib/ecometrics/selection.js';
 	import {
@@ -17,6 +17,9 @@
 	import EcoMetricsUse from '$lib/components/ecometrics/EcoMetricsUse.svelte';
 	import Tabs from '$lib/components/Tabs.svelte';
 	import TabContent from '$lib/components/TabContent.svelte';
+	import ecometricsData from '$content/ecometrics.json';
+	import devicesIconsData from '$content/devicesIcons.json';
+	import servicesIconsData from '$content/servicesIcons.json';
 
 	const tabHasChanged = e => preferencesStore.update(prefs => {
 		prefs.ecometricsLastActiveTab = e.detail.selected;
@@ -28,157 +31,153 @@
 	const oneLetterPropMapInverted = objectFlip(selectionShortenedPropMap);
 
 	// Init custom data.
-	route.subscribe(o => {
-		if (o.data && o.data.ecometrics) {
-			const devicesById = {};
-			deviceStore.set({
-				devices: o.data.ecometrics.devices.map(device => {
-					device.entityType = 'device';
-					devicesById[device.id] = device;
-					return device;
-				}),
-				devicesColNames: o.data.ecometrics.devicesColNamesByKey,
-				devicesIcons: o.data.devicesIcons
-			});
-
-			co2EqStore.set(randomizeArray(o.data.ecometrics.co2Eq));
-			carbonIntensityStore.set(o.data.ecometrics.carbonIntensity);
-
-			const locationsById = {};
-			o.data.ecometrics.locations.map(location => {
-				location.entityType = 'location';
-				locationsById[location.id] = location;
-			});
-			locationEntityStore.set(locationsById);
-
-			const servicesById = {};
-			o.data.ecometrics.services.map(service => {
-				// Some services have a list of locations where the 1st is to be
-				// considered as the default location.
-				// @see scripts/experiments/ecometrics/manual-data/services.json
-				if ('locations' in service) {
-					service.selectionSettings = {};
-					service.selectionSettings.location = locationsById[service.locations[0]];
-				}
-				service.entityType = 'service';
-				servicesById[service.id] = service;
-			});
-			serviceStore.set({
-				services: servicesById,
-				servicesIcons: o.data.servicesIcons
-			});
-
-			// Preset the default location to "World" if empty.
-			if (!$selectionStore.defaultLocation) {
-				selectionStore.update(selection => {
-					selection.defaultLocation = locationsById['10401578'];
-					return selection;
-				});
-			}
-
-			// Presets from query args (shareable links).
-			// The separator between entities is ';'.
-			// The separator between entity setting is '/'.
-			// Example :
-			// host.tld/path?s=l39266913;d52609815;d22777652/q2;s58190969/l74923856/i2000/otrue
-			// -> 4 entities :
-			//   - l39266913 : location of ID 39266913
-			//   - d52609815 : device of ID 52609815
-			//   - d22777652/q2 : device with 1 setting (quantity = 2)
-			//   - s58190969/l74923856/i2000/otrue : a service with 3 settings
-			// @see src/components/experiments/EcoMetricsShareLink.svelte
-			// @see src/components/experiments/EcoMetricsSelectionSettings.svelte
-			if ('s' in o.query && o.query.s.length) {
-				const devicesToSelect = [];
-				const servicesToSelect = [];
-				let defaultLocationToSelect = false;
-
-				o.query.s.split(';').forEach(urlEncodedEntity => {
-					const parts = urlEncodedEntity.split('/');
-					const id = parts[0].substring(1);
-					let entityToSelect = null;
-
-					switch (parts[0].substring(0, 1)) {
-						case 'd':
-							entityToSelect = {...devicesById[id]};
-							// Position follows the order of items in the URL.
-							entityToSelect.selectionSettings = { pos: devicesToSelect.length };
-							break;
-						case 's':
-							entityToSelect = {...servicesById[id]};
-							// Position follows the order of items in the URL.
-							entityToSelect.selectionSettings = { pos: servicesToSelect.length };
-							break;
-						case 'l':
-							defaultLocationToSelect = locationsById[id];
-							// Exit early because in this case, we're reading the default
-							// location entity, which has no settings.
-							return;
-					}
-
-					// When there is nothing more than the entity ID, it means that all
-					// settings are defaults. When there's more than 1 part, we have
-					// non-default settings to parse.
-					if (parts.length > 1) {
-						// Part 0 is the entity ID, and all remaining parts are settings
-						// -> start the loop at 1.
-						for (let i = 1; i < parts.length; i++) {
-							const urlEncodedSetting = parts[i];
-							const firstChar = urlEncodedSetting.substring(0, 1);
-
-							Object.keys(oneLetterPropMapInverted).forEach(l => {
-								if (firstChar === l) {
-									entityToSelect.selectionSettings[oneLetterPropMapInverted[l]] = urlEncodedSetting.substring(1);
-
-									// TODO avoid manual exceptions here and in the "encoding"
-									// part of the URL sharing mechanism by only allowing strings
-									// in 'selectionSettings' ?
-									if (l === 'l') {
-										// Location overrides are (for now) the entity objects
-										// themselves (instead of just the ID).
-										entityToSelect.selectionSettings[oneLetterPropMapInverted[l]] = locationsById[urlEncodedSetting.substring(1)];
-									}
-
-									// TODO test boolean values to convert based on defaults.
-									// WIP
-								}
-							});
-						}
-					}
-
-					switch (entityToSelect.entityType) {
-						case 'device':
-							devicesToSelect.push(entityToSelect);
-							break;
-						case 'service':
-							servicesToSelect.push(entityToSelect);
-							break;
-					}
-				});
-
-				// Update the selection store with all parsed data.
-				// TODO workaround attempt to fix glitch in devices images in the
-				// manufacturing tab.
-				setTimeout(() => {
-					selectionStore.update(selection => {
-						selection.device = devicesToSelect;
-						selection.service = servicesToSelect;
-						selection.defaultLocation = defaultLocationToSelect || locationsById['10401578'];
-						return selection;
-					});
-				}, 150);
-
-				// When URLs with preset config are opened, close the collapsible zones
-				// by default (because we assume the importance will not be the settings
-				// or the details but the results).
-				preferencesStore.update(prefs => {
-					prefs.ecometricsDeviceSelectionListState = null;
-					prefs.ecometricsCollapsibleWarningsState = null;
-					return prefs;
-				});
-			}
-		}
+	const devicesById = {};
+	deviceStore.set({
+		devices: ecometricsData.devices.map(device => {
+			device.entityType = 'device';
+			devicesById[device.id] = device;
+			return device;
+		}),
+		devicesColNames: ecometricsData.devicesColNamesByKey,
+		devicesIcons: devicesIconsData
 	});
+
+	co2EqStore.set(randomizeArray(ecometricsData.co2Eq));
+	carbonIntensityStore.set(ecometricsData.carbonIntensity);
+
+	const locationsById = {};
+	ecometricsData.locations.map(location => {
+		location.entityType = 'location';
+		locationsById[location.id] = location;
+	});
+	locationEntityStore.set(locationsById);
+
+	const servicesById = {};
+	ecometricsData.services.map(service => {
+		// Some services have a list of locations where the 1st is to be
+		// considered as the default location.
+		// @see scripts/experiments/ecometrics/manual-data/services.json
+		if ('locations' in service) {
+			service.selectionSettings = {};
+			service.selectionSettings.location = locationsById[service.locations[0]];
+		}
+		service.entityType = 'service';
+		servicesById[service.id] = service;
+	});
+	serviceStore.set({
+		services: servicesById,
+		servicesIcons: servicesIconsData
+	});
+
+	// Preset the default location to "World" if empty.
+	if (!$selectionStore.defaultLocation) {
+		selectionStore.update(selection => {
+			selection.defaultLocation = locationsById['10401578'];
+			return selection;
+		});
+	}
+
+	// Presets from query args (shareable links).
+	// The separator between entities is ';'.
+	// The separator between entity setting is '/'.
+	// Example :
+	// host.tld/path?s=l39266913;d52609815;d22777652/q2;s58190969/l74923856/i2000/otrue
+	// -> 4 entities :
+	//   - l39266913 : location of ID 39266913
+	//   - d52609815 : device of ID 52609815
+	//   - d22777652/q2 : device with 1 setting (quantity = 2)
+	//   - s58190969/l74923856/i2000/otrue : a service with 3 settings
+	// @see src/components/experiments/EcoMetricsShareLink.svelte
+	// @see src/components/experiments/EcoMetricsSelectionSettings.svelte
+	if (page.query && page.query.get('s')) {
+		const devicesToSelect = [];
+		const servicesToSelect = [];
+		let defaultLocationToSelect = false;
+
+		page.query.get('s').split(';').forEach(urlEncodedEntity => {
+			const parts = urlEncodedEntity.split('/');
+			const id = parts[0].substring(1);
+			let entityToSelect = null;
+
+			switch (parts[0].substring(0, 1)) {
+				case 'd':
+					entityToSelect = {...devicesById[id]};
+					// Position follows the order of items in the URL.
+					entityToSelect.selectionSettings = { pos: devicesToSelect.length };
+					break;
+				case 's':
+					entityToSelect = {...servicesById[id]};
+					// Position follows the order of items in the URL.
+					entityToSelect.selectionSettings = { pos: servicesToSelect.length };
+					break;
+				case 'l':
+					defaultLocationToSelect = locationsById[id];
+					// Exit early because in this case, we're reading the default
+					// location entity, which has no settings.
+					return;
+			}
+
+			// When there is nothing more than the entity ID, it means that all
+			// settings are defaults. When there's more than 1 part, we have
+			// non-default settings to parse.
+			if (parts.length > 1) {
+				// Part 0 is the entity ID, and all remaining parts are settings
+				// -> start the loop at 1.
+				for (let i = 1; i < parts.length; i++) {
+					const urlEncodedSetting = parts[i];
+					const firstChar = urlEncodedSetting.substring(0, 1);
+
+					Object.keys(oneLetterPropMapInverted).forEach(l => {
+						if (firstChar === l) {
+							entityToSelect.selectionSettings[oneLetterPropMapInverted[l]] = urlEncodedSetting.substring(1);
+
+							// TODO avoid manual exceptions here and in the "encoding"
+							// part of the URL sharing mechanism by only allowing strings
+							// in 'selectionSettings' ?
+							if (l === 'l') {
+								// Location overrides are (for now) the entity objects
+								// themselves (instead of just the ID).
+								entityToSelect.selectionSettings[oneLetterPropMapInverted[l]] = locationsById[urlEncodedSetting.substring(1)];
+							}
+
+							// TODO test boolean values to convert based on defaults.
+							// WIP
+						}
+					});
+				}
+			}
+
+			switch (entityToSelect.entityType) {
+				case 'device':
+					devicesToSelect.push(entityToSelect);
+					break;
+				case 'service':
+					servicesToSelect.push(entityToSelect);
+					break;
+			}
+		});
+
+		// Update the selection store with all parsed data.
+		// TODO workaround attempt to fix glitch in devices images in the
+		// manufacturing tab.
+		setTimeout(() => {
+			selectionStore.update(selection => {
+				selection.device = devicesToSelect;
+				selection.service = servicesToSelect;
+				selection.defaultLocation = defaultLocationToSelect || locationsById['10401578'];
+				return selection;
+			});
+		}, 150);
+
+		// When URLs with preset config are opened, close the collapsible zones
+		// by default (because we assume the importance will not be the settings
+		// or the details but the results).
+		preferencesStore.update(prefs => {
+			prefs.ecometricsDeviceSelectionListState = null;
+			prefs.ecometricsCollapsibleWarningsState = null;
+			return prefs;
+		});
+	}
 </script>
 
 <!-- Debug. -->

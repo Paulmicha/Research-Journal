@@ -1,6 +1,6 @@
 <script>
 	import { createPopper } from '@popperjs/core';
-	import Dismissable from "./Dismissable.svelte";
+	import Dismissable from "$lib/components/Dismissable.svelte";
 
 	export let trigger;
 	export let popperInstance = null;

@@ -11,7 +11,7 @@
 	import { getDeviceLabel, getDeviceInfo, getDeviceImg } from '$lib/ecometrics/device.js';
 	import SidePanel from '$lib/components/SidePanel.svelte';
 	import Chart from 'svelte-frappe-charts';
-  import EcoMetricsCo2Equivalents from './EcoMetricsCo2Equivalents.svelte';
+  import EcoMetricsCo2Equivalents from '$lib/components/ecometrics/EcoMetricsCo2Equivalents.svelte';
 
 	// Allows to trigger actions in SidePanel components.
 	let deviceSidePanelMethods;

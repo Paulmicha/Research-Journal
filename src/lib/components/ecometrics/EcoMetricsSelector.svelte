@@ -18,14 +18,14 @@
 	import { getServiceImg } from '$lib/ecometrics/service.js';
 	import LoadingSpinner from '$lib/components/LoadingSpinner.svelte';
 	import Tooltip from '$lib/components/Tooltip.svelte';
-	import EcoMetricsShareLink from './EcoMetricsShareLink.svelte';
-	import EcoMetricsSelectMain from './EcoMetricsSelectMain.svelte';
-	import EcoMetricsSelectLocation from './EcoMetricsSelectLocation.svelte';
-	import EcoMetricsSelectionSettings from './EcoMetricsSelectionSettings.svelte';
+	import EcoMetricsShareLink from '$lib/components/ecometrics/EcoMetricsShareLink.svelte';
+	import EcoMetricsSelectMain from '$lib/components/ecometrics/EcoMetricsSelectMain.svelte';
+	import EcoMetricsSelectLocation from '$lib/components/ecometrics/EcoMetricsSelectLocation.svelte';
+	import EcoMetricsSelectionSettings from '$lib/components/ecometrics/EcoMetricsSelectionSettings.svelte';
 
 	// [minor] Deal with main layout width adjustments when scrollbar (dis)appears.
-	// @see src/routes/_layout.svelte()
-	const { setDocumentScrollbarWidthCssVar } = getContext('globals');
+	// @see src/routes/__layout.svelte
+	// const { updateCssWidth } = getContext('globals');
 
 	let totalNbOfDevices = 0;
 	let totalNbOfServices = 0;
@@ -44,11 +44,8 @@
 		totalNbOfServices = selection.service.length;
 		// TODO find better workaround to maintain correct main layout width due to
 		// scrollbar.
-		// @see src/routes/_layout.svelte()
-		setTimeout(setDocumentScrollbarWidthCssVar, 100);
-		setTimeout(setDocumentScrollbarWidthCssVar, 300);
-		setTimeout(setDocumentScrollbarWidthCssVar, 500);
-		setTimeout(setDocumentScrollbarWidthCssVar, 1000);
+		// @see src/routes/__layout.svelte()
+		// setTimeout(updateCssWidth, 100);
 	});
 
 	/**

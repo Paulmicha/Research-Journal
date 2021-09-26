@@ -25,7 +25,7 @@ html {
 	--content-width: 60ch;
 
 	/*
-		See src/routes/_layout.svelte : the width of the scrollbar is calculated
+		See src/routes/__layout.svelte : the width of the scrollbar is calculated
 		using JS on window:load and put in the --content-width CSS var on <html>.
 	*/
 	--content-bleed: calc((100vw - var(--scrollbar-width, 10px) - var(--content-width)) / 2);

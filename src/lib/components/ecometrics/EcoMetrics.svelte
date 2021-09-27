@@ -89,12 +89,12 @@
 	//   - s58190969/l74923856/i2000/otrue : a service with 3 settings
 	// @see src/components/experiments/EcoMetricsShareLink.svelte
 	// @see src/components/experiments/EcoMetricsSelectionSettings.svelte
-	if (page.query && page.query.get('s')) {
+	if ($page.query && $page.query.get('s')) {
 		const devicesToSelect = [];
 		const servicesToSelect = [];
 		let defaultLocationToSelect = false;
 
-		page.query.get('s').split(';').forEach(urlEncodedEntity => {
+		$page.query.get('s').split(';').forEach(urlEncodedEntity => {
 			const parts = urlEncodedEntity.split('/');
 			const id = parts[0].substring(1);
 			let entityToSelect = null;

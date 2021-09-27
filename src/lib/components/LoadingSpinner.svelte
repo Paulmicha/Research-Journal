@@ -3,12 +3,13 @@
 	export let border = "2px";
 	export let color = "cornflowerblue";
 	export let speed = ".6s";
+	export let voffset = "0";
 </script>
 
 <div
 	class="spinner"
 	aria-hidden="true"
-	style="--size:{ size }; --border:{ border }; --color:{ color }; --speed:{ speed }"
+	style="--size:{ size }; --border:{ border }; --color:{ color }; --speed:{ speed }; --voffset:{ voffset }"
 ></div>
 
 <style>
@@ -26,7 +27,7 @@
 		left: 50%;
 		width: var(--size);
 		height: var(--size);
-		margin-top: calc(-1 * var(--size) / 2);
+		margin-top: calc(-1 * var(--size) / 2 + var(--voffset));
 		margin-left: calc(-1 * var(--size) / 2);
 		border-radius: 50%;
 		border-top: var(--border) solid var(--color);

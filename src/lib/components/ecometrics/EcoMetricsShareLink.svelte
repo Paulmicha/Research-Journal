@@ -1,5 +1,5 @@
 <script>
-	import { route } from '$lib/stores/route.js';
+	import { page } from '$app/stores';
 	import { selectionStore } from '$lib/stores/ecometrics.js';
 	import { getSelectedItemDefaultSetting, getSelectedItemSetting, selectionShortenedPropMap } from '$lib/ecometrics/selection.js';
 	import SidePanel from '$lib/components/SidePanel.svelte';
@@ -21,8 +21,8 @@
 
 		if (selection.device.length || selection.service.length) {
 			// TODO reverse proxy... ?
-			// let shareLink = 'http://' + $route.host + '/' + $route.path + '?s=';
-			shareLink = 'https://msc.paulmichalet.com/' + $route.path + '?s=';
+			// let shareLink = 'http://' + $page.host + $page.path + '?s=';
+			shareLink = 'https://msc.paulmichalet.com' + $page.path + '?s=';
 
 			// Start with the default location (if not "World", which will be selected
 			// by default - no need to send it in the URL).

@@ -1,6 +1,7 @@
 <script>
 	import { displayNb } from '$lib/generic_utils';
 	import { initDb, getResults } from '$lib/search_index';
+	import { appIsBusy } from '$lib/stores/globalState.js';
 	import { documentStore, documentCacheStore } from '$lib/stores/mscSearchIndex';
 	import MScSearchIndexFilters from '$lib/components/search_index/MScSearchIndexFilters.svelte';
 	import MScSearchIndexResults from '$lib/components/search_index/MScSearchIndexResults.svelte';
@@ -52,6 +53,7 @@
 	 */
 	const load = async forceReload => {
 		isLoading = true;
+		appIsBusy.set(true);
 
 		let totalDocs = 0;
 		const db = await getDb(forceReload);
@@ -77,6 +79,7 @@
 		});
 
 		isLoading = false;
+		appIsBusy.set(false);
 	};
 
 	// Initial state contains either the last 30 entries coming from
@@ -101,6 +104,7 @@
 		// });
 		documentStore.set(initialState);
 		isLoading = false;
+		appIsBusy.set(false);
 	}
 
 </script>

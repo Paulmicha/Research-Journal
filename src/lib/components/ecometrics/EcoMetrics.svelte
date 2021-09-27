@@ -1,7 +1,13 @@
+<!-- <script context="module">
+	import { appIsBusy } from '$lib/stores/globalState.js';
+	// TODO test displaying loader as this is a heavy component.
+	// console.log("(module) set TRUE from EcoMetrics.svelte");
+	appIsBusy.set(true);
+</script> -->
+
 <script>
 	import { page } from '$app/stores';
-	import { randomizeArray, objectFlip } from '$lib/generic_utils.js';
-	import { selectionShortenedPropMap } from '$lib/ecometrics/selection.js';
+	import { appIsBusy } from '$lib/stores/globalState.js';
 	import {
 		deviceStore,
 		co2EqStore,
@@ -10,7 +16,9 @@
 		locationEntityStore,
 		serviceStore
 	} from '$lib/stores/ecometrics.js';
-	import { preferencesStore } from '$lib/stores/preferences.js';
+	import { preferencesStore } from '$lib/stores/preferences';
+	import { randomizeArray, objectFlip } from '$lib/generic_utils';
+	import { selectionShortenedPropMap } from '$lib/ecometrics/selection';
 	import LoadingSpinner from '$lib/components/LoadingSpinner.svelte';
 	import EcoMetricsSelector from '$lib/components/ecometrics/EcoMetricsSelector.svelte';
 	import EcoMetricsManufacturing from '$lib/components/ecometrics/EcoMetricsManufacturing.svelte';
@@ -20,6 +28,10 @@
 	import ecometricsData from '$content/ecometrics.json';
 	import devicesIconsData from '$content/devicesIcons.json';
 	import servicesIconsData from '$content/servicesIcons.json';
+
+	// TODO test displaying loader as this is a heavy component.
+	// console.log("(instance) set TRUE from EcoMetrics.svelte");
+	// appIsBusy.set(true);
 
 	const tabHasChanged = e => preferencesStore.update(prefs => {
 		prefs.ecometricsLastActiveTab = e.detail.selected;
@@ -68,14 +80,6 @@
 		services: servicesById,
 		servicesIcons: servicesIconsData
 	});
-
-	// Preset the default location to "World" if empty.
-	if (!$selectionStore.defaultLocation) {
-		selectionStore.update(selection => {
-			selection.defaultLocation = locationsById['10401578'];
-			return selection;
-		});
-	}
 
 	// Presets from query args (shareable links).
 	// The separator between entities is ';'.
@@ -165,6 +169,10 @@
 				selection.device = devicesToSelect;
 				selection.service = servicesToSelect;
 				selection.defaultLocation = defaultLocationToSelect || locationsById['10401578'];
+
+				console.log("set FALSE in selectionStore share link preset");
+				appIsBusy.set(false);
+
 				return selection;
 			});
 		}, 150);
@@ -177,13 +185,38 @@
 			prefs.ecometricsCollapsibleWarningsState = null;
 			return prefs;
 		});
+	} else {
+		// Preset the default location to "World" if empty.
+		if (!$selectionStore.defaultLocation) {
+			selectionStore.update(selection => {
+				selection.defaultLocation = locationsById['10401578'];
+
+				// TODO test displaying loader as this is a heavy component.
+				// console.log("set FALSE in selectionStore default location");
+				appIsBusy.set(false);
+
+				return selection;
+			});
+		} else {
+			// TODO test displaying loader as this is a heavy component.
+			// console.log("set FALSE as we already had a selectionStore");
+			appIsBusy.set(false);
+		}
 	}
 </script>
 
 <!-- Debug. -->
 <!-- <pre>$preferencesStore : { JSON.stringify($preferencesStore, null, 2) } </pre> -->
 
-{#if ! $deviceStore.devices.length}
+<h1>{ $appIsBusy }</h1>
+
+<!--
+	TODO attempt to fix the glitch where 1st tab is first shown before the
+	preference store is loaded -> wrong content shown initially, then switches
+	without user interaction.
+	-> currently showing the LoadingSpinner : not great.
+-->
+{#if ! $deviceStore.devices.length || $appIsBusy}
 	<div class="full-vw fill-h">
 		<LoadingSpinner size="10vmin" border="1vmin" />
 	</div>

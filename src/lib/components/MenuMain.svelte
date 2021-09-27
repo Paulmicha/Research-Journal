@@ -1,7 +1,9 @@
 <script>
-	import { page } from '$app/stores';
+	import { navigating, page } from '$app/stores';
+	import { appIsBusy } from '$lib/stores/globalState.js';
 	import globalData from '$content/config/global.json';
 	import menuMainData from '$content/menu/main.json';
+	import LoadingSpinner from './LoadingSpinner.svelte';
 
 	export let currentPageData;
 
@@ -22,10 +24,13 @@
 <!-- <pre>MenuMain.svelte : currentPageData = {JSON.stringify(currentPageData, null, 2)}</pre> -->
 <!-- <pre>MenuMain.svelte : items = {JSON.stringify(items, null, 2)}</pre> -->
 
-<div class="wrap full-vw full-vw--padded">
+<div class="wrap full-vw full-vw--padded" class:is-loading={ $appIsBusy || $navigating }>
 	<div class="inner-wrap">
 		<a class="logo" href="/">
 			<img src="/logo.svg" alt="Experimental research journal logo" />
+			{#if $appIsBusy || $navigating}
+				<LoadingSpinner size="75%" border=".33em" voffset="-.16em" />
+			{/if}
 		</a>
 		<nav class="MenuMain">
 			{#each items as { title, path, isActive }, i}
@@ -55,12 +60,41 @@
 		padding-bottom: .25rem;
 		background-color: var(--color-invert-bg);
 	}
+	@keyframes bg-anim {
+		0% { background-position: 0% 50% }
+    50% { background-position: 100% 50% }
+    100% { background-position: 0% 50% }
+	}
+	.wrap.is-loading {
+		position: relative;
+	}
+	.wrap.is-loading::after {
+		content: '';
+		position: absolute;
+		bottom: calc(var(--space-s) * -1);
+		left: 0;
+		right: 0;
+		background: linear-gradient(
+			to right,
+			rgb(76, 217, 105),
+			rgb(90, 200, 250),
+			rgb(0, 132, 255),
+			rgb(52, 170, 220),
+			rgb(88, 86, 217),
+			rgb(255, 45, 83)
+		);
+		background-size: 400% 400%;
+		width: 100%;
+		height: var(--space-s);
+		animation: bg-anim 3s ease-in-out infinite;
+	}
 	.inner-wrap {
 		display: flex;
 		align-items: center;
 		width: 100%;
 	}
 	.logo {
+		position: relative;
 		display: block;
 		line-height: 1;
 		width: 1.66rem;

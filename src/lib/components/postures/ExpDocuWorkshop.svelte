@@ -1,23 +1,12 @@
 <script>
+	import { onMount } from "svelte";
+	import { browser } from '$app/env';
+	import Scene from '$lib/Scene';
+	import SceneItem from '$lib/SceneItem';
 	import { Canvas } from "svelte-canvas";
-	import { onMount } from 'svelte';
-	// import { afterUpdate } from 'svelte';
-	import { route } from '$lib/stores/route.js';
-	// import { spring } from 'svelte/motion';
-	import { writable } from 'svelte/store';
-
-	import Scene from '$lib/Scene.js';
-	import SceneItem from '$lib/SceneItem.js';
-
-	// import Popover from 'svelte-popover';
-	import Postures from '$lib/components/perspective/Postures.svelte';
+	import Postures from '$lib/components/postures/Postures.svelte';
 	import Point from '$lib/components/perspective/Point.svelte';
-
-	// Tests WIP.
-	// let coords = spring({ x: 50, y: 50 }, {
-	// 	stiffness: 0.03,
-	// 	damping: 0.15
-	// });
+	import posturesData from '$content/postures.json';
 
 	const scene = new Scene();
 
@@ -36,7 +25,6 @@
 	/**
 	 * Utility to get a single "score" from all the weights.
 	 */
-	// const get_score = (posture) => maxScore;
 	const get_score = (posture) => partial_weight * posture.partial
 		+ informel_weight * posture.informel
 		+ conflictuel_weight * posture.conflictuel;
@@ -50,12 +38,8 @@
 		const newProjectedPos = posture.si.position(newPos);
 		posture.projectedX = newProjectedPos.x;
 		posture.projectedY = newProjectedPos.y;
-		// posture.projectedScale = newProjectedPos.scale;
 		posture.projectedScale = newProjectedPos.scale * 5; // <- Artificially multiply for better readability.
 	}
-
-	// This will allow the list of items to be updated using Svelte compiler "$".
-	const posturesStore = writable([]);
 
 	/**
 	 * Positions elements.
@@ -67,8 +51,7 @@
 		let currentLine = 0;
 		const stepX = sceneW / nbPerLine;
 		const stepY = sceneH / linesNb; // <- "line height", in px.
-
-		postures.forEach((posture, i) => {
+		return postures.map((posture, i) => {
 			const currentCol = i % nbPerLine;
 			if (i > 0 && i % nbPerLine === 0) {
 				currentLine++;
@@ -76,27 +59,14 @@
 			const x = -sceneW / 2 + currentCol * stepX - radius / 2 + stepX / 2;
 			const y = -sceneH / 2 + currentLine * stepY - radius / 2 + stepY / 2;
 			const z = maxScore - get_score(posture);
-
 			// Debug.
 			// console.log({ x, y, z });
-
 			posture.si = new SceneItem({ scene, x, y, z });
 			updatePos(posture);
-
 			posture.hslaAngle = Math.round(Math.random() * 360);
+			return posture;
 		});
-
-		posturesStore.set(postures);
 	};
-
-	// Init custom data.
-	let postures = [];
-	route.subscribe(o => {
-		if (o.data && o.data.postures && o.data.postures.items) {
-			postures = o.data.postures.items;
-			initPosturesLayout(postures);
-		}
-	});
 
 	/**
 	 * Updates any weight value.
@@ -117,35 +87,36 @@
 				break;
 		}
 
-		postures.forEach(posture => {
+		postures = postures.map(posture => {
 			updatePos(posture, { z: maxScore - get_score(posture) });
+			return posture;
 		});
-
-		posturesStore.set(postures);
 	}
+
+	// Init custom data.
+	let postures = initPosturesLayout(posturesData.items);
 
 	/**
 	 * Component is mounted into the DOM.
 	 */
 	onMount(async () => {
 		scene.init(sceneW, sceneH, (sceneW + sceneH) / 2);
-
 		// TODO can't figure out why we need to do this, but it is not getting the
 		// correct initial positions unless this is delayed.
 		// initPosturesLayout(postures);
 		let failsafe = 15;
 		while (postures[0].projectedScale < .1 && failsafe > 0) {
 			failsafe--;
-			await new Promise(resolve => setTimeout(() => { initPosturesLayout(postures) }, 150));
+			await new Promise(resolve => setTimeout(() => {
+				postures = initPosturesLayout(postures);
+			}, 150));
 		}
 	});
 </script>
 
-
 <!-- Debug. -->
 <!-- <pre>src/components/content/ExpDocuWorkshop.svelte : $route = {JSON.stringify($route, null, 2)}</pre> -->
 <!-- <pre>src/components/content/ExpDocuWorkshop.svelte : postures = {JSON.stringify(postures, null, 2)}</pre> -->
-
 
 <div class="full-vw fill-h">
 	<div class="controls">
@@ -177,33 +148,22 @@
 			<span>conflictuel</span>
 		</div>
 	</div>
-
 	<div class="scene" bind:clientWidth={sceneW} bind:clientHeight={sceneH} style="--z_index:-1; --sceneMargin:{sceneMargin}rem">
-	<!-- <div class="wrap full-vw" on:mousemove="{ e => coords.set({ x: e.clientX, y: e.clientY }) }"> -->
-
-		<Canvas width={sceneW} height={sceneH}>
-			{#each $posturesStore as posture, i}
-				<Point
-					x={ posture.projectedX }
-					y={ posture.projectedY }
-					radius={ posture.projectedScale }
-					fill="hsla({ posture.hslaAngle }, 100%, 30%, 1)"
-				/>
-			{/each}
-		</Canvas>
-
-		<!-- Tests WIP. -->
-		<!-- <div
-			class="mouse-tracker dot"
-			style="--x:calc({ $coords.x }px - .5rem); --y:calc({ $coords.y }px - .5rem);"
-		>
-		</div> -->
+		{#if browser}
+			<Canvas width={sceneW} height={sceneH}>
+				{#each postures as posture}
+					<Point
+						x={ posture.projectedX }
+						y={ posture.projectedY }
+						radius={ posture.projectedScale }
+						fill="hsla({ posture.hslaAngle }, 100%, 30%, 1)"
+					/>
+				{/each}
+			</Canvas>
+		{/if}
 	</div>
-
-	<Postures postures={$posturesStore} />
-
+	<Postures { postures } />
 </div>
-
 
 <style>
 	.scene {
@@ -214,18 +174,6 @@
 		left: 0;
 		z-index: var(--z_index);
 	}
-	/* .mouse-tracker {
-		position: absolute;
-		left: var(--x);
-		top: var(--y);
-	}
-	.dot {
-		height: 1rem;
-		width: 1rem;
-		background-color: #bbb;
-		border-radius: 50%;
-		display: inline-block;
-	} */
 	.controls {
 		font-size: .75rem;
 		margin: 1rem 0;

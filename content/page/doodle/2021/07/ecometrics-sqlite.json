@@ -3,11 +3,5 @@
 	"title": "Ecometrics SQLite",
 	"description": "Testing the SQLite WASM technique. See https://willschenk.com/articles/2021/sq_lite_in_the_browser/",
 	"image": "media/2021/07/sqlite-test.jpg",
-	"published": "2021-07-19T02:53:18.876Z",
-	"content": [
-		{
-			"c": "EcoMetricsSqlite",
-			"props": {}
-		}
-	]
+	"published": "2021-07-19T02:53:18.876Z"
 }

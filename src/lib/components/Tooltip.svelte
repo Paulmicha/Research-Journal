@@ -2,7 +2,7 @@
 	import { createPopper } from '@popperjs/core';
 	import Dismissable from "$lib/components/Dismissable.svelte";
 
-	export let trigger;
+	export let trigger = null;
 	export let popperInstance = null;
 	export let isOpen = null;
 	export let placement = 'bottom';
@@ -14,7 +14,9 @@
 
 	const init = element => {
 		componentInstanceElement = element;
-		popperInstance = createPopper(trigger, componentInstanceElement);
+		if (trigger) {
+			popperInstance = createPopper(trigger, componentInstanceElement);
+		}
 		if (!clickOutsideExclusions.includes(trigger)) {
 			clickOutsideExclusions.push(trigger);
 		}
@@ -61,10 +63,11 @@
 		isOpen ? close() : open();
 	}
 
+	const updatePos = () => popperInstance.update();
 	const getCurrentTrigger = () => swappedTrigger || trigger;
 	const getCurrentState = () => isOpen;
 
-	export const exposedMethods = { open, close, toggle, recreate, getCurrentTrigger, getCurrentState };
+	export const exposedMethods = { open, close, toggle, recreate, getCurrentTrigger, getCurrentState, updatePos };
 </script>
 
 <Dismissable dismiss={ close } exclusions={ clickOutsideExclusions }>

@@ -4,7 +4,7 @@
 	import { locationEntityStore } from '$lib/stores/ecometrics.js';
 	import { getLocationLabel } from '$lib/ecometrics/location.js';
 
-	let selectedValue;
+	let value;
 	const dispatch = createEventDispatcher();
 
 	/**
@@ -33,10 +33,10 @@
 
 		// TODO when this is called on:select on the <Select /> instance, the reset
 		// will not work immediately -> find better workaround than delaying.
-		let failsafe = 99;
-		while (selectedValue && failsafe > 0) {
+		let failsafe = 20;
+		while (value && failsafe > 0) {
 			await new Promise(resolve => setTimeout(() => {
-				selectedValue = null;
+				value = null;
 				resolve();
 			}, 150));
 			failsafe--;
@@ -48,5 +48,5 @@
 	items={getSelectOptions(Object.values($locationEntityStore))}
 	on:select={e => selectionIsMade(e.detail)}
 	placeholder="Search and select new location..."
-	bind:selectedValue={selectedValue}
+	bind:value={value}
 />

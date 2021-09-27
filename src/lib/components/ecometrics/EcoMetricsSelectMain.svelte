@@ -4,7 +4,7 @@
 	import { deviceStore, serviceStore } from '$lib/stores/ecometrics.js';
 	import { addSelectedItem } from '$lib/ecometrics/selection.js';
 
-	let selectedValue;
+	let value;
 	const dispatch = createEventDispatcher();
 
 	/**
@@ -19,7 +19,7 @@
 				label = `${source.manufacturer} ${label}`;
 			}
 			// Other props not used by the Select component are kept in the bound
-			// "selectedValue" -> attach our sources data to easily get it back
+			// "value" -> attach our sources data to easily get it back
 			// upon selection.
 			// @see addSelectedItem()
 			selectOptions.push({ label, data: source });
@@ -40,10 +40,10 @@
 
 		// TODO when this is called on:select on the <Select /> instance, the reset
 		// will not work immediately -> find better workaround than delaying.
-		let failsafe = 99;
-		while (selectedValue && failsafe > 0) {
+		let failsafe = 20;
+		while (value && failsafe > 0) {
 			await new Promise(resolve => setTimeout(() => {
-				selectedValue = null;
+				value = null;
 				resolve();
 			}, 150));
 			failsafe--;
@@ -58,5 +58,5 @@
 	])}
 	on:select={e => selectionIsMade(e.detail)}
 	placeholder="Search for devices or services to add to the list..."
-	bind:selectedValue={selectedValue}
+	bind:value={value}
 />

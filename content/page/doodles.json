@@ -2,82 +2,38 @@
 	"lang": "en",
 	"title": "Doodles",
 	"description": "Latest doodles.",
-	"content": [
+	"doodles": [
 		{
-			"c": "View",
-			"props": {
-				"filters": [
-					{
-						"in": "content/doodle"
-					}
-				],
-				"cache": {
-					"settings": {
-						"display": {
-							"c": "ViewDisplayGrid",
-							"props": {
-								"align": "center",
-								"space": "large",
-								"view_mode": "Card"
-							}
-						},
-						"filters": {
-							"op": "AND",
-							"items": [
-								{
-									"in": "content/doodle"
-								}
-							]
-						},
-						"sorts": [
-							{
-								"published": "desc"
-							}
-						],
-						"pager": {
-							"items": 10
-						},
-						"exposed": {}
-					},
-					"results": [
-						{
-							"lang": "en",
-							"title": "Perspective Test 1",
-							"description": "Custom experiment for displaying items in a 2D perspective based on https://www.basedesign.com/blog/how-to-render-3d-in-2d-canvas",
-							"image": "media/2020/10/perspective-test-1.png",
-							"published": "2020-10-27T08:54:12.735Z",
-							"path": "2020/10/perspective-test-1"
-						},
-						{
-							"lang": "en",
-							"title": "Position",
-							"description": "Custom experiment for the documentation workshop.",
-							"image": "media/2020/10/positions.jpg",
-							"published": "2020-10-30T11:01:22.915Z",
-							"data": {
-								"postures": "data/entities/experiment/postures.json"
-							},
-							"path": "2020/10/position"
-						},
-						{
-							"lang": "en",
-							"title": "Perspective Test 2",
-							"description": "Custom experiment for displaying items in a 2D perspective based on https://www.basedesign.com/blog/how-to-render-3d-in-2d-canvas",
-							"image": "media/2020/12/perspective-test-2.png",
-							"published": "2020-10-27T08:54:12.735Z",
-							"path": "2020/12/perspective-test-2"
-						},
-						{
-							"lang": "en",
-							"title": "Ecometrics SQLite",
-							"description": "Testing the SQLite WASM technique. See https://willschenk.com/articles/2021/sq_lite_in_the_browser/",
-							"image": "media/2021/07/sqlite-test.jpg",
-							"published": "2021-07-19T02:53:18.876Z",
-							"path": "2021/07/ecometrics-sqlite"
-						}
-					]
-				}
-			}
+			"lang": "en",
+			"title": "Perspective Test 1",
+			"description": "Custom experiment for displaying items in a 2D perspective based on https://www.basedesign.com/blog/how-to-render-3d-in-2d-canvas",
+			"image": "media/2020/10/perspective-test-1.png",
+			"published": "2020-10-27T08:54:12.735Z",
+			"path": "2020/10/perspective-test-1"
+		},
+		{
+			"lang": "en",
+			"title": "Position",
+			"description": "Custom experiment for the documentation workshop.",
+			"image": "media/2020/10/positions.jpg",
+			"published": "2020-10-30T11:01:22.915Z",
+			"path": "2020/10/position"
+		},
+		{
+			"lang": "en",
+			"title": "Perspective Test 2",
+			"description": "Custom experiment for displaying items in a 2D perspective based on https://www.basedesign.com/blog/how-to-render-3d-in-2d-canvas",
+			"image": "media/2020/12/perspective-test-2.png",
+			"published": "2020-10-27T08:54:12.735Z",
+			"path": "2020/12/perspective-test-2"
+		},
+		{
+			"lang": "en",
+			"title": "Ecometrics SQLite",
+			"description": "Testing the SQLite WASM technique. See https://willschenk.com/articles/2021/sq_lite_in_the_browser/",
+			"image": "media/2021/07/sqlite-test.jpg",
+			"published": "2021-07-19T02:53:18.876Z",
+			"path": "2021/07/ecometrics-sqlite"
 		}
 	]
 }

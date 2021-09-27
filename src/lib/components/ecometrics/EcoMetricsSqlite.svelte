@@ -1,12 +1,7 @@
-<!-- <script context="module">
-</script> -->
-
 <script>
 	import ExternalScript from '$lib/components/ExternalScript.svelte';
 	import { writable } from 'svelte/store';
 	import { onMount } from 'svelte';
-	// import initSqlJs from '$lib/sql-wasm.js';
-	// import { initSqlJs } from 'sql.js';
 
 	const dataStore = writable({
 		"rows": [],
@@ -30,9 +25,9 @@
 		}
 
 		const sqlPromise = initSqlJs({
-			locateFile: file => `./${file}`
+			locateFile: file => `/${file}`
 		});
-		const dataPromise = fetch('/data/ecometrics.sqlite').then(res => res.arrayBuffer());
+		const dataPromise = fetch('/ecometrics.sqlite').then(res => res.arrayBuffer());
 		const [SQL, buf] = await Promise.all([sqlPromise, dataPromise])
 		db = new SQL.Database(new Uint8Array(buf));
 
@@ -56,9 +51,9 @@
 
 		stmt.free();
 
-		// devicesColNames = rows[0].map(row => row.key);
-		const res = db.exec("SELECT * FROM devicesCols");
-		devicesColNames = res[0].values.map(v => v[0]);
+		devicesColNames = rows[0].map(row => row.key);
+		// const res = db.exec("SELECT * FROM devicesCols");
+		// devicesColNames = res[0].values.map(v => v[0]);
 
 		dataStore.set({
 			rows,
@@ -77,7 +72,7 @@
 	// const selection = {};
 </script>
 
-<ExternalScript url="/sql-wasm.js" on:loaded="{onLoaded}" />
+<ExternalScript url="/sql-wasm.js" on:loaded={ onLoaded } />
 
 <!-- Debug. -->
 <!-- <pre>DigitalEcoMetrics.svelte : devicesColNames : { JSON.stringify(devicesColNames, null, 2) } </pre> -->

@@ -25,7 +25,7 @@
 
 	// [minor] Deal with main layout width adjustments when scrollbar (dis)appears.
 	// @see src/routes/__layout.svelte
-	// const { updateCssWidth } = getContext('globals');
+	const updateCssWidth = getContext('updateCssWidth');
 
 	let totalNbOfDevices = 0;
 	let totalNbOfServices = 0;
@@ -45,7 +45,7 @@
 		// TODO find better workaround to maintain correct main layout width due to
 		// scrollbar.
 		// @see src/routes/__layout.svelte()
-		// setTimeout(updateCssWidth, 100);
+		setTimeout(updateCssWidth, 100);
 	});
 
 	/**

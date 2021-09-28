@@ -1,7 +1,8 @@
 <script>
-	import ExternalScript from '$lib/components/ExternalScript.svelte';
 	import { writable } from 'svelte/store';
 	import { onMount } from 'svelte';
+	import { appIsBusy } from '$lib/stores/globalState.js';
+	import ExternalScript from '$lib/components/ExternalScript.svelte';
 
 	const dataStore = writable({
 		"rows": [],
@@ -59,6 +60,7 @@
 			rows,
 			devicesColNames
 		});
+		appIsBusy.set(false);
 	}
 
 	/**

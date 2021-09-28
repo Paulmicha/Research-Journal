@@ -1,6 +1,7 @@
 <script>
 	import { Canvas } from 'svelte-canvas';
 	import { onMount } from 'svelte';
+	import { browser } from '$app/env';
 	// import { toPixels } from '$lib/generic_utils.js';
 
 	import Scene from '$lib/Scene.js';
@@ -161,13 +162,15 @@
 
 <div class="scene" bind:clientWidth={sceneW} bind:clientHeight={sceneH} style="--z_index:-1; --sceneMargin:{sceneMargin}rem" use:resizer>
 
-	<Canvas width={sceneW} height={sceneH}>
-		<Point
-			x={ projectedX }
-			y={ projectedY }
-			radius={ projectedScale * 50 }
-		/>
-	</Canvas>
+	{#if browser}
+		<Canvas width={sceneW} height={sceneH}>
+			<Point
+				x={ projectedX }
+				y={ projectedY }
+				radius={ projectedScale * 50 }
+			/>
+		</Canvas>
+	{/if}
 
 	<div class="itemTest" style="--x:{projectedX}px; --y:{projectedY}px; --scale:{projectedScale}em">
 		<pre>3D coords : { x }, { y }, { z }</pre>

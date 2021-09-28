@@ -5,8 +5,7 @@
 	 * @type {import('@sveltejs/kit').Load}
 	 */
 	export async function load() {
-		// TODO test displaying loader as this is a heavy component.
-		// console.log("(module) set TRUE from EcoMetrics.svelte");
+		// Display loader until main component has rendered.
 		appIsBusy.set(true);
 		return true;
 	}

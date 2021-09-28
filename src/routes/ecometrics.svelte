@@ -22,7 +22,7 @@
 		// };
 
 		// TODO test displaying loader as this is a heavy component.
-		// console.log("(module) set TRUE from EcoMetrics.svelte");
+		// console.log("(module) set TRUE from route");
 		appIsBusy.set(true);
 
 		return true;

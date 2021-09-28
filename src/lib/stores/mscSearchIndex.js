@@ -4,7 +4,7 @@ export const documentStore = writable({
 	unixTime: 0, // In seconds.
 	totalDocs: 0,
 	results: [],
-	filters: {}
+	filters: []
 });
 
 // To avoid re-fetching the SQLite database, use a combination of localStorage

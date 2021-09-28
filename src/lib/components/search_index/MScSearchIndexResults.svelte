@@ -111,7 +111,7 @@
 	};
 </script>
 
-<p><strong>{ $documentStore.results.length }</strong> results</p>
+<p><strong>{ $documentStore.totalDocs }</strong> results</p>
 
 <div class="full-vw">
 	<table>

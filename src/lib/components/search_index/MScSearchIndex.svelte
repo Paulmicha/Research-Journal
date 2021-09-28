@@ -1,10 +1,11 @@
 <script>
 	import { displayNb } from '$lib/generic_utils';
-	import { initDb, getResults } from '$lib/search_index';
+	import { initDb, getResults, getResultsCount } from '$lib/search_index';
 	import { appIsBusy } from '$lib/stores/globalState.js';
 	import { documentStore, documentCacheStore } from '$lib/stores/mscSearchIndex';
-	import MScSearchIndexFilters from '$lib/components/search_index/MScSearchIndexFilters.svelte';
+	import MScSearchIndexFiltersSqlite from '$lib/components/search_index/MScSearchIndexFiltersSqlite.svelte';
 	import MScSearchIndexResults from '$lib/components/search_index/MScSearchIndexResults.svelte';
+	import MScSearchIndexResultsSqlite from '$lib/components/search_index/MScSearchIndexResultsSqlite.svelte';
 	import LoadingSpinner from '$lib/components/LoadingSpinner.svelte';
 	import searchIndexPreviewData from '$content/search_index_preview.json';
 
@@ -55,14 +56,14 @@
 		isLoading = true;
 		appIsBusy.set(true);
 
-		let totalDocs = 0;
 		const db = await getDb(forceReload);
 		const results = getResults(db);
+		totalDocs = getResultsCount(db);
 
 		// First load = cache the results (or repeat if forceReload).
 		if (!$documentCacheStore.unixTime || typeof forceReload !== 'undefined') {
 			documentCacheStore.update(o => {
-				o.unixTime = $documentStore.unixTime;
+				o.unixTime = Math.floor(Date.now() / 1000);
 				o.totalDocs = totalDocs;
 				return o;
 			});
@@ -72,9 +73,9 @@
 		// active filters.
 		documentStore.update(o => {
 			o.db = db;
-			o.filters = {};
+			o.filters = [];
 			o.results = results;
-			o.totalDocs = results.length; // TODO (wip) getResults must return total
+			o.totalDocs = totalDocs;
 			return o;
 		});
 
@@ -88,7 +89,7 @@
 		results: searchIndexPreviewData.documents,
 		unixTime: searchIndexPreviewData.unixTime,
 		totalDocs: searchIndexPreviewData.total,
-		filters: {}
+		filters: []
 	};
 
 	// Always use the cached results first (if any), as there will be a button
@@ -109,17 +110,22 @@
 
 </script>
 
+<p class="u-m-b u-fs-s">
+	⚠️&nbsp;Work in progress (proof of concept)
+</p>
+
 {#if !isLoading}
 	{#if $documentCacheStore.unixTime > 0}
-		{#if $documentStore.unixTime != $documentCacheStore.unixTime}
-			<p>
+		<MScSearchIndexFiltersSqlite />
+		{#if $documentCacheStore.unixTime < searchIndexPreviewData.unixTime}
+			<details>
+				<summary>Update available</summary>
 				The dataset has changed since your last visit ({ displayNb($documentStore.totalDocs - $documentCacheStore.totalDocs) } new entries).
 				<button class="btn load u-m-b" on:click|preventDefault={ () => { load(true) } }>
 					Download the update ({ displayNb(dbSize) }&nbsp;ko)
 				</button>
-			</p>
+			</details>
 		{/if}
-		<MScSearchIndexFilters />
 	{:else}
 		<div class="rich-text">
 			<p>
@@ -135,6 +141,9 @@
 <div class="wrap">
 	{#if isLoading}
 		<LoadingSpinner size="10vmin" border="1vmin" />
+	{/if}
+	{#if $documentCacheStore.unixTime > 0}
+		<MScSearchIndexResultsSqlite />
 	{:else}
 		<MScSearchIndexResults />
 	{/if}

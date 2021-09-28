@@ -3,7 +3,7 @@
 	 * @file
 	 * Paragraph of text with optional dropcap.
 	 */
-	import DropCap from "./DropCap.svelte";
+	import DropCap from "$lib/components/DropCap.svelte";
 
 	export let text = '';
 	export let attr = {};

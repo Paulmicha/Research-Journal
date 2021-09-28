@@ -182,7 +182,7 @@
 		<Select items={ getSelectItems($documentStore.results) } isMulti={ true }
 			on:select={ applySelectFilter }
 			on:clear={ clearSelectFilter }
-			bind:selectedValue={ selectedFilterItems }
+			bind:value={ selectedFilterItems }
 			>
 		</Select>
 	</div>

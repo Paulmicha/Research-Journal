@@ -7,6 +7,7 @@
 
 <script>
 	import { page } from '$app/stores';
+	import { browser } from '$app/env';
 	import { appIsBusy } from '$lib/stores/globalState.js';
 	import {
 		deviceStore,
@@ -93,12 +94,28 @@
 	//   - s58190969/l74923856/i2000/otrue : a service with 3 settings
 	// @see src/components/experiments/EcoMetricsShareLink.svelte
 	// @see src/components/experiments/EcoMetricsSelectionSettings.svelte
-	if ($page.query && $page.query.get('s')) {
+
+	// TODO deprecate netlify - until then, deal with the automatic trailing "/"
+	// redirect, which prevents $page.query from working at all.
+	// if ($page.query && $page.query.get('s')) {
+
+	let s = '';
+	if (browser) {
+		const sFragmentArr = `${window.location}`.split('?s=');
+		if (sFragmentArr.length > 1) {
+			s = sFragmentArr.pop();
+		}
+	}
+
+	if (s.length) {
 		const devicesToSelect = [];
 		const servicesToSelect = [];
 		let defaultLocationToSelect = false;
 
-		$page.query.get('s').split(';').forEach(urlEncodedEntity => {
+		// TODO deprecate netlify (part 2, see above).
+		// $page.query.get('s').split(';').forEach(urlEncodedEntity => {
+
+		s.split(';').forEach(urlEncodedEntity => {
 			const parts = urlEncodedEntity.split('/');
 			const id = parts[0].substring(1);
 			let entityToSelect = null;

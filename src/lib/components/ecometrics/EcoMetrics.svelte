@@ -208,8 +208,6 @@
 <!-- Debug. -->
 <!-- <pre>$preferencesStore : { JSON.stringify($preferencesStore, null, 2) } </pre> -->
 
-<h1>{ $appIsBusy }</h1>
-
 <!--
 	TODO attempt to fix the glitch where 1st tab is first shown before the
 	preference store is loaded -> wrong content shown initially, then switches

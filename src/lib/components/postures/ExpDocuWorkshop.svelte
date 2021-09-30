@@ -1,8 +1,8 @@
 <script>
 	import { onMount } from "svelte";
 	import { browser } from '$app/env';
-	import Scene from '$lib/Scene';
-	import SceneItem from '$lib/SceneItem';
+	import Scene from '$lib/perspective/Scene';
+	import SceneItem from '$lib/perspective/SceneItem';
 	import { Canvas } from "svelte-canvas";
 	import Postures from '$lib/components/postures/Postures.svelte';
 	import Point from '$lib/components/perspective/Point.svelte';

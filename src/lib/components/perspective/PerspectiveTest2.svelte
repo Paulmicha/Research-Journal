@@ -4,8 +4,8 @@
 	import { browser } from '$app/env';
 	// import { toPixels } from '$lib/generic_utils.js';
 
-	import Scene from '$lib/Scene.js';
-	import SceneItem from '$lib/SceneItem.js';
+	import Scene from '$lib/perspective/Scene.js';
+	import SceneItem from '$lib/perspective/SceneItem.js';
 	import Point from '$lib/components/perspective/Point.svelte';
 
 	const scene = new Scene();

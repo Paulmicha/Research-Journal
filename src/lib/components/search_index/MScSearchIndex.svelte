@@ -1,6 +1,7 @@
 <script>
 	import { displayNb } from '$lib/generic_utils';
 	import { initDb, getResults, getResultsCount } from '$lib/search_index';
+	import { createView, viewQueryBuilder } from '$lib/view';
 	import { appIsBusy } from '$lib/stores/globalState.js';
 	import { documentStore, documentCacheStore } from '$lib/stores/mscSearchIndex';
 	import MScSearchIndexFiltersSqlite from '$lib/components/search_index/MScSearchIndexFiltersSqlite.svelte';
@@ -59,6 +60,25 @@
 		const db = await getDb(forceReload);
 		const results = getResults(db);
 		totalDocs = getResultsCount(db);
+
+		// TODO (wip) attempt more general approach.
+		// const view = createView({
+		// 	base_table: 'documents',
+		// 	fields: {
+		// 		"*": { table: "documents" }
+		// 		// url: { label: "url" },
+		// 		// tags: { label: "tags" },
+		// 		// date_shared: { label: "date_shared" },
+		// 		// description: { label: "description" },
+		// 		// author: { label: "author" },
+		// 		// title: { label: "title" },
+		// 		// reactions: { label: "reactions" },
+		// 		// id: { label: "id" }
+		// 	}
+		// });
+		// console.log(view);
+		// console.log(viewQueryBuilder(view));
+
 
 		// First load = cache the results (or repeat if forceReload).
 		if (!$documentCacheStore.unixTime || typeof forceReload !== 'undefined') {

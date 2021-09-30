@@ -179,26 +179,27 @@
 
 <form>
 	<div class="select">
-		<Select items={ getSelectItems($documentStore.results) } isMulti={ true }
+		<Select
+			isMulti={ true }
+			items={ getSelectItems($documentStore.results) }
 			on:select={ applySelectFilter }
 			on:clear={ clearSelectFilter }
 			bind:value={ selectedFilterItems }
-			>
-		</Select>
+		/>
 	</div>
 	<div>
 		<div class="radio">
 			<input type="radio" id="filter-op-or" name="filter-op" value="or"
 				bind:group={ filterOp }
 				on:change={ applySelectFilter }
-				/>
+			/>
 			<label for="filter-op-or">Or</label>
 		</div>
 		<div class="radio">
 			<input type="radio" id="filter-op-and" name="filter-op" value="and"
 				bind:group={ filterOp }
 				on:change={ applySelectFilter }
-				/>
+			/>
 			<label for="filter-op-and">And</label>
 		</div>
 	</div>

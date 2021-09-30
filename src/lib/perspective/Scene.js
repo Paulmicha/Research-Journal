@@ -1,4 +1,4 @@
-import SceneItemsIterator from './SceneItemsIterator.js'
+import SceneItemsIterator from './SceneItemsIterator.js';
 
 /**
  * Composite collection representing a scene.

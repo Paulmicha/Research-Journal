@@ -12,6 +12,8 @@
  * See https://github.com/bsssshhhhhhh/svelte-data-grid/issues
  */
 
+import { initDb } from '$lib/sqlite';
+
 let staticViewCount = 0;
 
 /**
@@ -33,7 +35,7 @@ export const getViewId = (returnLast = false) => {
  */
 export const getViewPagerState = (view, options = {}) => {
 	let pagerState = {
-		view_id: !('view_id' in options)
+		id: !('id' in options)
 			? getViewId(true)
 			: null,
 		nb_per_page: 15,
@@ -50,20 +52,36 @@ export const getViewPagerState = (view, options = {}) => {
 /**
  * Returns a single view definition (object).
  */
-export const createView = (options = {}) => {
+export const createView = async (options = {}) => {
 	const defaults = {
-		view_id: !('view_id' in options)
-			? getViewId()
-			: null,
-		base_table: null,
+		id: !('id' in options) ? getViewId() : null,
+		db_name: '',
+		base_table: '',
 		distinct: false,
 		fields: {},
-		join: null,
-		sort: 'base_table' in options
-			? `id_${options.base_table} DESC`
-			: null
+		join: '',
+		sort: '',
+		results: [],
+		filters: []
 	};
+
 	defaults.pager = getViewPagerState(defaults, options);
+
+	// Fields must default to view's "base_table" for rendering purposes.
+	// @see src/lib/components/ViewResults.svelte
+	if (options?.fields && options?.base_table?.length) {
+		Object.keys(options.fields).forEach(f => {
+			if (!options.fields[f]?.table?.length) {
+				options.fields[f].table = options.base_table;
+			}
+		});
+	}
+
+	// Binds the view to a database instance (TODO separate those concerns ?)
+	if (!options?.db && options?.db_name?.length) {
+		options.db = await initDb(options.db_name);
+	}
+
 	return { ...defaults, ...options };
 };
 

@@ -1,14 +1,15 @@
 <script>
 	import { displayNb } from '$lib/generic_utils';
 	import { initDb, getResults, getResultsCount } from '$lib/search_index';
-	import { createView, viewQueryBuilder } from '$lib/view';
+	// import { createView, viewQueryBuilder } from '$lib/view';
 	import { appIsBusy } from '$lib/stores/globalState.js';
 	import { documentStore, documentCacheStore } from '$lib/stores/mscSearchIndex';
-	import MScSearchIndexFiltersSqlite from '$lib/components/search_index/MScSearchIndexFiltersSqlite.svelte';
+	// import MScSearchIndexFiltersSqlite from '$lib/components/search_index/MScSearchIndexFiltersSqlite.svelte';
 	import MScSearchIndexResults from '$lib/components/search_index/MScSearchIndexResults.svelte';
-	import MScSearchIndexResultsSqlite from '$lib/components/search_index/MScSearchIndexResultsSqlite.svelte';
+	// import MScSearchIndexResultsSqlite from '$lib/components/search_index/MScSearchIndexResultsSqlite.svelte';
 	import LoadingSpinner from '$lib/components/LoadingSpinner.svelte';
 	import searchIndexPreviewData from '$content/search_index_preview.json';
+	import MScSearchIndexView from './MScSearchIndexView.svelte';
 
 	let isLoading = true;
 	let dbSize = searchIndexPreviewData.dbSize;
@@ -24,7 +25,7 @@
 	 * @see src/lib/search_index.js
 	 */
 	const getDb = async forceReload => {
-		if (typeof forceReload === 'undefined' && 'db' in $documentStore && $documentStore.db) {
+		if (typeof forceReload === 'undefined' && $documentStore?.db) {
 			return $documentStore.db;
 		}
 		const db = await initDb(forceReload);
@@ -60,25 +61,6 @@
 		const db = await getDb(forceReload);
 		const results = getResults(db);
 		totalDocs = getResultsCount(db);
-
-		// TODO (wip) attempt more general approach.
-		// const view = createView({
-		// 	base_table: 'documents',
-		// 	fields: {
-		// 		"*": { table: "documents" }
-		// 		// url: { label: "url" },
-		// 		// tags: { label: "tags" },
-		// 		// date_shared: { label: "date_shared" },
-		// 		// description: { label: "description" },
-		// 		// author: { label: "author" },
-		// 		// title: { label: "title" },
-		// 		// reactions: { label: "reactions" },
-		// 		// id: { label: "id" }
-		// 	}
-		// });
-		// console.log(view);
-		// console.log(viewQueryBuilder(view));
-
 
 		// First load = cache the results (or repeat if forceReload).
 		if (!$documentCacheStore.unixTime || typeof forceReload !== 'undefined') {
@@ -136,7 +118,7 @@
 
 {#if !isLoading}
 	{#if $documentCacheStore.unixTime > 0}
-		<MScSearchIndexFiltersSqlite />
+		<!-- <MScSearchIndexFiltersSqlite /> -->
 		{#if $documentCacheStore.unixTime < searchIndexPreviewData.unixTime}
 			<details>
 				<summary>Update available</summary>
@@ -163,7 +145,8 @@
 		<LoadingSpinner size="10vmin" border="1vmin" />
 	{/if}
 	{#if $documentCacheStore.unixTime > 0}
-		<MScSearchIndexResultsSqlite />
+		<!-- <MScSearchIndexResultsSqlite /> -->
+		<MScSearchIndexView />
 	{:else}
 		<MScSearchIndexResults />
 	{/if}

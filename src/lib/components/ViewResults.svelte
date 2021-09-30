@@ -2,9 +2,7 @@
 	import { getContext } from 'svelte';
 	import { createEventDispatcher } from 'svelte';
 	import { appIsBusy } from '$lib/stores/globalState.js';
-
-	export let results = [];
-	// export let total;
+	import ViewResultsCell from './ViewResultsCell.svelte';
 
 	// Heavy operation -> show loading feedback -> delay between stores updates.
 	let timeOut = null;
@@ -19,7 +17,6 @@
 		if (view?.cell_component) {
 			return view.cell_component;
 		}
-		return 'ViewResultsCell';
 	}
 
 	/**
@@ -81,36 +78,47 @@
 <div class="full-vw">
 	<table>
 		<thead>
-			{#each Object.keys(view.fields) as f}
-				{#if !view.fields[f]?.hidden}
-					{#if view.fields[f]?.sort}
-						<th class:is-active={ view.fields[f]?.sort_default }>
+			{#each Object.keys($view.fields) as f}
+				{#if !$view.fields[f]?.hidden}
+					{#if $view.fields[f]?.sort}
+						<th class:is-active={ $view.fields[f]?.sort_default }>
 							<button
-								class="sort is-{ view.fields[f].sort }"
+								class="sort is-{ $view.fields[f].sort }"
 								on:click={e => sortBy(e, view.fields[f].table)}
-								title="Sort by { view.fields[f].label }"
+								title="Sort by { $view.fields[f].label }"
 							>
 								<span class="is-asc">↑</span>
 								<span class="is-desc">↓</span>
-								{ view.fields[f].label }
+								{ $view.fields[f].label }
 							</button>
 						</th>
 					{:else}
-						<th>{ view.fields[f].label }</th>
+						<th>{ $view.fields[f].label }</th>
 					{/if}
 				{/if}
 			{/each}
 		</thead>
 		<tbody>
-			{#each results as result}
+			{#each $view.results as result}
 				<tr>
-					{#each Object.keys(view.fields) as f}
-						<td>
-							<svelte:component this={ getCellComponent(view.fields[f]) }
-								{ result }
-								cell={ view.fields[f] }
-							/>
-						</td>
+					{#each Object.keys($view.fields) as f}
+						{#if !$view.fields[f]?.hidden}
+							<td>
+								{#if $view.fields[f] && getCellComponent($view.fields[f])}
+									<svelte:component this={ getCellComponent($view.fields[f]) }
+										{ result }
+										value={ result[f] }
+										cell={ $view.fields[f] }
+									/>
+								{:else}
+									<ViewResultsCell
+										{ result }
+										value={ result[f] }
+										cell={ $view.fields[f] }
+									/>
+								{/if}
+							</td>
+						{/if}
 					{/each}
 				</tr>
 			{/each}

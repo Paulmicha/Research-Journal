@@ -9,8 +9,9 @@
 
 	const baseUrl = $page.path;
 	const view = getContext('view');
-	const lastPage = view.pager.last_page;
-	const currentPage = view.pager.current_page;
+
+	let lastPage = $view.pager?.last_page;
+	let currentPage = $view.pager?.current_page;
 
 	let firstUrl = baseUrl;
 	let lastUrl = baseUrl;
@@ -22,7 +23,7 @@
 	let nextIsDisabled = '';
 	let nextUrl = baseUrl;
 
-	let pagerId = "pager-" + view.id;
+	let pagerId = "pager-" + $view.id;
 	while (renderedPagerIds.includes(pagerId)) {
 		pagerId += '-bis';
 	}
@@ -31,7 +32,7 @@
 	if (currentPage > 0) {
 		prev = currentPage - 1;
 		next = currentPage + 1;
-		$page.query.delete('p' + view.id);
+		$page.query.delete('p' + $view.id);
 	}
 
 	// Preserve any other query args (otherwise the pager links would loose them).
@@ -44,19 +45,19 @@
 	if (prev < 0) {
 		prevIsDisabled = 'disabled';
 	} else if (prev > 0) {
-		$page.query.set('p' + view.id, prev);
+		$page.query.set('p' + $view.id, prev);
 		prevUrl = baseUrl + "?" + $page.query.toString();
 	}
 
 	if (next >= lastPage) {
 		nextIsDisabled = 'disabled';
 	} else {
-		$page.query.set('p' + view.id, next);
+		$page.query.set('p' + $view.id, next);
 		nextUrl = baseUrl + "?" + $page.query.toString();
 	}
 
 	// First + Last links.
-	$page.query.delete('p' + view.id);
+	$page.query.delete('p' + $view.id);
 	if ($page.query.toString().length) {
 		firstUrl = baseUrl + "?" + $page.query.toString();
 	}
@@ -67,7 +68,7 @@
 		lastUrl = baseUrl;
 	}
 	else {
-		$page.query.set('p' + view.id, lastPage - 1);
+		$page.query.set('p' + $view.id, lastPage - 1);
 		lastUrl = baseUrl + "?" + $page.query.toString();
 	}
 </script>

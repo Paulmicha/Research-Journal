@@ -90,3 +90,21 @@ export const dbFetchAll = (db, query, queryArgs = {}, maxRows = 10000) => {
 	stmt.free();
 	return results;
 };
+
+/**
+ * Returns the value of the first column of the first result.
+ *
+ * @param {Object} db sql-wasm.js's SQL.Database instance.
+ * @param {String} query the SQL query.
+ * @param {Object} queryArgs [optional] the SQL query parameters ("bind").
+ *   defaults to {}.
+ * @param {Integer} maxRows [optional] limit the maximum number of rows returned.
+ *   Defaults to 10000.
+ * @returns {Array} of objects keyed by column.
+ */
+export const dbPopFetch = (db, query, queryArgs = {}) => {
+	const res = db.exec(query, queryArgs);
+	if (res && res.length) {
+		return res[0].values[0][0];
+	}
+};

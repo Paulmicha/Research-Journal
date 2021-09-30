@@ -1,15 +1,32 @@
 <script>
 	export let cell;
 	export let result;
+	export let value;
+
+	const renderValue = val => {
+		if (!val) {
+			return '';
+		}
+		if (cell?.render?.length) {
+			if (cell.render === 'date') {
+				return new Date(val).toLocaleDateString('fr', {
+					year: "numeric",
+					month: "2-digit",
+					day: "2-digit"
+				});
+			}
+		}
+		return val;
+	};
 </script>
 
 <div class="{ cell.class || '' }">
 	{#if cell.href_from}
 		<a class="link-title" href="{ result[cell.href_from] }" target="_blank">
-			{ cell.value }
+			{ renderValue(value) }
 		</a>
 	{:else}
-		{ cell.value }
+		{ renderValue(value) }
 	{/if}
 </div>
 

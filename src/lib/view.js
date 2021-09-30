@@ -12,7 +12,7 @@
  * See https://github.com/bsssshhhhhhh/svelte-data-grid/issues
  */
 
-import { initDb } from '$lib/sqlite';
+import { initDb, dbFetchAll, dbPopFetch } from '$lib/sqlite';
 
 let staticViewCount = 0;
 
@@ -35,9 +35,7 @@ export const getViewId = (returnLast = false) => {
  */
 export const getViewPagerState = (view, options = {}) => {
 	let pagerState = {
-		id: !('id' in options)
-			? getViewId(true)
-			: null,
+		id: !('id' in options) ? getViewId(true) : null,
 		nb_per_page: 15,
 		current_page: 0,
 		last_page: 0,
@@ -61,39 +59,49 @@ export const createView = async (options = {}) => {
 		fields: {},
 		join: '',
 		sort: '',
-		results: [],
-		filters: []
+		filters: [],
+		results: []
 	};
-
 	defaults.pager = getViewPagerState(defaults, options);
+
+	const definition = { ...defaults, ...options };
 
 	// Fields must default to view's "base_table" for rendering purposes.
 	// @see src/lib/components/ViewResults.svelte
-	if (options?.fields && options?.base_table?.length) {
-		Object.keys(options.fields).forEach(f => {
-			if (!options.fields[f]?.table?.length) {
-				options.fields[f].table = options.base_table;
+	if (definition?.fields && definition?.base_table?.length) {
+		Object.keys(definition.fields).forEach(f => {
+			if (!definition.fields[f]?.table?.length) {
+				definition.fields[f].table = definition.base_table;
 			}
 		});
 	}
 
 	// Binds the view to a database instance (TODO separate those concerns ?)
-	if (!options?.db && options?.db_name?.length) {
-		options.db = await initDb(options.db_name);
+	if (!definition?.db && definition?.db_name?.length) {
+		definition.db = await initDb(definition.db_name);
 	}
 
-	return { ...defaults, ...options };
+	// Default results (while we're at it).
+	if (!definition?.results?.length && definition?.db) {
+		const { query, queryArgs } = viewQueryBuilder(definition);
+		definition.results = dbFetchAll(definition.db, query, queryArgs);
+		definition.pager.total_results_nb = dbPopFetch(
+			definition.db,
+			`SELECT COUNT(*) FROM ${definition.base_table}`
+		);
+	}
+
+	return definition;
 };
 
 /**
  * Returns SQLite query given view state.
  */
-export const viewQueryBuilder = (view, state = {}) => {
+export const viewQueryBuilder = (view) => {
 	let sort = '';
 	let filter = '';
 	const selectArr = [];
-	const queryArgs = {};
-	const { sorts, filters } = state;
+	const queryArgs = view?.queryArgs || {};
 	const fieldNames = Object.keys(view.fields);
 
 	fieldNames.forEach(field => {
@@ -104,34 +112,35 @@ export const viewQueryBuilder = (view, state = {}) => {
 
 		// 1. Select (also determines the field "unique" name for this view, even
 		// for an identical field name in different tables - which must use 'as').
-		let f = view.base_table + '.' + field;
-		if (view.fields[field]?.table) {
-			f = view.fields[field].table + '.' + field;
-		}
-		if (view.fields[field]?.as) {
-			selectArr.push(f + " AS " + view.fields[field].as);
-			f = view.fields[field].as;
+		// This "f" variable is reused below for queryArgs substitutions.
+		let f = field;
+		if (view.fields[field]?.select) {
+			selectArr.push(view.fields[field].select);
 		} else {
-			selectArr.push(f);
-			// Still need to convert wildcard '*' for "proper" queryArgs keys.
-			if (field === '*') {
-				f = view.base_table + '.wildcard';
+			if (view.fields[field]?.table) {
+				f = view.fields[field].table + '.' + field;
+			}
+			if (view.fields[field]?.as) {
+				selectArr.push(f + " AS " + view.fields[field].as);
+				f = view.fields[field].as;
+			} else {
+				selectArr.push(f);
 			}
 		}
 
 		// 2. Sorting (order).
-		if (sorts && field in sorts) {
+		if (view.fields[field].sort?.length) {
 			// Preserve original sorting as fallback in case of equality.
 			if (sort.length) {
-				sort = `${field} ${sorts[field]}, ${sort}`;
+				sort = `${f} ${view.fields[field].sort}, ${sort}`;
 			}
 			else {
-				sort = `${field} ${sorts[field]}`;
+				sort = `${f} ${view.fields[field].sort}`;
 			}
 		}
 
 		// 3. Filters (conditions).
-		if (filters && field in filters) {
+		if (view.filters && field in view.filters) {
 			if (filter.length) {
 				// TODO [evol] combinations ? OR ?
 				filter += " AND ";
@@ -180,7 +189,7 @@ export const viewQueryBuilder = (view, state = {}) => {
 	});
 
 	let select = selectArr.join(', ');
-	if (view?.distinct) {
+	if (view.distinct) {
 		select = "DISTINCT " + select;
 	}
 
@@ -192,7 +201,7 @@ export const viewQueryBuilder = (view, state = {}) => {
 	if (filter.length) {
 		query += "\n" + "WHERE " + filter;
 	}
-	if (view?.group_by?.length) {
+	if (view.group_by?.length) {
 		query += "\n" + "GROUP BY " + view.group_by;
 	}
 	if (sort.length) {
@@ -207,8 +216,12 @@ export const viewQueryBuilder = (view, state = {}) => {
 		);
 	}
 
+	// Pager limit.
+	const limitStart = view.pager.current_page * view.pager.nb_per_page;
+	query += "\nLIMIT " + `${limitStart}, ${view.pager.nb_per_page}`;
+
 	// Debug.
-	console.log(query);
+	// console.log(query);
 
 	return { query, queryArgs, countQuery };
 };

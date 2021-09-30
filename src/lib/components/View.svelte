@@ -53,8 +53,8 @@
 			// TODO update results
 		}
 
-		console.log(viewObj);
-		console.log(viewQueryBuilder(viewObj));
+		// console.log(viewObj);
+		// console.log(viewQueryBuilder(viewObj));
 
 		store.set(viewObj);
 		appIsBusy.set(false);
@@ -62,11 +62,11 @@
 </script>
 
 {#if $store?.results?.length > 0}
-	{#if $store?.results?.length > $store?.pager?.nb_per_page}
+	{#if $store?.pager?.total_results_nb > $store?.pager?.nb_per_page}
 		<ViewPager />
 	{/if}
 	<ViewResults />
-	{#if $store?.results?.length > $store?.pager?.nb_per_page}
+	{#if $store?.pager?.total_results_nb > $store?.pager?.nb_per_page}
 		<ViewPager />
 	{/if}
 {/if}

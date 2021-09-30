@@ -1,3 +1,9 @@
+<script context="module">
+	// Unique IDs for every View instance (allows multiple pagers for the same
+	// list).
+	let viewsCount = 0;
+</script>
+
 <script>
 	/**
 	 * @file
@@ -10,7 +16,7 @@
 	 */
 	import { setContext } from 'svelte';
 	import { writable } from 'svelte/store';
-	import { createView, viewQueryBuilder } from '$lib/view';
+	import { createView, initView } from '$lib/view';
 	import { browser } from '$app/env';
 	import { page } from '$app/stores';
 	import { appIsBusy } from '$lib/stores/globalState.js';
@@ -20,9 +26,12 @@
 	export let definition; // @see createView()
 	export let store; // Exposed for reading only from the outside
 
-	// TODO (wip) createView() now includes DB init -> async -> moved below.
-	// let viewObj = createView(definition);
-	// store = writable(viewObj);
+	viewsCount++;
+	definition.id = viewsCount;
+
+	console.log("viewsCount in Views.svelte :");
+	console.log(viewsCount);
+
 	appIsBusy.set(true);
 	store = writable();
 	setContext('view', store);
@@ -46,16 +55,15 @@
 		}
 	};
 
-	// createView() now includes the DB init.
-	createView(definition).then(viewObj => {
-		const currentPageArg = arg('p' + viewObj.id);
-		if (viewObj.pager.current_page != currentPageArg) {
-			// TODO update results
-		}
+	// The view definition must take pagers' current page number from URL params
+	// into consideration in order to fetch the correct results.
+	const viewObj = createView(definition);
+	const currentPageArg = arg('p' + viewObj.id);
+	if (currentPageArg && parseInt(currentPageArg) > 0) {
+		viewObj.pager.current_page = parseInt(currentPageArg);
+	}
 
-		// console.log(viewObj);
-		// console.log(viewQueryBuilder(viewObj));
-
+	initView(viewObj).then(viewObj => {
 		store.set(viewObj);
 		appIsBusy.set(false);
 	});

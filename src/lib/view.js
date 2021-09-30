@@ -14,35 +14,20 @@
 
 import { initDb, dbFetchAll, dbPopFetch } from '$lib/sqlite';
 
-let staticViewCount = 0;
-
-/**
- * "Static" unique view counter.
- *
- * Used to facilitate wiring views pagers and filters.
- */
-export const getViewId = (returnLast = false) => {
-	if (!returnLast) {
-		staticViewCount++;
-	}
-	return staticViewCount;
-};
-
 /**
  * Returns view pager state (object).
  *
  * @see src/lib/components/Pager.svelte
  */
-export const getViewPagerState = (view, options = {}) => {
+export const getViewPagerState = (definition = {}) => {
 	let pagerState = {
-		id: !('id' in options) ? getViewId(true) : null,
 		nb_per_page: 15,
 		current_page: 0,
 		last_page: 0,
 		total_results_nb: 0
 	};
-	if ('pager' in options) {
-		pagerState = { ...pagerState, ...options.pager };
+	if ('pager' in definition) {
+		pagerState = { ...pagerState, ...definition.pager };
 	}
 	return pagerState;
 };
@@ -50,9 +35,9 @@ export const getViewPagerState = (view, options = {}) => {
 /**
  * Returns a single view definition (object).
  */
-export const createView = async (options = {}) => {
+export const createView = (definition = {}) => {
 	const defaults = {
-		id: !('id' in options) ? getViewId() : null,
+		id: 0,
 		db_name: '',
 		base_table: '',
 		distinct: false,
@@ -62,42 +47,50 @@ export const createView = async (options = {}) => {
 		filters: [],
 		results: []
 	};
-	defaults.pager = getViewPagerState(defaults, options);
+	defaults.pager = getViewPagerState(definition);
+	return { ...defaults, ...definition };
+};
 
-	const definition = { ...defaults, ...options };
-
+/**
+ * Initializes given view object.
+ *
+ * This will fetch initial results.
+ *
+ * @param {Object} view the view definition object.
+ */
+export const initView = async view => {
 	// Fields must default to view's "base_table" for rendering purposes.
 	// @see src/lib/components/ViewResults.svelte
-	if (definition?.fields && definition?.base_table?.length) {
-		Object.keys(definition.fields).forEach(f => {
-			if (!definition.fields[f]?.table?.length) {
-				definition.fields[f].table = definition.base_table;
+	if (view?.fields && view?.base_table?.length) {
+		Object.keys(view.fields).forEach(f => {
+			if (!view.fields[f]?.table?.length) {
+				view.fields[f].table = view.base_table;
 			}
 		});
 	}
-
 	// Binds the view to a database instance (TODO separate those concerns ?)
-	if (!definition?.db && definition?.db_name?.length) {
-		definition.db = await initDb(definition.db_name);
+	if (!view?.db && view?.db_name?.length) {
+		view.db = await initDb(view.db_name);
 	}
-
 	// Default results (while we're at it).
-	if (!definition?.results?.length && definition?.db) {
-		const { query, queryArgs } = viewQueryBuilder(definition);
-		definition.results = dbFetchAll(definition.db, query, queryArgs);
-		definition.pager.total_results_nb = dbPopFetch(
-			definition.db,
-			`SELECT COUNT(*) FROM ${definition.base_table}`
+	if (!view?.results?.length && view?.db) {
+		const { query, queryArgs } = viewQueryBuilder(view);
+		view.results = dbFetchAll(view.db, query, queryArgs);
+		view.pager.total_results_nb = dbPopFetch(
+			view.db,
+			`SELECT COUNT(*) FROM ${view.base_table}`
+		);
+		view.pager.last_page = Math.floor(
+			view.pager.total_results_nb / view.pager.nb_per_page
 		);
 	}
-
-	return definition;
-};
+	return view;
+}
 
 /**
  * Returns SQLite query given view state.
  */
-export const viewQueryBuilder = (view) => {
+export const viewQueryBuilder = view => {
 	let sort = '';
 	let filter = '';
 	const selectArr = [];

@@ -9,6 +9,10 @@
 
 	const baseUrl = $page.path;
 	const view = getContext('view');
+	const urlParam = 'p' + $view.id;
+
+	console.log("urlParam in pager :");
+	console.log(urlParam);
 
 	let lastPage = $view.pager?.last_page;
 	let currentPage = $view.pager?.current_page;
@@ -32,7 +36,7 @@
 	if (currentPage > 0) {
 		prev = currentPage - 1;
 		next = currentPage + 1;
-		$page.query.delete('p' + $view.id);
+		$page.query.delete(urlParam);
 	}
 
 	// Preserve any other query args (otherwise the pager links would loose them).
@@ -45,19 +49,19 @@
 	if (prev < 0) {
 		prevIsDisabled = 'disabled';
 	} else if (prev > 0) {
-		$page.query.set('p' + $view.id, prev);
+		$page.query.set(urlParam, prev);
 		prevUrl = baseUrl + "?" + $page.query.toString();
 	}
 
 	if (next >= lastPage) {
 		nextIsDisabled = 'disabled';
 	} else {
-		$page.query.set('p' + $view.id, next);
+		$page.query.set(urlParam, next);
 		nextUrl = baseUrl + "?" + $page.query.toString();
 	}
 
 	// First + Last links.
-	$page.query.delete('p' + $view.id);
+	$page.query.delete(urlParam);
 	if ($page.query.toString().length) {
 		firstUrl = baseUrl + "?" + $page.query.toString();
 	}
@@ -68,29 +72,38 @@
 		lastUrl = baseUrl;
 	}
 	else {
-		$page.query.set('p' + $view.id, lastPage - 1);
+		$page.query.set(urlParam, lastPage - 1);
 		lastUrl = baseUrl + "?" + $page.query.toString();
 	}
 </script>
 
 <ul class="pager" id={ pagerId }>
 	<li class={ prevIsDisabled }>
-		<a href={ firstUrl + '#' + pagerId } title="First">«</a>
+		<!-- <a href={ firstUrl + '#' + pagerId } title="First">«</a> -->
+		<a href={ firstUrl } title="First">«</a>
 	</li>
 	<li class={ prevIsDisabled }>
-		<a href={ prevUrl + '#' + pagerId } title="Previous">←</a>
+		<!-- <a href={ prevUrl + '#' + pagerId } title="Previous">←</a> -->
+		<a href={ prevUrl } title="Previous">←</a>
 	</li>
-	<li>Page { currentPage + 1 } / { lastPage }</li>
+	<li class="u-fs-s">Page { currentPage + 1 } / { lastPage }</li>
 	<li class={ nextIsDisabled }>
-		<a href={ nextUrl + '#' + pagerId } title="Next">→</a>
+		<!-- <a href={ nextUrl + '#' + pagerId } title="Next">→</a> -->
+		<a href={ nextUrl } title="Next">→</a>
 	</li>
 	<li class={ nextIsDisabled }>
-		<a href={ lastUrl + '#' + pagerId } title="Last">»</a>
+		<!-- <a href={ lastUrl + '#' + pagerId } title="Last">»</a> -->
+		<a href={ lastUrl } title="Last">»</a>
 	</li>
 </ul>
 
 <style>
 	.pager {
 		display: flex;
+		justify-content: center;
+		list-style: none;
+	}
+	a {
+		padding: var(--space-s) var(--space);
 	}
 </style>

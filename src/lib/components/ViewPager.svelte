@@ -80,20 +80,20 @@
 <ul class="pager" id={ pagerId }>
 	<li class={ prevIsDisabled }>
 		<!-- <a href={ firstUrl + '#' + pagerId } title="First">«</a> -->
-		<a href={ firstUrl } title="First">«</a>
+		<a class="btn btn--s" href={ firstUrl } title="First">«</a>
 	</li>
 	<li class={ prevIsDisabled }>
 		<!-- <a href={ prevUrl + '#' + pagerId } title="Previous">←</a> -->
-		<a href={ prevUrl } title="Previous">←</a>
+		<a class="btn btn--s" href={ prevUrl } title="Previous">←</a>
 	</li>
 	<li class="u-fs-s">Page { currentPage + 1 } / { lastPage }</li>
 	<li class={ nextIsDisabled }>
 		<!-- <a href={ nextUrl + '#' + pagerId } title="Next">→</a> -->
-		<a href={ nextUrl } title="Next">→</a>
+		<a class="btn btn--s" href={ nextUrl } title="Next">→</a>
 	</li>
 	<li class={ nextIsDisabled }>
 		<!-- <a href={ lastUrl + '#' + pagerId } title="Last">»</a> -->
-		<a href={ lastUrl } title="Last">»</a>
+		<a class="btn btn--s" href={ lastUrl } title="Last">»</a>
 	</li>
 </ul>
 
@@ -101,9 +101,20 @@
 	.pager {
 		display: flex;
 		justify-content: center;
+		align-items: center;
 		list-style: none;
 	}
-	a {
-		padding: var(--space-s) var(--space);
+	.pager > * + * {
+		margin-left: var(--space-xs);
+	}
+	a.btn {
+		color: white;
+	}
+	a.btn:focus,
+	a.btn:hover,
+	a.btn.is-active {
+		background-color: cornflowerblue;
+		border-color: cornflowerblue;
+		color: white;
 	}
 </style>

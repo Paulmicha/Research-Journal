@@ -37,6 +37,13 @@ export const getViewPagerState = (definition = {}) => {
  */
 export const createView = (definition = {}) => {
 	const defaults = {
+		// TODO this function is called many times as we navigate back and forth
+		// to wherever views are displayed, even for the same view. For now I found
+		// no way to automatically bind the same view to its pagers, e.g.
+		// auto-incrementing a memoized variable in certain conditions won't cut it.
+		// -> Workaround : manually set unique numbers for every view across the
+		// entire app...
+		// @see src/lib/components/search_index/MScSearchIndexView.svelte
 		id: 0,
 		db_name: '',
 		base_table: '',

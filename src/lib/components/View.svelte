@@ -1,9 +1,3 @@
-<script context="module">
-	// Unique IDs for every View instance (allows multiple pagers for the same
-	// list).
-	let viewsCount = 0;
-</script>
-
 <script>
 	/**
 	 * @file
@@ -25,12 +19,6 @@
 
 	export let definition; // @see createView()
 	export let store; // Exposed for reading only from the outside
-
-	viewsCount++;
-	definition.id = viewsCount;
-
-	console.log("viewsCount in Views.svelte :");
-	console.log(viewsCount);
 
 	appIsBusy.set(true);
 	store = writable();

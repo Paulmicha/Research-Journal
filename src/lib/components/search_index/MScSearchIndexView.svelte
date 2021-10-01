@@ -2,6 +2,7 @@
 	import View from '$lib/components/View.svelte';
 
 	const definition = {
+		id: 1,
 		db_name: 'search_index',
 		base_table: 'document',
 		fields: {

@@ -107,14 +107,13 @@
 	.pager > * + * {
 		margin-left: var(--space-xs);
 	}
-	a.btn {
+	/* a.btn {
 		color: white;
 	}
 	a.btn:focus,
-	a.btn:hover,
-	a.btn.is-active {
+	a.btn:hover {
 		background-color: cornflowerblue;
 		border-color: cornflowerblue;
 		color: white;
-	}
+	} */
 </style>

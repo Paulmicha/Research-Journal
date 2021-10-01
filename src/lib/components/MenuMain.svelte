@@ -3,7 +3,7 @@
 	import { appIsBusy } from '$lib/stores/globalState.js';
 	import globalData from '$content/config/global.json';
 	import menuMainData from '$content/menu/main.json';
-	import LoadingSpinner from './LoadingSpinner.svelte';
+	import LoadingSpinner from '$lib/components/LoadingSpinner.svelte';
 
 	export let currentPageData;
 
@@ -14,6 +14,7 @@
 		menuMainData[globalData.default_lang];
 
 	localizedMenuItems.forEach(item => {
+		// TODO maintain active menu parent for doodles + msc-search-index.
 		item.isActive = '/' + item.path === $page.path;
 		items.push(item);
 	});

@@ -1,7 +1,6 @@
 import { writable } from 'svelte/store';
 
 export const documentStore = writable({
-	unixTime: 0, // In seconds.
 	totalDocs: 0,
 	results: [],
 	filters: []

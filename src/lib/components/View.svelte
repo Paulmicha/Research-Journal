@@ -19,6 +19,7 @@
 
 	export let definition; // @see createView()
 	export let store; // Exposed for reading only from the outside
+	export let pagerPos;
 
 	appIsBusy.set(true);
 	store = writable();
@@ -46,12 +47,17 @@
 	// The view definition must take pagers' current page number from URL params
 	// into consideration in order to fetch the correct results.
 	const viewObj = createView(definition);
-	const currentPageArg = arg('p' + viewObj.id);
-	if (currentPageArg && parseInt(currentPageArg) > 0) {
-		viewObj.pager.current_page = parseInt(currentPageArg);
+	if (!pagerPos) {
+		const currentPageArg = arg('p' + viewObj.id);
+		if (currentPageArg && parseInt(currentPageArg) > 0) {
+			viewObj.pager.current_page = parseInt(currentPageArg);
+		}
+	} else {
+		viewObj.pager.current_page = pagerPos;
 	}
 
 	initView(viewObj).then(viewObj => {
+		console.log('setting view store from View.svelte');
 		store.set(viewObj);
 		appIsBusy.set(false);
 	});

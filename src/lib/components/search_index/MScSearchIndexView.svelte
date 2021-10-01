@@ -1,5 +1,11 @@
 <script>
+	import { displayNb } from '$lib/generic_utils';
+	import { documentCacheStore } from '$lib/stores/mscSearchIndex';
 	import View from '$lib/components/View.svelte';
+	import searchIndexPreviewData from '$content/search_index_preview.json';
+
+	export let pagerPos;
+	let viewStore;
 
 	const definition = {
 		id: 1,
@@ -65,6 +71,57 @@
 			$n: 'mention'
 		}
 	};
+
+	// TODO (wip) implement reloading when a newer version of the remote dataset
+	// exists + need to clear $documentCacheStore.totalDocs when reloading.
+	$: if (viewStore) {
+		viewStore.subscribe(view => {
+			if (
+				view?.pager?.total_results_nb
+				&& $documentCacheStore.totalDocs === 0
+			) {
+				documentCacheStore.update(o => {
+					if (!o.unixTime) {
+						o.unixTime = Math.floor(Date.now() / 1000);
+					}
+					o.totalDocs = view.pager.total_results_nb;
+					return o;
+				});
+			}
+		});
+	}
 </script>
 
-<View { definition } />
+<p class="u-m-b u-fs-s">
+	⚠️&nbsp;Work in progress (proof of concept) : the small SQLite search index database is loaded in your web browser. No queries involve roundtrips to the server for filtering, paging, or even visiting this page again.
+</p>
+
+{#if $documentCacheStore.unixTime && $documentCacheStore.unixTime < searchIndexPreviewData.unixTime}
+	<details>
+		<summary>Update available</summary>
+		The dataset has changed since your last visit.
+
+		<!-- TODO (wip) -->
+		<!-- on:click|preventDefault={ reload } -->
+		<button class="btn load u-m-b">
+			Download the update ({ displayNb(searchIndexPreviewData.total) }&nbsp;ko)
+		</button>
+	</details>
+{/if}
+
+<View { definition } { pagerPos } bind:store={ viewStore } />
+
+<section class="rich-text">
+	<h2>Sources</h2>
+	<ul>
+		<li>
+			<a href="https://webreflection.medium.com/a-persistent-sqlite-for-the-web-90083827d1f8" target="_blank">A persistent SQLite for the Web, 2021/01/11, Andrea Giammarchi</a>
+		</li>
+		<li>
+			<a href="https://willschenk.com/articles/2021/sq_lite_in_the_browser/" target="_blank">SQLite in the browser, 2021/04/15, Will Schenk</a>
+		</li>
+		<li>
+			For larger databases like the <a href="https://github.com/phiresky/world-development-indicators-sqlite/" target="_blank">World Development Indicators dataset</a> - a dataset with 6 tables and over 8 million rows (670 MiByte total), see : <a href="https://phiresky.github.io/blog/2021/hosting-sqlite-databases-on-github-pages/" target="_blank">Hosting SQLite databases on Github Pages, 2021/04/17, Phiresky</a>
+		</li>
+	</ul>
+</section>

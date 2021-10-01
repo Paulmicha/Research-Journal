@@ -320,6 +320,7 @@ button.is-active {
 
 /* button, */
 .btn,
+a.btn,
 input[type='button'],
 input[type='reset'],
 input[type='submit'] {
@@ -348,6 +349,9 @@ input[type='submit'] {
 .btn:focus,
 .btn:hover,
 .btn.is-active,
+a.btn:focus,
+a.btn:hover,
+a.btn.is-active,
 input[type='button']:focus,
 input[type='button']:hover,
 input[type='button'].is-active,

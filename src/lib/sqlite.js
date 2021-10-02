@@ -33,9 +33,14 @@ export const initDb = async (dbName, forceReload) => {
 	let SQL = null;
 	let buf = null;
 	let sqliteFileContents = null;
+
+	// TODO for server-side pre-rendering, we need to import it conditionnally as
+	// in scripts/experiments/search_index/extract.js - i.e. :
+	// const initSqlJs = require('../../../static/sql-wasm.js');
 	if (typeof initSqlJs === 'undefined') {
 		await injectScript('/sql-wasm.js');
 	}
+
 	if (typeof forceReload === 'undefined') {
 		try {
 			sqliteFileContents = await localforage.getItem(dbName);

@@ -45,7 +45,7 @@
 	};
 
 	// The view definition must take pagers' current page number from URL params
-	// into consideration in order to fetch the correct results.
+	// into consideration in order to initially fetch the correct results.
 	const viewObj = createView(definition);
 	if (!pagerPos) {
 		const currentPageArg = arg('p' + viewObj.id);
@@ -57,7 +57,6 @@
 	}
 
 	initView(viewObj).then(viewObj => {
-		console.log('setting view store from View.svelte');
 		store.set(viewObj);
 		appIsBusy.set(false);
 	});

@@ -59,42 +59,6 @@ export const createView = (definition = {}) => {
 };
 
 /**
- * Initializes given view object.
- *
- * This will fetch initial results.
- *
- * @param {Object} view the view definition object.
- */
-export const initView = async view => {
-	// Fields must default to view's "base_table" for rendering purposes.
-	// @see src/lib/components/ViewResults.svelte
-	if (view?.fields && view?.base_table?.length) {
-		Object.keys(view.fields).forEach(f => {
-			if (!view.fields[f]?.table?.length) {
-				view.fields[f].table = view.base_table;
-			}
-		});
-	}
-	// Binds the view to a database instance (TODO separate those concerns ?)
-	if (!view?.db && view?.db_name?.length) {
-		view.db = await initDb(view.db_name);
-	}
-	// Default results (while we're at it).
-	if (!view?.results?.length && view?.db) {
-		const { query, queryArgs } = viewQueryBuilder(view);
-		view.results = dbFetchAll(view.db, query, queryArgs);
-		view.pager.total_results_nb = dbPopFetch(
-			view.db,
-			`SELECT COUNT(*) FROM ${view.base_table}`
-		);
-		view.pager.last_page = Math.floor(
-			view.pager.total_results_nb / view.pager.nb_per_page
-		);
-	}
-	return view;
-}
-
-/**
  * Returns SQLite query given view state.
  */
 export const viewQueryBuilder = view => {
@@ -139,25 +103,21 @@ export const viewQueryBuilder = view => {
 			}
 		}
 
-		// 3. Filters (conditions).
-		if (view.filters && field in view.filters) {
+		// 3. "field" filters (conditions).
+		if (
+			view.filters
+			&& field in view.filters
+			&& view.filters[field].type === 'field'
+			&& 'value' in view.filters[field]
+		) {
 			if (filter.length) {
 				// TODO [evol] combinations ? OR ?
 				filter += " AND ";
 			}
 
-			// Defaults.
 			let placeholder = '$' + f.replace('.', '_');
-			let op = '=';
-			let val = filters[field];
-
-			if (Array.isArray(filters[field])) {
-				op = filters[field][0];
-				val = filters[field][1];
-			} else if (typeof filters[field] === 'object') {
-				op = filters[field].op;
-				val = filters[field].val;
-			}
+			let op = view.filters[field]?.op || '=';
+			let val = view.filters[field].value;
 
 			switch (op) {
 				case 'contains':
@@ -180,8 +140,8 @@ export const viewQueryBuilder = view => {
 					break;
 				// TODO handle the 2nd value.
 				// case 'between':
-				//   filter += f + ' > ? AND ' . $f . ' < ' + placeholder;
-				//   break;
+				// 	filter += f + ' > ' + placeholder + ' AND ' + f + ' < ' + placeholder2;
+				// 	break;
 			}
 
 			queryArgs[placeholder] = val;
@@ -193,11 +153,54 @@ export const viewQueryBuilder = view => {
 		select = "DISTINCT " + select;
 	}
 
+	// Assembling the final SQL query string.
 	let query = '';
-	query += `SELECT ${select} FROM ${view.base_table}`;
-	if (view?.join?.length) {
+	query += `SELECT ${select} \nFROM ${view.base_table}`;
+
+	// We're using "joins" entry as an object keyed by joined tables to facilitate
+	// applying filters (see above), but leave the possibility to just use "join"
+	// for plain string input.
+	if (view?.joins) {
+		Object.keys(view.joins).forEach(joinedTable => {
+			if (
+				view.filters
+				&& joinedTable in view.filters
+				&& view.filters[joinedTable].type === 'swap join'
+				&& 'value' in view.filters[joinedTable]
+			) {
+				// TODO use query args instead.
+				if (view.filters[joinedTable].placeholder) {
+					query += "\n" + view.filters[joinedTable].query.replace(
+						view.filters[joinedTable].placeholder,
+						view.filters[joinedTable].value
+					);
+				} else {
+					query += "\n" + view.filters[joinedTable].query;
+				}
+			} else {
+				query += "\n" + view.joins[joinedTable];
+			}
+		});
+	} else if (view?.join) {
 		query += "\n" + view.join;
 	}
+
+	// Some filters may require adding new "join" statements to the query.
+	if (view.filters) {
+		Object.keys(view.filters).forEach(f => {
+			if (view.filters[f].type === 'new join' && 'value' in view.filters[f]) {
+				// TODO use query args instead.
+				if ('placeholder' in view.filters[f]) {
+					query += "\n" + view.filters[f].query.replace(
+						view.filters[f].placeholder, view.filters[f].value
+					);
+				} else {
+					query += "\n" + view.filters[f].query;
+				}
+			}
+		});
+	}
+
 	if (filter.length) {
 		query += "\n" + "WHERE " + filter;
 	}
@@ -221,7 +224,61 @@ export const viewQueryBuilder = view => {
 	query += "\nLIMIT " + `${limitStart}, ${view.pager.nb_per_page}`;
 
 	// Debug.
+	// query = query.split("\n").map(s => s.trim()).filter(s => s.length).join("\n");
 	// console.log(query);
 
 	return { query, queryArgs, countQuery };
+};
+
+/**
+ * Updates view results (applies pager and filters' state).
+ *
+ * This function alters the view object directly. It does not attempt to
+ * determine if its state changed before making the query (-> caller's
+ * responsability).
+ *
+ * @param {Object} view the view object.
+ */
+export const updateViewResults = view => {
+	if (!view?.db) {
+		return false;
+	}
+	const { query, queryArgs } = viewQueryBuilder(view);
+	view.results = dbFetchAll(view.db, query, queryArgs);
+	view.pager.total_results_nb = dbPopFetch(
+		view.db,
+		`SELECT COUNT(*) FROM ${view.base_table}`
+	);
+	view.pager.last_page = Math.floor(
+		view.pager.total_results_nb / view.pager.nb_per_page
+	);
+};
+
+/**
+ * Initializes given view object.
+ *
+ * This will fetch initial results.
+ *
+ * @param {Object} view the view definition object.
+ * @returns {Object} the initialized view object.
+ */
+export const initView = async view => {
+	// Fields must default to view's "base_table" for rendering purposes.
+	// @see src/lib/components/ViewResults.svelte
+	if (view?.fields && view?.base_table?.length) {
+		Object.keys(view.fields).forEach(f => {
+			if (!view.fields[f]?.table?.length) {
+				view.fields[f].table = view.base_table;
+			}
+		});
+	}
+	// Binds the view to a database instance (TODO separate those concerns ?)
+	if (!view?.db && view?.db_name?.length) {
+		view.db = await initDb(view.db_name);
+	}
+	// Default results (while we're at it).
+	if (!view?.results?.length) {
+		updateViewResults(view);
+	}
+	return view;
 };

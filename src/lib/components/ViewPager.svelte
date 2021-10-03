@@ -76,7 +76,7 @@
 	<li>
 		<a
 			class:disabled={ $view.pager.prev_is_disabled }
-			class="btn btn--s"
+			class="btn btn--s btn--rounded"
 			href={ firstUrl }
 			title="Go to first page"
 			on:click|preventDefault={ () => paginate(0) }
@@ -85,7 +85,7 @@
 		</a>
 		<!-- <button
 			class:disabled={ $view.pager.prev_is_disabled }
-			class="btn btn--s"
+			class="btn btn--s btn--rounded"
 			title="Go to first page"
 			on:click|preventDefault={ () => paginate(0) }
 		>
@@ -95,7 +95,7 @@
 	<li>
 		<a
 			class:disabled={ $view.pager.prev_is_disabled }
-			class="btn btn--s"
+			class="btn btn--s btn--rounded"
 			href={ prevUrl }
 			title="Go to previous page : { $view.pager.prev + 1 }"
 			on:click|preventDefault={ () => paginate($view.pager.prev) }
@@ -104,7 +104,7 @@
 		</a>
 		<!-- <button
 			class:disabled={ $view.pager.prev_is_disabled }
-			class="btn btn--s"
+			class="btn btn--s btn--rounded"
 			title="Go to previous page : { $view.pager.prev + 1 }"
 			on:click|preventDefault={ () => paginate($view.pager.prev) }
 		>
@@ -117,16 +117,16 @@
 	<li>
 		<a
 			class:disabled={ $view.pager.next_is_disabled }
-			class="btn btn--s"
+			class="btn btn--s btn--rounded"
 			href={ nextUrl }
-			title="Go to next page : { $view.pager.next + 1 }"
+			title="{ $view.pager.next_is_disabled ? '' : "Go to next page : " + ($view.pager.next + 1) }"
 			on:click|preventDefault={ () => paginate($view.pager.next) }
 		>
 			→
 		</a>
 		<!-- <button
 			class:disabled={ $view.pager.next_is_disabled }
-			class="btn btn--s"
+			class="btn btn--s btn--rounded"
 			title="Go to next page : { $view.pager.next + 1 }"
 			on:click|preventDefault={ () => paginate($view.pager.next) }
 		>
@@ -136,16 +136,16 @@
 	<li>
 		<a
 			class:disabled={ $view.pager.next_is_disabled }
-			class="btn btn--s"
+			class="btn btn--s btn--rounded"
 			href={ lastUrl }
-			title="Go to last page"
+			title={ $view.pager.next_is_disabled ? '' : "Go to last page" }
 			on:click|preventDefault={ () => paginate($view.pager.last_page) }
 		>
 			»
 		</a>
 		<!-- <button
 			class:disabled={ $view.pager.next_is_disabled }
-			class="btn btn--s"
+			class="btn btn--s btn--rounded"
 			title="Go to last page"
 			on:click|preventDefault={ () => paginate($view.pager.last_page) }
 		>

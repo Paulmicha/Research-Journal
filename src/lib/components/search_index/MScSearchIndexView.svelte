@@ -89,7 +89,7 @@
 					INNER JOIN has_reaction ON document.id = has_reaction.id
 						AND has_reaction.db_table = $t
 						AND has_reaction.id_reaction IN ($reactions_ids)
-					LEFT JOIN reaction ON has_reaction.id_reaction = reaction.id
+					INNER JOIN reaction ON has_reaction.id_reaction = reaction.id
 				`
 			},
 			tag: {
@@ -102,7 +102,7 @@
 					INNER JOIN has_tag ON document.id = has_tag.id
 						AND has_tag.db_table = $t
 						AND has_tag.id_tag IN ($tags_ids)
-					LEFT JOIN tag ON has_tag.id_tag = tag.id
+					INNER JOIN tag ON has_tag.id_tag = tag.id
 				`
 			},
 			person: {
@@ -115,7 +115,7 @@
 					INNER JOIN has_person ON document.id = has_person.id
 						AND has_person.db_table = $t
 						AND has_person.id_person IN ($persons_ids)
-					LEFT JOIN person ON has_person.id_person = person.id
+					INNER JOIN person ON has_person.id_person = person.id
 				`
 			}
 		}

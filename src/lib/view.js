@@ -30,15 +30,37 @@ export const getViewPagerState = (definition = {}) => {
 		// @see src/lib/components/ViewPager.svelte
 		prev: -1,
 		prev_is_disabled: true,
-		// prev_url: '',
 		next: 1,
 		next_is_disabled: false,
-		// next_url: ''
 	};
 	if ('pager' in definition) {
 		pagerState = { ...pagerState, ...definition.pager };
 	}
 	return pagerState;
+};
+
+/**
+ * Re-calculates pager state.
+ *
+ * @param {Object} view the view object.
+ * @param {Integer} n the new page number.
+ */
+export const updateViewPagerState = (view, n) => {
+	view.pager.current_page = n;
+	view.pager.prev = -1;
+	view.pager.prev_is_disabled = false;
+	view.pager.next = 1;
+	view.pager.next_is_disabled = false;
+	if (n > 0) {
+		view.pager.prev = n - 1;
+		view.pager.next = n + 1;
+	}
+	if (view.pager.prev < 0) {
+		view.pager.prev_is_disabled = true;
+	}
+	if (view.pager.next > view.pager.last_page) {
+		view.pager.next_is_disabled = true;
+	}
 };
 
 /**
@@ -221,12 +243,24 @@ export const viewQueryBuilder = view => {
 		query += "\n" + "ORDER BY " + sort;
 	}
 
-	let countQuery = '';
-	if (view?.distinct) {
-		countQuery = query.replace(
-			`SELECT ${select} FROM ${view.base_table}`,
-			`SELECT COUNT(${select}) as count FROM ${view.base_table}`
-		);
+	// TODO (wip) apply only for JOIN queries ?
+	// See https://stackoverflow.com/a/12123132/2592338
+	let countQuery = 'count_query' in view ? view.count_query : false;
+	if (!countQuery.length) {
+		// countQuery = query.replace(
+		// 	`SELECT ${select}`,
+		// 	`SELECT COUNT(*) as count`
+		// 	// `SELECT COUNT(DISTINCT ${view.base_table}.id) as count`
+		// );
+		countQuery = query.replace(`SELECT ${select} \nFROM ${view.base_table}`, '');
+		countQuery = `
+			SELECT sum(Total) AS totalOfRows
+			FROM (
+				SELECT 1 as Total
+				FROM ${view.base_table}
+				${countQuery}
+			)
+		`;
 	}
 
 	// Pager limit.
@@ -248,20 +282,25 @@ export const viewQueryBuilder = view => {
  * responsability).
  *
  * @param {Object} view the view object.
+ * @param {Boolean} rebuildPager forces pager state update (e.g. if filters
+ *   change - not if we just load next page of the same result set).
  */
-export const updateViewResults = view => {
+export const updateViewResults = (view, rebuildPager = false) => {
 	if (!view?.db) {
 		return false;
 	}
-	const { query, queryArgs } = viewQueryBuilder(view);
+	if (rebuildPager) {
+		view.pager.current_page = 0;
+	}
+	const { query, queryArgs, countQuery } = viewQueryBuilder(view);
 	view.results = dbFetchAll(view.db, query, queryArgs);
-	view.pager.total_results_nb = dbPopFetch(
-		view.db,
-		`SELECT COUNT(*) FROM ${view.base_table}`
-	);
-	view.pager.last_page = Math.floor(
-		view.pager.total_results_nb / view.pager.nb_per_page
-	);
+	if (!view.pager.total_results_nb || rebuildPager) {
+		view.pager.total_results_nb = dbPopFetch(view.db, countQuery, queryArgs);
+		view.pager.last_page = Math.floor(
+			view.pager.total_results_nb / view.pager.nb_per_page
+		);
+		updateViewPagerState(view, 0);
+	}
 };
 
 /**
@@ -343,6 +382,17 @@ export const initView = async view => {
 };
 
 /**
+ * Applies the new currently active page number.
+ *
+ * @param {Object} view the view object.
+ * @param {Integer} n the new page number.
+ */
+export const paginateView = (view, n) => {
+	updateViewPagerState(view, n);
+	updateViewResults(view);
+};
+
+/**
  * Applies or clears filters.
  *
  * @param {Object} view the view object.
@@ -368,41 +418,5 @@ export const filterView = (view, f, value) => {
 		view.filters[f].value = value;
 	}
 	// Filtering or clearing filters will impact the pager -> reset current page.
-	view.pager.current_page = 0;
-	updateViewResults(view);
-};
-
-/**
- * Applies the new currently active page number.
- *
- * @param {Object} view the view object.
- * @param {Integer} n the new page number.
- */
-export const paginateView = (view, n) => {
-	if (n != view.pager.current_page) {
-		view.pager.current_page = n;
-
-		let prev = -1;
-		let prevIsDisabled = false;
-		let next = 1;
-		let nextIsDisabled = false;
-
-		if (n > 0) {
-			prev = n - 1;
-			next = n + 1;
-		}
-		if (prev < 0) {
-			prevIsDisabled = true;
-		}
-		if (next >= view.pager.last_page) {
-			nextIsDisabled = true;
-		}
-
-		view.pager.prev = prev;
-		view.pager.prev_is_disabled = prevIsDisabled;
-		view.pager.next = next;
-		view.pager.next_is_disabled = nextIsDisabled;
-
-		updateViewResults(view);
-	}
+	updateViewResults(view, true);
 };

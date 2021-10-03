@@ -78,8 +78,23 @@
 			$n: 'mention'
 		},
 		filters: {
+			reaction: {
+				label: "Filter by emoji",
+				select: true,
+				multi: true,
+				wrapperClass: "narrow",
+				type: "swap join",
+				placeholder: "$reactions_ids",
+				query: `
+					INNER JOIN has_reaction ON document.id = has_reaction.id
+						AND has_reaction.db_table = $t
+						AND has_reaction.id_reaction IN ($reactions_ids)
+					LEFT JOIN reaction ON has_reaction.id_reaction = reaction.id
+				`
+			},
 			tag: {
 				label: "Filter by tags",
+				select: true,
 				multi: true,
 				type: "swap join",
 				placeholder: "$tags_ids",
@@ -92,6 +107,7 @@
 			},
 			person: {
 				label: "Filter by names",
+				select: true,
 				multi: true,
 				type: "new join",
 				placeholder: "$persons_ids",
@@ -100,19 +116,6 @@
 						AND has_person.db_table = $t
 						AND has_person.id_person IN ($persons_ids)
 					LEFT JOIN person ON has_person.id_person = person.id
-				`
-			},
-			reaction: {
-				label: "Filter by emoji",
-				multi: true,
-				wrapperClass: "narrow",
-				type: "swap join",
-				placeholder: "$reactions_ids",
-				query: `
-					INNER JOIN has_reaction ON document.id = has_reaction.id
-						AND has_reaction.db_table = $t
-						AND has_reaction.id_reaction IN ($reactions_ids)
-					LEFT JOIN reaction ON has_reaction.id_reaction = reaction.id
 				`
 			}
 		}
@@ -139,7 +142,7 @@
 </script>
 
 <p class="u-m-b u-fs-s">
-	⚠️&nbsp;Work in progress (proof of concept) : the small SQLite search index database is loaded in your web browser. No queries involve roundtrips to the server for filtering, paging, or even visiting this page again.
+	⚠️&nbsp;Proof of concept : the SQLite search index database is loaded in your web browser. No queries involve roundtrips to the server for filtering, paging, or even visiting this page again.
 </p>
 
 {#if $documentCacheStore.unixTime && $documentCacheStore.unixTime < searchIndexPreviewData.unixTime}
@@ -167,7 +170,7 @@
 			<a href="https://willschenk.com/articles/2021/sq_lite_in_the_browser/" target="_blank">SQLite in the browser, 2021/04/15, Will Schenk</a>
 		</li>
 		<li>
-			For larger databases like the <a href="https://github.com/phiresky/world-development-indicators-sqlite/" target="_blank">World Development Indicators dataset</a> - a dataset with 6 tables and over 8 million rows (670 MiByte total), see : <a href="https://phiresky.github.io/blog/2021/hosting-sqlite-databases-on-github-pages/" target="_blank">Hosting SQLite databases on Github Pages, 2021/04/17, Phiresky</a>
+			For larger databases like the <a href="https://github.com/phiresky/world-development-indicators-sqlite/" target="_blank">World Development Indicators dataset</a> - a dataset with 6 tables and over 8 million rows (670 MiByte total), Phiresky implemented a virtual file system that fetches chunks of the database with HTTP Range requests when SQLite tries to read from the filesystem&nbsp;: <a href="https://github.com/phiresky/sql.js-httpvfs" target="_blank">sql.js-httpvfs</a>, see&nbsp;: <a href="https://phiresky.github.io/blog/2021/hosting-sqlite-databases-on-github-pages/" target="_blank">Hosting SQLite databases on Github Pages, 2021/04/17, Phiresky</a>
 		</li>
 	</ul>
 </section>

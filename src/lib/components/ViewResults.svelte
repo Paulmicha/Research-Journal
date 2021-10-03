@@ -78,50 +78,54 @@
 <div class="full-vw">
 	<table>
 		<thead>
-			{#each Object.keys($view.fields) as f}
-				{#if !$view.fields[f]?.hidden}
-					{#if $view.fields[f]?.sort}
-						<th class:is-active={ $view.fields[f]?.sort_default }>
-							<button
-								class="sort is-{ $view.fields[f].sort }"
-								on:click={e => sortBy(e, view.fields[f].table)}
-								title="Sort by { $view.fields[f].label }"
-							>
-								<span class="is-asc">↑</span>
-								<span class="is-desc">↓</span>
-								{ $view.fields[f].label }
-							</button>
-						</th>
-					{:else}
-						<th>{ $view.fields[f].label }</th>
+			{#if $view?.fields}
+				{#each Object.keys($view.fields) as f}
+					{#if !$view.fields[f]?.hidden}
+						{#if $view.fields[f]?.sort}
+							<th class:is-active={ $view.fields[f]?.sort_default }>
+								<button
+									class="sort is-{ $view.fields[f].sort }"
+									on:click={e => sortBy(e, view.fields[f].table)}
+									title="Sort by { $view.fields[f].label }"
+								>
+									<span class="is-asc">↑</span>
+									<span class="is-desc">↓</span>
+									{ $view.fields[f].label }
+								</button>
+							</th>
+						{:else}
+							<th>{ $view.fields[f].label }</th>
+						{/if}
 					{/if}
-				{/if}
-			{/each}
+				{/each}
+			{/if}
 		</thead>
 		<tbody>
-			{#each $view.results as result}
-				<tr>
-					{#each Object.keys($view.fields) as f}
-						{#if !$view.fields[f]?.hidden}
-							<td>
-								{#if $view.fields[f] && getCellComponent($view.fields[f])}
-									<svelte:component this={ getCellComponent($view.fields[f]) }
-										{ result }
-										value={ result[f] }
-										cell={ $view.fields[f] }
-									/>
-								{:else}
-									<ViewResultsCell
-										{ result }
-										value={ result[f] }
-										cell={ $view.fields[f] }
-									/>
-								{/if}
-							</td>
-						{/if}
-					{/each}
-				</tr>
-			{/each}
+			{#if $view?.results?.length}
+				{#each $view.results as result}
+					<tr>
+						{#each Object.keys($view.fields) as f}
+							{#if !$view.fields[f]?.hidden}
+								<td>
+									{#if $view.fields[f] && getCellComponent($view.fields[f])}
+										<svelte:component this={ getCellComponent($view.fields[f]) }
+											{ result }
+											value={ result[f] }
+											cell={ $view.fields[f] }
+										/>
+									{:else}
+										<ViewResultsCell
+											{ result }
+											value={ result[f] }
+											cell={ $view.fields[f] }
+										/>
+									{/if}
+								</td>
+							{/if}
+						{/each}
+					</tr>
+				{/each}
+			{/if}
 		</tbody>
 	</table>
 </div>

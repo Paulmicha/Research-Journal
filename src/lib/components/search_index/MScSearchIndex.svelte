@@ -20,9 +20,7 @@
 	</a>
 </div>
 
-<div class="wrap">
-	<MScSearchIndexResults />
-</div>
+<MScSearchIndexResults />
 
 <style>
 	.load {
@@ -30,8 +28,5 @@
 		margin-left: auto;
 		margin-right: auto;
 		width: 42ch;
-	}
-	.wrap {
-		position: relative;
 	}
 </style>

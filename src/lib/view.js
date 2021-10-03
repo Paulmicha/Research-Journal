@@ -24,7 +24,16 @@ export const getViewPagerState = (definition = {}) => {
 		nb_per_page: 15,
 		current_page: 0,
 		last_page: 0,
-		total_results_nb: 0
+		total_results_nb: 0,
+		// These rendering-specific state values are stored together here because
+		// otherwise it would complicate keeping the pager component "in sync".
+		// @see src/lib/components/ViewPager.svelte
+		prev: -1,
+		prev_is_disabled: false,
+		// prev_url: '',
+		next: 1,
+		next_is_disabled: false,
+		// next_url: ''
 	};
 	if ('pager' in definition) {
 		pagerState = { ...pagerState, ...definition.pager };
@@ -192,7 +201,8 @@ export const viewQueryBuilder = view => {
 				// TODO use query args instead.
 				if ('placeholder' in view.filters[f]) {
 					query += "\n" + view.filters[f].query.replace(
-						view.filters[f].placeholder, view.filters[f].value
+						view.filters[f].placeholder,
+						view.filters[f].value
 					);
 				} else {
 					query += "\n" + view.filters[f].query;
@@ -255,9 +265,56 @@ export const updateViewResults = view => {
 };
 
 /**
+ * Updates the filters' options.
+ *
+ * TODO adapt options based on active filters ?
+ * TODO async options' fuzzy search for bigger lists ?
+ *
+ * @param {Object} view the view definition object.
+ */
+export const updateViewFiltersValues = view => {
+	Object.keys(view.filters).forEach(f => {
+		// Each "select" filter needs options. It assumes a DB table is associated
+		// to each filter for fetching the list of options (unless a values_query
+		// is specified).
+		if (view.filters[f]?.select) {
+			if (!view.filters[f].table?.length) {
+				view.filters[f].table = f;
+			}
+			if ('values_query' in view.filters[f]) {
+				view.filters[f].options = dbFetchAll(
+					view.db,
+					view.filters[f].values_query,
+					view.filters[f]?.values_query_args
+				);
+			} else {
+				// If no query is specified, fallback to a basic "fetch all" (within
+				// limits).
+				let max = 2500;
+				if ('values_query_max' in view.filters[f]) {
+					max = view.filters[f].values_query_max;
+				}
+				if (!max) {
+					view.filters[f].options = dbFetchAll(
+						view.db,
+						`SELECT * FROM ${view.filters[f].table}`
+					);
+				} else {
+					view.filters[f].options = dbFetchAll(
+						view.db,
+						`SELECT * FROM ${view.filters[f].table} LIMIT 0, ${max}`
+					);
+				}
+			}
+		}
+	});
+	return view;
+};
+
+/**
  * Initializes given view object.
  *
- * This will fetch initial results.
+ * This will fetch initial results and filter options.
  *
  * @param {Object} view the view definition object.
  * @returns {Object} the initialized view object.
@@ -276,9 +333,54 @@ export const initView = async view => {
 	if (!view?.db && view?.db_name?.length) {
 		view.db = await initDb(view.db_name);
 	}
-	// Default results (while we're at it).
+	// Default results.
 	if (!view?.results?.length) {
 		updateViewResults(view);
 	}
+	// Populate the initial filter options;
+	updateViewFiltersValues(view);
 	return view;
+};
+
+/**
+ * Applies or clears filters.
+ *
+ * @param {Object} view the view object.
+ * @param {String} f the filter "name" (can be a DB table name).
+ * @param {Array} value [optional] input value(s) or selected options. If
+ *   undefined, it will clear the filter.
+ */
+export const filterView = (view, f, value) => {
+	if (
+		(typeof value === 'undefined')
+		&& 'value' in view.filters[f]
+	) {
+		// Clear filter.
+		delete view.filters[f].value;
+	} else if (
+		'value' in view.filters[f]
+		&& JSON.stringify(view.filters[f].value) === JSON.stringify(value)
+	) {
+		// Update is not needed.
+		return;
+	} else {
+		// Filter value is new or has changed.
+		view.filters[f].value = value;
+	}
+	// Filtering or clearing filters will impact the pager -> reset current page.
+	view.pager.current_page = 0;
+	updateViewResults(view);
+};
+
+/**
+ * Applies the new currently active page number.
+ *
+ * @param {Object} view the view object.
+ * @param {Integer} n the new page number.
+ */
+export const paginateView = (view, n) => {
+	if (n != view.pager.current_page) {
+		view.pager.current_page = n;
+		updateViewResults(view);
+	}
 };

@@ -16,6 +16,7 @@
 	import { appIsBusy } from '$lib/stores/globalState.js';
 	import ViewPager from '$lib/components/ViewPager.svelte';
 	import ViewResults from '$lib/components/ViewResults.svelte';
+	import ViewFilters from '$lib/components/ViewFilters.svelte';
 
 	export let definition; // @see createView()
 	export let store; // Exposed for reading only from the outside
@@ -62,12 +63,16 @@
 	});
 </script>
 
-{#if $store?.results?.length > 0}
-	{#if $store?.pager?.total_results_nb > $store?.pager?.nb_per_page}
-		<ViewPager />
-	{/if}
-	<ViewResults />
-	{#if $store?.pager?.total_results_nb > $store?.pager?.nb_per_page}
-		<ViewPager />
-	{/if}
+{#if Object.keys($store?.filters || {})?.length }
+	<ViewFilters />
+{/if}
+
+{#if $store?.results?.length > 0 && $store?.pager?.total_results_nb > $store?.pager?.nb_per_page}
+	<ViewPager />
+{/if}
+
+<ViewResults />
+
+{#if $store?.results?.length > 0 && $store?.pager?.total_results_nb > $store?.pager?.nb_per_page}
+	<ViewPager />
 {/if}

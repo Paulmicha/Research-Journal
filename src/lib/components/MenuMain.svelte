@@ -25,9 +25,9 @@
 <!-- <pre>MenuMain.svelte : currentPageData = {JSON.stringify(currentPageData, null, 2)}</pre> -->
 <!-- <pre>MenuMain.svelte : items = {JSON.stringify(items, null, 2)}</pre> -->
 
-<div class="wrap full-vw full-vw--padded" class:is-loading={ $appIsBusy || $navigating }>
-	<div class="inner-wrap">
-		<a class="logo" href="/">
+<div class="MenuMain-wrap full-vw full-vw--padded" class:is-loading={ $appIsBusy || $navigating }>
+	<div class="MenuMain-inner-wrap">
+		<a class="MenuMain-logo" href="/">
 			<img src="/logo.svg" alt="Experimental research journal logo" />
 			{#if $appIsBusy || $navigating}
 				<LoadingSpinner size="75%" border=".33em" voffset="-.16em" />
@@ -55,21 +55,24 @@
 </div>
 
 <style>
-	.wrap {
+	/*
+	Critical styles have been moved to src/critical.css)
+	.MenuMain-wrap {
 		margin-bottom: 1.5rem;
 		padding-top: .25rem;
 		padding-bottom: .25rem;
 		background-color: var(--color-invert-bg);
 	}
+	*/
 	@keyframes bg-anim {
 		0% { background-position: 0% 50% }
     50% { background-position: 100% 50% }
     100% { background-position: 0% 50% }
 	}
-	.wrap.is-loading {
+	.MenuMain-wrap.is-loading {
 		position: relative;
 	}
-	.wrap.is-loading::after {
+	.MenuMain-wrap.is-loading::after {
 		content: '';
 		position: absolute;
 		bottom: calc(var(--space-s) * -1);
@@ -89,12 +92,14 @@
 		height: var(--space-s);
 		animation: bg-anim 3s ease-in-out infinite;
 	}
-	.inner-wrap {
+	/*
+	Critical styles have been moved to src/critical.css)
+	.MenuMain-inner-wrap {
 		display: flex;
 		align-items: center;
 		width: 100%;
 	}
-	.logo {
+	.MenuMain-logo {
 		position: relative;
 		display: block;
 		line-height: 1;
@@ -117,6 +122,7 @@
 		font-weight: bold;
 		text-decoration: none;
 	}
+	*/
 	.MenuMain-link:focus,
 	.MenuMain-link:hover,
 	.MenuMain-link.is-active {

@@ -245,7 +245,7 @@ export const viewQueryBuilder = view => {
 
 	// TODO (wip) apply only for JOIN queries ?
 	// See https://stackoverflow.com/a/12123132/2592338
-	let countQuery = 'count_query' in view ? view.count_query : false;
+	let countQuery = 'count_query' in view ? view.count_query : '';
 	if (!countQuery.length) {
 		// countQuery = query.replace(
 		// 	`SELECT ${select}`,

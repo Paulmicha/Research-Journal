@@ -2,6 +2,7 @@
 	import { page } from '$app/stores';
 	import { onMount } from 'svelte';
 	import { setContext } from 'svelte';
+	import '../critical.css';
 
 	// Keep scrollbar width up to date in CSS to avoid horizontal scrollbar. This
 	// is necessary because the layout is narrow and centered by default, and the

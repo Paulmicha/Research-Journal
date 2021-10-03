@@ -29,7 +29,7 @@ export const getViewPagerState = (definition = {}) => {
 		// otherwise it would complicate keeping the pager component "in sync".
 		// @see src/lib/components/ViewPager.svelte
 		prev: -1,
-		prev_is_disabled: false,
+		prev_is_disabled: true,
 		// prev_url: '',
 		next: 1,
 		next_is_disabled: false,
@@ -381,6 +381,28 @@ export const filterView = (view, f, value) => {
 export const paginateView = (view, n) => {
 	if (n != view.pager.current_page) {
 		view.pager.current_page = n;
+
+		let prev = -1;
+		let prevIsDisabled = false;
+		let next = 1;
+		let nextIsDisabled = false;
+
+		if (n > 0) {
+			prev = n - 1;
+			next = n + 1;
+		}
+		if (prev < 0) {
+			prevIsDisabled = true;
+		}
+		if (next >= view.pager.last_page) {
+			nextIsDisabled = true;
+		}
+
+		view.pager.prev = prev;
+		view.pager.prev_is_disabled = prevIsDisabled;
+		view.pager.next = next;
+		view.pager.next_is_disabled = nextIsDisabled;
+
 		updateViewResults(view);
 	}
 };

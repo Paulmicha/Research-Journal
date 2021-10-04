@@ -25,7 +25,10 @@
 				// component instance (manually hardcoded for now).
 				// @see src/lib/components/search_index/MScSearchIndexView.svelte
 				// @see src/lib/components/View.svelte
-				pagerPos: page.query.has('p1') ? parseInt(page.query.get('p1')) : 0
+				// TODO (wip) Workaround build error :
+				// Error: Cannot access query on a page with prerendering enabled
+				pagerPos: 0
+				// pagerPos: page.query.has('p1') ? parseInt(page.query.get('p1')) : 0
 			}
 		};
 	}

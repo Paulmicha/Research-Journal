@@ -22,7 +22,8 @@
 				sortable: true,
 				sort_dir: "DESC",
 				sort_active: true,
-				render: 'date'
+				render: 'date',
+				class: "narrow"
 			},
 			// TODO rewrite data model to allow SQL query to get total reactions count
 			// i.e. like COUNT(DISTINCT has_reaction.id_document) AS reaction_count

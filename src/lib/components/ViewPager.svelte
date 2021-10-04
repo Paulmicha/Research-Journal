@@ -5,7 +5,7 @@
 
 <script>
 	import { getContext } from 'svelte';
-	import { page } from '$app/stores';
+	// import { page } from '$app/stores';
 	import { paginateView } from '$lib/view';
 	import { appIsBusy } from '$lib/stores/globalState.js';
 
@@ -26,26 +26,28 @@
 	renderedPagerIds.push(pagerId);
 
 	// Keep pager links in sync with pager state.
-	let firstUrl = $page.path;
-	let prevUrl = $page.path;
-	let nextUrl = $page.path;
-	let lastUrl = $page.path;
-	view.subscribe(o => {
-		// Preserve any other query args (otherwise the pager links would loose them).
-		if ($page.query.toString().length) {
-			firstUrl = $page.path + "?" + $page.query.toString();
-			prevUrl = $page.path + "?" + $page.query.toString();
-			nextUrl = $page.path + "?" + $page.query.toString();
-		}
-		if (o.pager.prev > 0) {
-			$page.query.set('p' + o.id, o.pager.prev);
-			prevUrl = $page.path + "?" + $page.query.toString();
-		}
-		$page.query.set('p' + o.id, o.pager.next);
-		nextUrl = $page.path + "?" + $page.query.toString();
-		$page.query.set('p' + o.id, o.pager.last_page);
-		lastUrl = $page.path + "?" + $page.query.toString();
-	});
+	// TODO (wip) Sveltekit static adapter cannot build query args.
+	// Error: Cannot access query on a page with prerendering enabled
+	// let firstUrl = $page.path;
+	// let prevUrl = $page.path;
+	// let nextUrl = $page.path;
+	// let lastUrl = $page.path;
+	// view.subscribe(o => {
+	// 	// Preserve any other query args (otherwise the pager links would loose them).
+	// 	if ($page.query.toString().length) {
+	// 		firstUrl = $page.path + "?" + $page.query.toString();
+	// 		prevUrl = $page.path + "?" + $page.query.toString();
+	// 		nextUrl = $page.path + "?" + $page.query.toString();
+	// 	}
+	// 	if (o.pager.prev > 0) {
+	// 		$page.query.set('p' + o.id, o.pager.prev);
+	// 		prevUrl = $page.path + "?" + $page.query.toString();
+	// 	}
+	// 	$page.query.set('p' + o.id, o.pager.next);
+	// 	nextUrl = $page.path + "?" + $page.query.toString();
+	// 	$page.query.set('p' + o.id, o.pager.last_page);
+	// 	lastUrl = $page.path + "?" + $page.query.toString();
+	// });
 
 	/**
 	 * Applies new current page.
@@ -74,7 +76,7 @@
 
 <ul class="pager" id={ pagerId }>
 	<li>
-		<a
+		<!-- <a
 			class:disabled={ $view.pager.prev_is_disabled }
 			class="btn btn--s"
 			href={ firstUrl }
@@ -82,18 +84,18 @@
 			on:click|preventDefault={ () => paginate(0) }
 		>
 			«
-		</a>
-		<!-- <button
+		</a> -->
+		<button
 			class:disabled={ $view.pager.prev_is_disabled }
 			class="btn btn--s"
 			title="Go to first page"
 			on:click|preventDefault={ () => paginate(0) }
 		>
 			«
-		</button> -->
+		</button>
 	</li>
 	<li>
-		<a
+		<!-- <a
 			class:disabled={ $view.pager.prev_is_disabled }
 			class="btn btn--s"
 			href={ prevUrl }
@@ -101,21 +103,21 @@
 			on:click|preventDefault={ () => paginate($view.pager.prev) }
 		>
 			←
-		</a>
-		<!-- <button
+		</a> -->
+		<button
 			class:disabled={ $view.pager.prev_is_disabled }
 			class="btn btn--s"
 			title="Go to previous page : { $view.pager.prev + 1 }"
 			on:click|preventDefault={ () => paginate($view.pager.prev) }
 		>
 			←
-		</button> -->
+		</button>
 	</li>
 	<li class="u-fs-s">
 		Page { $view.pager.current_page + 1 } / { $view.pager.last_page + 1 }
 	</li>
 	<li>
-		<a
+		<!-- <a
 			class:disabled={ $view.pager.next_is_disabled }
 			class="btn btn--s"
 			href={ nextUrl }
@@ -123,18 +125,18 @@
 			on:click|preventDefault={ () => paginate($view.pager.next) }
 		>
 			→
-		</a>
-		<!-- <button
+		</a> -->
+		<button
 			class:disabled={ $view.pager.next_is_disabled }
 			class="btn btn--s"
 			title="Go to next page : { $view.pager.next + 1 }"
 			on:click|preventDefault={ () => paginate($view.pager.next) }
 		>
 			→
-		</button> -->
+		</button>
 	</li>
 	<li>
-		<a
+		<!-- <a
 			class:disabled={ $view.pager.next_is_disabled }
 			class="btn btn--s"
 			href={ lastUrl }
@@ -142,15 +144,15 @@
 			on:click|preventDefault={ () => paginate($view.pager.last_page) }
 		>
 			»
-		</a>
-		<!-- <button
+		</a> -->
+		<button
 			class:disabled={ $view.pager.next_is_disabled }
 			class="btn btn--s"
 			title="Go to last page"
 			on:click|preventDefault={ () => paginate($view.pager.last_page) }
 		>
 			»
-		</button> -->
+		</button>
 	</li>
 </ul>
 

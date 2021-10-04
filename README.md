@@ -2,11 +2,6 @@
 
 For the MSc Strategy and Design for the Anthropocene (2020/2021).
 
-Based on Svelte (Sapper). Contains deprecated abstractions originally aimed at
-Netlify CMS.
-
-TODO convert to SvelteKit.
-
 ## License
 
 Unless otherwise stated :

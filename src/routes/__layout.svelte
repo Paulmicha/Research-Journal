@@ -2,7 +2,12 @@
 	import { page } from '$app/stores';
 	import { onMount } from 'svelte';
 	import { setContext } from 'svelte';
-	import '../critical.css';
+
+	// TODO (wip) Contrary to what I assumed, the "import" of CSS does NOT inject
+	// inline its contents in <head>
+	// -> Workaround : copy/pasted manually the minified version of this file in :
+	// src/app.html
+	// import '../critical.css';
 
 	// Keep scrollbar width up to date in CSS to avoid horizontal scrollbar. This
 	// is necessary because the layout is narrow and centered by default, and the

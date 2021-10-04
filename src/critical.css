@@ -1,6 +1,13 @@
 /**
  * @file
  * Critical global CSS (unscoped inline styles).
+ *
+ * See https://www.filamentgroup.com/lab/load-css-simpler/
+ *
+ * TODO (wip) Contrary to what I assumed, the "import" of CSS from :
+ * src/routes/__layout.svelte does NOT inject inline its contents in <head>
+ * -> Woarkaround : copy/pasted manually the minified version of this file in :
+ * src/app.html
  */
 
 /* Brutal reset */
@@ -93,6 +100,13 @@ main {
 }
 main > .fill-h {
 	flex-grow: 1;
+}
+
+/* Default tags */
+
+img {
+	display: inline-block;
+	max-width: 100%;
 }
 
 /* Generic utilities */

@@ -155,29 +155,31 @@
 			<th>Description</th>
 		</thead>
 		<tbody>
-		{#each $documentStore.results as doc}
-			<tr>
-				<td>
-					<div class="narrow">
-						{ new Date(doc.date_shared).toLocaleDateString('fr', { year: "numeric", month: "2-digit", day: "2-digit" }) }
-					</div>
-				</td>
-				<td>
-					{#if doc.reactions}
-						{#each doc.reactions as reaction}
-							{#each Array(reaction.count) as _}
-								<span class="emoji">{ reaction.name }</span>
+		{#if $documentStore.results}
+			{#each $documentStore.results as doc}
+				<tr>
+					<td>
+						<div class="narrow">
+							{ new Date(doc.date_shared).toLocaleDateString('fr', { year: "numeric", month: "2-digit", day: "2-digit" }) }
+						</div>
+					</td>
+					<td>
+						{#if doc.reactions}
+							{#each doc.reactions as reaction}
+								{#each Array(reaction.count) as _}
+									<span class="emoji">{ reaction.name }</span>
+								{/each}
 							{/each}
-						{/each}
-					{/if}
-				</td>
-				<td><a class="title" href="{ doc.url }">{ doc.title }</a></td>
-				<td>{ doc.tags || '' }</td>
-				<td>{ doc.author || '' }</td>
-				<td>{ doc.names || '' }</td>
-				<td class="wide"><div class="desc">{ doc.description || '' }</div></td>
-			</tr>
-		{/each}
+						{/if}
+					</td>
+					<td><a class="title" href="{ doc.url }">{ doc.title }</a></td>
+					<td>{ doc.tags || '' }</td>
+					<td>{ doc.author || '' }</td>
+					<td>{ doc.names || '' }</td>
+					<td class="wide"><div class="desc">{ doc.description || '' }</div></td>
+				</tr>
+			{/each}
+		{/if}
 		</tbody>
 	</table>
 </div>

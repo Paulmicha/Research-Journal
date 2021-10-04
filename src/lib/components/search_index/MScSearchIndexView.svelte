@@ -49,7 +49,10 @@
 				label: "Mentions",
 				select: "GROUP_CONCAT(mention.name, ', ') names"
 			},
-			description: { label: "Description" }
+			description: {
+				label: "Description",
+				class: "wide"
+			}
 		},
 		joins: {
 			tag: `
@@ -85,7 +88,7 @@
 				label: "Filter by emoji",
 				select: true,
 				multi: true,
-				wrapperClass: "narrow",
+				wrapper_class: "narrow",
 				type: "swap join",
 				placeholder: "$reactions_ids",
 				query: `

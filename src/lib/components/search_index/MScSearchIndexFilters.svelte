@@ -92,7 +92,7 @@
 	const applySelectFilterAnd = () => {
 		documentStore.update(o => {
 			let newResults = [];
-			const documents = ('all' in o && o.all.length) ? o.all : o.initial; // TODO get docs sst.
+			const documents = o.initial;
 			for (let i = 0; i < documents.length; i++) {
 				const result = documents[i];
 				let allFilterValuesMatch = true;
@@ -123,7 +123,8 @@
 					newResults.push(result);
 				}
 			}
-			return newResults;
+			o.results = newResults;
+			return o;
 		});
 	};
 
@@ -133,7 +134,7 @@
 	const applySelectFilterOr = () => {
 		documentStore.update(o => {
 			let newResults = [];
-			const documents = ('all' in o && o.all.length) ? o.all : o.initial; // TODO get docs sst.
+			const documents = o.initial;
 			for (let i = 0; i < documents.length; i++) {
 				const result = documents[i];
 				let anyFilterValueMatches = false;
@@ -170,7 +171,7 @@
 	 */
   const clearSelectFilter = () => {
 		documentStore.update(o => {
-			const documents = ('all' in o && o.all.length) ? o.all : o.initial; // TODO get docs sst.
+			const documents = o.initial;
 			o.results = documents;
 			return o;
 		});

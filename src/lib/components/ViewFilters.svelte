@@ -99,7 +99,7 @@
 	<div class="f-grid f-grid--g">
 		{#if $view.filters}
 			{#each Object.keys($view.filters) as f}
-				<div class="f-grid-item { $view.filters[f]?.wrapperClass || '' }">
+				<div class="f-grid-item { $view.filters[f]?.wrapper_class || '' }">
 					<Select
 						isMulti={ true }
 						items={ getSelectItems(f) }

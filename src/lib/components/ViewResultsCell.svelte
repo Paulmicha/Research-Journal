@@ -38,4 +38,7 @@
 	.narrow {
 		max-width: 10ch;
 	}
+	.wide {
+		max-width: 76ch;
+	}
 </style>

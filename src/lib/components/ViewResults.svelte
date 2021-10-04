@@ -146,7 +146,4 @@
 	tbody {
 		font-size: .9rem;
 	}
-	.desc {
-		max-width: 76ch;
-	}
 </style>

@@ -20,19 +20,21 @@
 			date_shared: {
 				label: "Date shared",
 				sortable: true,
-				sort: "DESC",
+				sort_dir: "DESC",
+				sort_active: true,
 				render: 'date'
 			},
 			// TODO rewrite data model to allow SQL query to get total reactions count
 			// i.e. like COUNT(DISTINCT has_reaction.id_document) AS reaction_count
 			reactions_qty: {
 				hidden: true,
-				select: "GROUP_CONCAT(has_reaction.qty, ';') reactions_qty"
+				select: "GROUP_CONCAT(has_reaction.qty, ' ') reactions_qty"
 			},
 			reactions_name: {
 				label: "Reactions",
-				select: "GROUP_CONCAT(reaction.name, ';') reactions_name",
+				select: "GROUP_CONCAT(reaction.name, ' ') reactions_name",
 				sortable: true,
+				sort_dir: "DESC",
 				sort_on: 'reactions_qty'
 			},
 			title: { label: "Title", href_from: "url", sortable: true },
@@ -40,7 +42,8 @@
 			author: {
 				label: "Author",
 				select: "author.name as author",
-				sortable: true
+				sortable: true,
+				sort_dir: "ASC"
 			},
 			names: {
 				label: "Mentions",

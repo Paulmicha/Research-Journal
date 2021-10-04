@@ -57,9 +57,11 @@ export const updateViewPagerState = (view, n) => {
 	}
 	if (view.pager.prev < 0) {
 		view.pager.prev_is_disabled = true;
+		view.pager.prev = 0;
 	}
 	if (view.pager.next > view.pager.last_page) {
 		view.pager.next_is_disabled = true;
+		view.pager.next = n;
 	}
 };
 
@@ -124,13 +126,20 @@ export const viewQueryBuilder = view => {
 		}
 
 		// 2. Sorting (order).
-		if (view.fields[field].sort?.length) {
-			// Preserve original sorting as fallback in case of equality.
+		if ('sort_active' in view.fields[field]) {
+			const by = 'sort_on' in view.fields[field]
+				? view.fields[field].sort_on
+				: f;
+			const dir = 'sort_dir' in view.fields[field]
+				? view.fields[field].sort_dir
+				: 'ASC';
+			// Preserve original sorting as fallback in case of multiple "sort"
+			// statements.
 			if (sort.length) {
-				sort = `${f} ${view.fields[field].sort}, ${sort}`;
+				sort = `${by} ${dir}, ${sort}`;
 			}
 			else {
-				sort = `${f} ${view.fields[field].sort}`;
+				sort = `${by} ${dir}`;
 			}
 		}
 
@@ -419,4 +428,23 @@ export const filterView = (view, f, value) => {
 	}
 	// Filtering or clearing filters will impact the pager -> reset current page.
 	updateViewResults(view, true);
+};
+
+/**
+ * Sorts the view by given field.
+ *
+ * @param {Object} view the view object.
+ * @param {String} sortBy the field name (table name or alias) to sort on.
+ * @param {String} dir either "ASC" or "DESC".
+ */
+export const sortView = (view, sortBy, dir) => {
+	Object.keys(view.fields).forEach(f => {
+		if ('sort_active' in view.fields[f]) {
+			delete view.fields[f].sort_active;
+		}
+	});
+	view.fields[sortBy].sort_dir = dir;
+	view.fields[sortBy].sort_active = true;
+	updateViewPagerState(view, 0);
+	updateViewResults(view);
 };

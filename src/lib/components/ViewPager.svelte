@@ -76,7 +76,7 @@
 	<li>
 		<a
 			class:disabled={ $view.pager.prev_is_disabled }
-			class="btn btn--s btn--rounded"
+			class="btn btn--s"
 			href={ firstUrl }
 			title="Go to first page"
 			on:click|preventDefault={ () => paginate(0) }
@@ -85,7 +85,7 @@
 		</a>
 		<!-- <button
 			class:disabled={ $view.pager.prev_is_disabled }
-			class="btn btn--s btn--rounded"
+			class="btn btn--s"
 			title="Go to first page"
 			on:click|preventDefault={ () => paginate(0) }
 		>
@@ -95,7 +95,7 @@
 	<li>
 		<a
 			class:disabled={ $view.pager.prev_is_disabled }
-			class="btn btn--s btn--rounded"
+			class="btn btn--s"
 			href={ prevUrl }
 			title="Go to previous page : { $view.pager.prev + 1 }"
 			on:click|preventDefault={ () => paginate($view.pager.prev) }
@@ -104,7 +104,7 @@
 		</a>
 		<!-- <button
 			class:disabled={ $view.pager.prev_is_disabled }
-			class="btn btn--s btn--rounded"
+			class="btn btn--s"
 			title="Go to previous page : { $view.pager.prev + 1 }"
 			on:click|preventDefault={ () => paginate($view.pager.prev) }
 		>
@@ -117,7 +117,7 @@
 	<li>
 		<a
 			class:disabled={ $view.pager.next_is_disabled }
-			class="btn btn--s btn--rounded"
+			class="btn btn--s"
 			href={ nextUrl }
 			title="{ $view.pager.next_is_disabled ? '' : "Go to next page : " + ($view.pager.next + 1) }"
 			on:click|preventDefault={ () => paginate($view.pager.next) }
@@ -126,7 +126,7 @@
 		</a>
 		<!-- <button
 			class:disabled={ $view.pager.next_is_disabled }
-			class="btn btn--s btn--rounded"
+			class="btn btn--s"
 			title="Go to next page : { $view.pager.next + 1 }"
 			on:click|preventDefault={ () => paginate($view.pager.next) }
 		>
@@ -136,7 +136,7 @@
 	<li>
 		<a
 			class:disabled={ $view.pager.next_is_disabled }
-			class="btn btn--s btn--rounded"
+			class="btn btn--s"
 			href={ lastUrl }
 			title={ $view.pager.next_is_disabled ? '' : "Go to last page" }
 			on:click|preventDefault={ () => paginate($view.pager.last_page) }
@@ -145,7 +145,7 @@
 		</a>
 		<!-- <button
 			class:disabled={ $view.pager.next_is_disabled }
-			class="btn btn--s btn--rounded"
+			class="btn btn--s"
 			title="Go to last page"
 			on:click|preventDefault={ () => paginate($view.pager.last_page) }
 		>
@@ -159,6 +159,7 @@
 		display: flex;
 		justify-content: center;
 		align-items: center;
+		margin: var(--space-xs) 0;
 		list-style: none;
 	}
 	.pager > * + * {

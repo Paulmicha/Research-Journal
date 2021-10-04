@@ -1,6 +1,6 @@
 <script>
 	import { getContext } from 'svelte';
-	import { createEventDispatcher } from 'svelte';
+	import { sortView } from '$lib/view';
 	import { appIsBusy } from '$lib/stores/globalState.js';
 	import ViewResultsCell from './ViewResultsCell.svelte';
 
@@ -8,7 +8,6 @@
 	let timeOut = null;
 
 	const view = getContext('view');
-	const dispatch = createEventDispatcher();
 
 	const getCellComponent = cell => {
 		if (cell?.component) {
@@ -20,57 +19,64 @@
 	}
 
 	/**
-	 * Sorts results on given key.
+	 * Applies the new sort order.
 	 *
-	 * Inverts order if already active.
+	 * @param {String} f the field name (table name or alias) to sort on.
+	 * @param {String} dir either "ASC" or "DESC".
 	 */
-	const sortBy = (e, key) => {
+	const applySort = (f, dir) => {
 		appIsBusy.set(true);
-
 		if (timeOut) {
 			clearTimeout(timeOut);
 		}
-		timeOut = setTimeout(() => {
-			let btn = e.target;
-			if (e.target.tagName !== 'BUTTON') {
-				btn = e.target.closest('button');
-			}
-
-			let newState;
-			const isOff = btn.classList.contains('is-off');
-			const isAsc = btn.classList.contains('is-asc');
-
-			if (isOff || isAsc) {
-				newState = 'is-desc';
-				dispatch('sort', { orderBy: key + ' DESC' });
-				// documentStore.update(o => {
-				// 	o.results = getResults(o.db, { filters: o.filters, orderBy: key + ' DESC' });
-				// 	return o;
-				// });
-			} else {
-				newState = 'is-asc';
-				// documentStore.update(o => {
-				// 	o.results = getResults(o.db, { filters: o.filters, orderBy: key + ' ASC' });
-				// 	return o;
-				// });
-				dispatch('sort', { orderBy: key + ' ASC' });
-			}
-
-			// Sync sort links state classes.
-			const allSortLinks = Array.from(btn.closest('thead').querySelectorAll('.sort'));
-
-			allSortLinks.forEach(sortLink => {
-				sortLink.classList.remove('is-asc', 'is-desc');
-				sortLink.classList.add('is-off');
-				sortLink.closest('th').classList.remove('is-active');
+		const callback = (f, dir) => {
+			view.update(o => {
+				sortView(o, f, dir);
+				return o;
 			});
-
-			btn.classList.remove('is-off');
-			btn.classList.add(newState);
-			btn.closest('th').classList.add('is-active');
-
 			appIsBusy.set(false);
-		}, 150);
+		};
+		timeOut = setTimeout(callback, 150, f, dir);
+	};
+
+	/**
+	 * Sorts results on given key.
+	 *
+	 * Inverts order if already active.
+	 *
+	 * @param {Object} e click event.
+	 * @param {String} f the field name (table name or alias) to sort on.
+	 */
+	const sortBy = (e, f) => {
+		let btn = e.target;
+		if (e.target.tagName !== 'BUTTON') {
+			btn = e.target.closest('button');
+		}
+
+		let newState;
+		const isOff = btn.classList.contains('is-off');
+		const isAsc = btn.classList.contains('is-asc');
+
+		if (isOff || isAsc) {
+			newState = 'is-desc';
+			applySort(f, "DESC");
+		} else {
+			newState = 'is-asc';
+			applySort(f, "ASC");
+		}
+
+		// Sync sort links state classes.
+		const allSortLinks = Array.from(btn.closest('thead').querySelectorAll('.sort'));
+
+		allSortLinks.forEach(sortLink => {
+			sortLink.classList.remove('is-asc', 'is-desc');
+			sortLink.classList.add('is-off');
+			sortLink.closest('th').classList.remove('is-active');
+		});
+
+		btn.classList.remove('is-off');
+		btn.classList.add(newState);
+		btn.closest('th').classList.add('is-active');
 	};
 
 </script>
@@ -81,11 +87,14 @@
 			{#if $view?.fields}
 				{#each Object.keys($view.fields) as f}
 					{#if !$view.fields[f]?.hidden}
-						{#if $view.fields[f]?.sort}
-							<th class:is-active={ $view.fields[f]?.sort_default }>
+						{#if $view.fields[f]?.sortable}
+							<th class:is-active={ $view.fields[f].sort_active }>
 								<button
-									class="sort is-{ $view.fields[f].sort }"
-									on:click={e => sortBy(e, view.fields[f].table)}
+									class:is-off={ !$view.fields[f].sort_active }
+									class:is-asc={ $view.fields[f].sort_active && ('sort_dir' in $view.fields[f] ? $view.fields[f].sort_dir.toLowerCase() : 'asc') === 'asc' }
+									class:is-desc={ $view.fields[f].sort_active && ('sort_dir' in $view.fields[f] ? $view.fields[f].sort_dir.toLowerCase() : 'asc') === 'desc' }
+									class="sort"
+									on:click={e => sortBy(e, f)}
 									title="Sort by { $view.fields[f].label }"
 								>
 									<span class="is-asc">↑</span>

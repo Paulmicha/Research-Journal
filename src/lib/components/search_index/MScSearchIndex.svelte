@@ -15,7 +15,13 @@
 
 <div class="rich-text">
 	<p>
-		This page currently shows the last 150 entries indexed. The full dataset contains { displayNb(searchIndexPreviewData.total) } entries. You can load a local copy of the database to browse and filter all entries :
+		This page currently shows the last 150 entries indexed. The full dataset contains <strong>{ displayNb(searchIndexPreviewData.total) }</strong> entries (last export&nbsp;: {
+			new Date(searchIndexPreviewData.unixTime * 1000).toLocaleDateString('fr', {
+				year: "numeric",
+				month: "2-digit",
+				day: "2-digit"
+			})
+		}). You can load a local copy of the database to browse and filter all entries :
 	</p>
 	<a href="/msc-search-index-full" class="btn load u-m-b">
 		Load the full dataset ({ displayNb(searchIndexPreviewData.dbSize) }&nbsp;ko)

@@ -2,19 +2,19 @@
  * @file
  * Assembles the SVG code for inlining specific icons.
  *
- * This will generate and overwrite the JSON file content/devicesIcons.json
- * that contains the SVG code as strings.
+ * This will generate and overwrite the JSON files that contain the SVG code as
+ * strings.
  *
  * @see scripts/experiments/ecometrics/icons
  *
  * @example
  *  # From project docroot.
- *  node scripts/icons.js
+ *  node scripts/ecometrics/icons.js
  */
 
-const fs = require('fs');
-const path = require('path');
-const { write_file } = require('./fs');
+import * as fs from 'fs';
+import * as path from 'path';
+import { writeFile } from '../fs';
 
 const conf = [
 	{
@@ -40,5 +40,5 @@ conf.forEach(c => {
 		}
 	});
 
-	write_file(c.dest, JSON.stringify(icons));
+	writeFile(c.dest, JSON.stringify(icons));
 });

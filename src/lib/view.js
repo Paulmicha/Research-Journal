@@ -21,7 +21,7 @@ import { initDb, dbFetchAll, dbPopFetch } from '$lib/sqlite';
  */
 export const getViewPagerState = (definition = {}) => {
 	let pagerState = {
-		nb_per_page: 15,
+		nb_per_page: 30,
 		current_page: 0,
 		last_page: 0,
 		total_results_nb: 0,

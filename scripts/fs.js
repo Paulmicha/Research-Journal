@@ -3,11 +3,9 @@
  * File system related shared utilities.
  */
 
-// import * as fs from 'fs';
-// import * as path from 'path';
-const fs = require('fs');
-const path = require('path');
-const mkdirp = require('mkdirp');
+import * as fs from 'fs';
+import * as path from 'path';
+import mkdirp from 'mkdirp';
 
 /**
  * Helper to write file creating missing parent folder(s) if necessary.
@@ -17,13 +15,13 @@ const mkdirp = require('mkdirp');
  * @param {String} file_path
  * @param {String|NodeJS.ArrayBufferView} content
  */
-const write_file = async (file_path, content) => {
+export const writeFile = async (file_path, content) => {
 	const dirname = path.dirname(file_path);
 	if (!fs.existsSync(dirname)) {
 		await mkdirp.sync(dirname);
 	}
   fs.writeFileSync(file_path, content);
-}
+};
 
 /**
  * Recursively gets file paths from given dir.
@@ -32,7 +30,7 @@ const write_file = async (file_path, content) => {
  * @param {String} extension optional: filter by file extension.
  * @returns {Array} List of file paths sorted by name.
  */
-const walk = (dir, extension) => {
+export const walk = (dir, extension) => {
 	let files = [];
 	fs.readdirSync(dir).map(file => {
 		if (fs.statSync(path.join(dir, file)).isFile()) {
@@ -41,13 +39,8 @@ const walk = (dir, extension) => {
 			}
 		}
 		else {
-			files = files.concat(walk(path.join(dir, file), extension))
+			files = files.concat(walk(path.join(dir, file), extension));
 		}
 	});
 	return files.sort();
-}
-
-module.exports = {
-	walk,
-	write_file
 };

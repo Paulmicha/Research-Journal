@@ -5,10 +5,10 @@
  * @see scripts/experiments/search_index/fetch.sh
  */
 
-const slugify = require('@sindresorhus/slugify');
-const fs = require('fs');
-const path = require('path');
-const { walk } = require('../../../fs');
+import * as fs from 'fs';
+import * as path from 'path';
+import slugify from '@sindresorhus/slugify';
+import { walk } from '../../../fs.js';
 
 // Excluded domains.
 const blacklisted = [
@@ -331,7 +331,7 @@ const cleanTags = tagStr => tagStr
 /**
  * Builds our custom data miner cache.
  */
-const build_channels_urls_index = () => {
+export const build_channels_urls_index = () => {
 	let raw_data;
 	const alreadyExtracted = []
 	const index = { documents:[] };
@@ -452,8 +452,4 @@ const build_channels_urls_index = () => {
 	index.documents.sort((a, b) => new Date(b.date_shared).getTime() - new Date(a.date_shared).getTime());
 
 	return index;
-};
-
-module.exports = {
-	build_channels_urls_index
 };

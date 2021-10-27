@@ -3,7 +3,7 @@
  * Contains shared, generic utilities for data transformation.
  */
 
-const fs = require('fs');
+import * as fs from 'fs';
 
 /**
  * Converts given CSV file path to an array of arrays (lines x columns).
@@ -13,7 +13,7 @@ const fs = require('fs');
  *  to ','.
  * @returns {Array} array of arrays (lines x columns).
  */
-const csv2Arr = (csvFile, separator = ',') => fs.readFileSync(csvFile)
+export const csv2Arr = (csvFile, separator = ',') => fs.readFileSync(csvFile)
 	.toString() // convert Buffer to string
 	.split('\n') // split string to lines
 	.map(e => e.trim()) // remove white spaces for each line
@@ -28,7 +28,7 @@ const csv2Arr = (csvFile, separator = ',') => fs.readFileSync(csvFile)
  *
  * Both csvLine and keys arrays MUST have the same size (required to match).
  */
-const arr2Props = (csvLine, keys) => {
+export const arr2Props = (csvLine, keys) => {
 	const obj = {};
 	csvLine.forEach((value, i) => {
 		if (!keys[i]) {
@@ -42,7 +42,7 @@ const arr2Props = (csvLine, keys) => {
 /**
  * Sqlite INSERT format helper.
  */
-const props2Arr = eqObj => {
+export const props2Arr = eqObj => {
 	const flattenedValues = [];
 	Object.keys(eqObj).forEach(prop => {
 		if (Array.isArray(eqObj[prop]) || typeof(eqObj[prop]) === 'object') {
@@ -66,7 +66,7 @@ const props2Arr = eqObj => {
  * @param {Object} o : the object whose keys are to be sorted.
  * @param {Array} orderedKeys : array of keys in the correct order.
  */
-const sortObjectKeys = (o, orderedKeys) => {
+export const sortObjectKeys = (o, orderedKeys) => {
 	const orderedObj = {};
 	orderedKeys.forEach(key => orderedObj[key] = o[key]);
 
@@ -84,7 +84,7 @@ const sortObjectKeys = (o, orderedKeys) => {
  *
  * See https://stackoverflow.com/questions/7616461/generate-a-hash-from-string-in-javascript/52171480#52171480
  */
-const cyrb53 = (str, seed = 0) => {
+export const cyrb53 = (str, seed = 0) => {
 	let h1 = 0xdeadbeef ^ seed, h2 = 0x41c6ce57 ^ seed;
 	for (let i = 0, ch; i < str.length; i++) {
 		ch = str.charCodeAt(i);
@@ -94,12 +94,4 @@ const cyrb53 = (str, seed = 0) => {
 	h1 = Math.imul(h1 ^ (h1>>>16), 2246822507) ^ Math.imul(h2 ^ (h2>>>13), 3266489909);
 	h2 = Math.imul(h2 ^ (h2>>>16), 2246822507) ^ Math.imul(h1 ^ (h1>>>13), 3266489909);
 	return 4294967296 * (2097151 & h2) + (h1>>>0);
-};
-
-module.exports = {
-	csv2Arr,
-	arr2Props,
-	props2Arr,
-	sortObjectKeys,
-	cyrb53
 };

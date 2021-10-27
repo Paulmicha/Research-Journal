@@ -9,18 +9,18 @@
  *   node scripts/experiments/search_index/extract.js
  */
 
-const fs = require('fs');
-const { write_file } = require('../../fs');
-const { build_channels_urls_index } = require('./lib/parsing');
-const { props2Arr } = require('../ecometrics/utils');
-const { uniqueEntry, createTableQuery } = require('./utils');
-const initSqlJs = require('../../../static/sql-wasm.js');
+import * as fs from 'fs';
+import { writeFile } from '../../fs.js';
+import { build_channels_urls_index } from './lib/parsing.js';
+import { props2Arr } from '../ecometrics/utils.js';
+import { uniqueEntry, createTableQuery } from './utils.js';
+import initSqlJs from 'sql.js';
 
 const data = build_channels_urls_index();
 
 if (!data.documents.length) {
 	console.log("No documents were extracted : there is nothing to do here.");
-	return;
+	throw "exit early";
 }
 
 // For SQLite, we need consistent columns across all documents : same number of
@@ -49,10 +49,10 @@ data.reaction = [];
 data.has_reaction = [];
 data.preview = [];
 
-// We'll still use a json file output, but only for a preview of the last 30
-// most recent documents.
+// We'll still use a json file output, but only for a preview of the most recent
+// documents (taking the last 150).
 // @see src/components/content/MScSearchIndex.svelte
-for (let i = 0; i < 30; i++) {
+for (let i = 0; i < 150; i++) {
 	data.preview.push(data.documents[i]);
 }
 
@@ -71,10 +71,10 @@ data.documents = data.documents.map((doc, i) => {
 				'has_tag',
 				{
 					id_tag: id,
-					id: doc.id,
+					id_origin: doc.id,
 					db_table: 'document'
 				},
-				['id_tag', 'id', 'db_table']
+				['id_tag', 'id_origin', 'db_table']
 			);
 		});
 	}
@@ -92,11 +92,11 @@ data.documents = data.documents.map((doc, i) => {
 			'has_person',
 			{
 				id_person: id,
-				id: doc.id,
+				id_origin: doc.id,
 				db_table: 'document',
 				type: 'author'
 			},
-			['id_person', 'id', 'db_table']
+			['id_person', 'id_origin', 'db_table']
 		);
 	}
 	if (doc?.names?.length) {
@@ -112,11 +112,11 @@ data.documents = data.documents.map((doc, i) => {
 				'has_person',
 				{
 					id_person: id,
-					id: doc.id,
+					id_origin: doc.id,
 					db_table: 'document',
 					type: 'mention'
 				},
-				['id_person', 'id', 'db_table']
+				['id_person', 'id_origin', 'db_table']
 			);
 		});
 	}
@@ -130,17 +130,11 @@ data.documents = data.documents.map((doc, i) => {
 				{ id: data.reaction.length + 1, name: reaction.name },
 				['name']
 			);
-			uniqueEntry(
-				data,
-				'has_reaction',
-				{
-					id_reaction: id,
-					id: doc.id,
-					db_table: 'document',
-					qty: reaction.count
-				},
-				['id_reaction', 'id', 'db_table', 'qty']
-			);
+			data.has_reaction.push({
+				id_reaction: id,
+				id_origin: doc.id,
+				db_table: 'document'
+			});
 		});
 	}
 
@@ -164,11 +158,11 @@ initSqlJs().then(SQL => {
 
 	db.run(createTableQuery('document', keys));
 	db.run(createTableQuery('tag', ['id', 'name']));
-	db.run(createTableQuery('has_tag', ['id_tag', 'id', 'db_table']));
+	db.run(createTableQuery('has_tag', ['id_tag', 'id_origin', 'db_table']));
 	db.run(createTableQuery('person', ['id', 'name']));
-	db.run(createTableQuery('has_person', ['id_person', 'id', 'db_table', 'type']));
+	db.run(createTableQuery('has_person', ['id_person', 'id_origin', 'db_table', 'type']));
 	db.run(createTableQuery('reaction', ['id', 'name']));
-	db.run(createTableQuery('has_reaction', ['id_reaction', 'id', 'db_table', 'qty']));
+	db.run(createTableQuery('has_reaction', ['id_reaction', 'id_origin', 'db_table']));
 
 	const allAtOnce = ['tag', 'person', 'reaction'];
 	allAtOnce.forEach(t => {
@@ -188,11 +182,11 @@ initSqlJs().then(SQL => {
 	));
 
 	try {
-		if (fs.existsSync('content/search_index.sqlite')) {
-			fs.unlinkSync('content/search_index.sqlite');
+		if (fs.existsSync('static/search_index.sqlite')) {
+			fs.unlinkSync('static/search_index.sqlite');
 		}
-		write_file(
-			'content/search_index.sqlite',
+		writeFile(
+			'static/search_index.sqlite',
 			new Buffer.from(db.export())
 		);
 	} catch (error) {
@@ -205,7 +199,7 @@ initSqlJs().then(SQL => {
 // @see src/stores/mscSearchIndex.js
 // @see src/components/content/MScSearchIndex.svelte
 try {
-	write_file(
+	writeFile(
 		'content/search_index_preview.json',
 		JSON.stringify({
 			documents: data.preview,
@@ -213,7 +207,7 @@ try {
 			// This assumes contents will change on every run. If not, manually revert
 			// to previous value in the generated file. TODO automate this case.
 			unixTime: Math.floor(Date.now() / 1000),
-			dbSize: fs.statSync('content/search_index.sqlite').size / 1024 // in ko
+			dbSize: fs.statSync('static/search_index.sqlite').size / 1024 // in ko
 		})
 	);
 } catch (error) {

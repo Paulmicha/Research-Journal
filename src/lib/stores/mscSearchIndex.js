@@ -18,13 +18,13 @@ let defaultDocumentCacheStoreVal = {
 	totalDocs: 0
 };
 const createBrowserDocumentCacheStore = () => {
-	const storedVal = localStorage.getItem('mscSearchIndexCache');
+	const storedVal = localStorage.getItem('mscSearchIndexCacheV2');
 	if (storedVal && storedVal.length) {
 		defaultDocumentCacheStoreVal = JSON.parse(storedVal);
 	}
 	const documentCacheStore = writable(defaultDocumentCacheStoreVal);
 	documentCacheStore.subscribe(cache => localStorage.setItem(
-		'mscSearchIndexCache',
+		'mscSearchIndexCacheV2',
 		JSON.stringify(cache)
 	));
 	return documentCacheStore;

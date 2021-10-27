@@ -111,7 +111,7 @@
 	};
 </script>
 
-<p><strong>{ $documentStore.totalDocs }</strong> results</p>
+<!-- <p>Showing the last 150 of <strong>{ $documentStore.totalDocs }</strong> results</p> -->
 
 <div class="full-vw">
 	<table>

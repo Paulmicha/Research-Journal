@@ -25,18 +25,16 @@
 				render: 'date',
 				class: "narrow"
 			},
-			// TODO rewrite data model to allow SQL query to get total reactions count
-			// i.e. like COUNT(DISTINCT has_reaction.id_document) AS reaction_count
-			reactions_qty: {
+			reaction_count: {
 				hidden: true,
-				select: "GROUP_CONCAT(has_reaction.qty, ' ') reactions_qty"
+				select: "COUNT(DISTINCT has_reaction.id_origin) AS reaction_count"
 			},
 			reactions_name: {
 				label: "Reactions",
 				select: "GROUP_CONCAT(reaction.name, ' ') reactions_name",
 				sortable: true,
 				sort_dir: "DESC",
-				sort_on: 'reactions_qty'
+				sort_on: 'reaction_count'
 			},
 			title: { label: "Title", href_from: "url", sortable: true },
 			tags: { label: "Tags", select: "GROUP_CONCAT(tag.name, ', ') tags" },
@@ -57,23 +55,23 @@
 		},
 		joins: {
 			tag: `
-				LEFT JOIN has_tag ON document.id = has_tag.id
+				LEFT JOIN has_tag ON document.id = has_tag.id_origin
 					AND has_tag.db_table = $t
 				LEFT JOIN tag ON has_tag.id_tag = tag.id
 			`,
 			person: `
-				LEFT JOIN has_person as has_author ON document.id = has_author.id
+				LEFT JOIN has_person as has_author ON document.id = has_author.id_origin
 					AND has_author.db_table = $t
 					AND has_author.type = $a
 				LEFT JOIN person as author ON has_author.id_person = author.id
 
-				LEFT JOIN has_person as has_mention ON document.id = has_mention.id
+				LEFT JOIN has_person as has_mention ON document.id = has_mention.id_origin
 					AND has_mention.db_table = $t
 					AND has_mention.type = $n
 				LEFT JOIN person as mention ON has_mention.id_person = mention.id
 			`,
 			reaction: `
-				LEFT JOIN has_reaction ON document.id = has_reaction.id
+				LEFT JOIN has_reaction ON document.id = has_reaction.id_origin
 					AND has_reaction.db_table = $t
 				LEFT JOIN reaction ON has_reaction.id_reaction = reaction.id
 			`
@@ -93,7 +91,7 @@
 				type: "swap join",
 				placeholder: "$reactions_ids",
 				query: `
-					INNER JOIN has_reaction ON document.id = has_reaction.id
+					INNER JOIN has_reaction ON document.id = has_reaction.id_origin
 						AND has_reaction.db_table = $t
 						AND has_reaction.id_reaction IN ($reactions_ids)
 					INNER JOIN reaction ON has_reaction.id_reaction = reaction.id
@@ -106,7 +104,7 @@
 				type: "swap join",
 				placeholder: "$tags_ids",
 				query: `
-					INNER JOIN has_tag ON document.id = has_tag.id
+					INNER JOIN has_tag ON document.id = has_tag.id_origin
 						AND has_tag.db_table = $t
 						AND has_tag.id_tag IN ($tags_ids)
 					INNER JOIN tag ON has_tag.id_tag = tag.id
@@ -119,7 +117,7 @@
 				type: "new join",
 				placeholder: "$persons_ids",
 				query: `
-					INNER JOIN has_person ON document.id = has_person.id
+					INNER JOIN has_person ON document.id = has_person.id_origin
 						AND has_person.db_table = $t
 						AND has_person.id_person IN ($persons_ids)
 					INNER JOIN person ON has_person.id_person = person.id

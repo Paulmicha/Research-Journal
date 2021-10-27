@@ -13,7 +13,7 @@
  * @returns {Integer} the ID of the newly created entity, or of the matching
  *   previously created entity (if any).
  */
-const uniqueEntry = (data, table, o, matchKeys) => {
+export const uniqueEntry = (data, table, o, matchKeys) => {
 	for (let i = 0; i < data[table].length; i++) {
 		const entry = data[table][i];
 		let match = '';
@@ -37,21 +37,23 @@ const uniqueEntry = (data, table, o, matchKeys) => {
  * @param {Array} cols names
  * @returns {String} the formatted SQLite query.
  */
-const createTableQuery = (tableName, cols) => {
+export const createTableQuery = (tableName, cols) => {
 	let sqlStr = '';
 	const colsSqlParts = [];
+	const indexes = [];
 	const foreignKeys = [];
 
 	cols.forEach(col => {
 		if (col === 'id') {
-			if (tableName.substring(0, 4) === 'has_') {
-				colsSqlParts.push('id INTEGER');
-			} else {
-				colsSqlParts.push('id INTEGER PRIMARY KEY AUTOINCREMENT');
-			}
+			colsSqlParts.push('id INTEGER PRIMARY KEY AUTOINCREMENT');
 		} else if (col.substring(0, 2) === 'id') {
 			colsSqlParts.push(col + ' INTEGER');
-			foreignKeys.push(`FOREIGN KEY(${col}) REFERENCES ${col.substring(3)}(id)`);
+			const suffix = col.substring(3);
+			if (suffix !== 'origin') {
+				foreignKeys.push(`FOREIGN KEY(${col}) REFERENCES ${col.substring(3)}(id)`);
+			} else {
+				indexes.push(col);
+			}
 		} else {
 			colsSqlParts.push(col + ' TEXT');
 		}
@@ -63,10 +65,9 @@ const createTableQuery = (tableName, cols) => {
 	}
 	sqlStr += ');';
 
-	return sqlStr;
-};
+	if (indexes.length) {
+		indexes.forEach(index => sqlStr += `CREATE INDEX idx_${tableName}_${index} ON ${tableName} (${index});`);
+	}
 
-module.exports = {
-	uniqueEntry,
-	createTableQuery
+	return sqlStr;
 };

@@ -17,8 +17,8 @@
 	import { getSelectedItemSetting } from '$lib/ecometrics/selection.js';
 	import Chart from 'svelte-frappe-charts';
 	import Tooltip from '$lib/components/Tooltip.svelte';
-  import EcoMetricsCo2Equivalents from './EcoMetricsCo2Equivalents.svelte';
-  import Ellipsis from '$lib/components/Ellipsis.svelte';
+	import EcoMetricsCo2Equivalents from './EcoMetricsCo2Equivalents.svelte';
+	import Ellipsis from '$lib/components/Ellipsis.svelte';
 
 	let period = 'month';
 	let periodTooltipTrigger;

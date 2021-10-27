@@ -20,7 +20,7 @@
 
 const fs = require('fs');
 const slugify = require('@sindresorhus/slugify');
-const { write_file } = require('../../fs');
+const { writeFile } = require('../../fs');
 const { csv2Arr, props2Arr } = require('./utils');
 const { devicesKeys, devicesPostprocess } = require('./entities/device');
 const { devicesFromBoaviztaNormalizeAll } = require('./adapters/boavizta');
@@ -181,7 +181,7 @@ initSqlJs().then(SQL => {
 		if (fs.existsSync('content/ecometrics.sqlite')) {
 			fs.unlinkSync('content/ecometrics.sqlite');
 		}
-		write_file(
+		writeFile(
 			'content/ecometrics.sqlite',
 			new Buffer.from(db.export())
 		);
@@ -195,7 +195,7 @@ try {
 	if (fs.existsSync('content/ecometrics.json')) {
 		fs.unlinkSync('content/ecometrics.json');
 	}
-	write_file(
+	writeFile(
 		'content/ecometrics.json',
 		JSON.stringify(data)
 	);

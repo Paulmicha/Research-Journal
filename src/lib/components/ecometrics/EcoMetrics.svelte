@@ -96,8 +96,8 @@
 	// @see src/components/experiments/EcoMetricsSelectionSettings.svelte
 
 	// TODO deprecate netlify - until then, deal with the automatic trailing "/"
-	// redirect, which prevents $page.query from working at all.
-	// if ($page.query && $page.query.get('s')) {
+	// redirect, which prevents $page.url.searchParams from working at all.
+	// if ($page.url.searchParams && $page.url.searchParams.get('s')) {
 
 	let s = '';
 	if (browser) {
@@ -113,7 +113,7 @@
 		let defaultLocationToSelect = false;
 
 		// TODO deprecate netlify (part 2, see above).
-		// $page.query.get('s').split(';').forEach(urlEncodedEntity => {
+		// $page.url.searchParams.get('s').split(';').forEach(urlEncodedEntity => {
 
 		s.split(';').forEach(urlEncodedEntity => {
 			const parts = urlEncodedEntity.split('/');

@@ -26,7 +26,7 @@
 				}
 			}
 		}
-		return true;
+		return {};
 	}
 </script>
 

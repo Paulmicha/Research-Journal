@@ -16,7 +16,7 @@
 	/**
 	 * @type {import('@sveltejs/kit').Load}
 	 */
-	export async function load({ page }) {
+	export async function load() {
 		// Display loader until main component has rendered.
 		appIsBusy.set(true);
 		return {

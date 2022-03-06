@@ -15,7 +15,7 @@
 
 	localizedMenuItems.forEach(item => {
 		// TODO maintain active menu parent for doodles + msc-search-index.
-		item.isActive = '/' + item.path === $page.path;
+		item.isActive = '/' + item.path === $page.url.pathname;
 		items.push(item);
 	});
 </script>

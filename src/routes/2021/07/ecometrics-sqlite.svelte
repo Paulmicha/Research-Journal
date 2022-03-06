@@ -7,7 +7,7 @@
 	export async function load() {
 		// Display loader until main component has rendered.
 		appIsBusy.set(true);
-		return true;
+		return {};
 	}
 </script>
 

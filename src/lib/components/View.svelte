@@ -32,8 +32,8 @@
 	 * TODO deprecate Netlify to only use Svelte's page store instead.
 	 */
 	 const arg = arg => {
-		if ($page.query.has(arg)) {
-			return $page.query.get(arg);
+		if ($page.url.searchParams.has(arg)) {
+			return $page.url.searchParams.get(arg);
 		}
 		// Fallback : parsing manually window location.
 		if (browser) {

@@ -9,7 +9,7 @@
   "devDependencies": {
     "@popperjs/core": "^2.10.1",
     "@sindresorhus/slugify": "^2.1.0",
-    "@sveltejs/adapter-static": "^1.0.0-next.19",
+    "@sveltejs/adapter-static": "^1.0.0-next.29",
     "@sveltejs/kit": "next",
     "localforage": "^1.10.0",
     "mkdirp": "^1.0.4",

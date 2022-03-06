@@ -28,25 +28,25 @@
 	// Keep pager links in sync with pager state.
 	// TODO (wip) Sveltekit static adapter cannot build query args.
 	// Error: Cannot access query on a page with prerendering enabled
-	// let firstUrl = $page.path;
-	// let prevUrl = $page.path;
-	// let nextUrl = $page.path;
-	// let lastUrl = $page.path;
+	// let firstUrl = $page.url.pathname;
+	// let prevUrl = $page.url.pathname;
+	// let nextUrl = $page.url.pathname;
+	// let lastUrl = $page.url.pathname;
 	// view.subscribe(o => {
 	// 	// Preserve any other query args (otherwise the pager links would loose them).
-	// 	if ($page.query.toString().length) {
-	// 		firstUrl = $page.path + "?" + $page.query.toString();
-	// 		prevUrl = $page.path + "?" + $page.query.toString();
-	// 		nextUrl = $page.path + "?" + $page.query.toString();
+	// 	if ($page.url.searchParams.toString().length) {
+	// 		firstUrl = $page.url.pathname + "?" + $page.url.searchParams.toString();
+	// 		prevUrl = $page.url.pathname + "?" + $page.url.searchParams.toString();
+	// 		nextUrl = $page.url.pathname + "?" + $page.url.searchParams.toString();
 	// 	}
 	// 	if (o.pager.prev > 0) {
-	// 		$page.query.set('p' + o.id, o.pager.prev);
-	// 		prevUrl = $page.path + "?" + $page.query.toString();
+	// 		$page.url.searchParams.set('p' + o.id, o.pager.prev);
+	// 		prevUrl = $page.url.pathname + "?" + $page.url.searchParams.toString();
 	// 	}
-	// 	$page.query.set('p' + o.id, o.pager.next);
-	// 	nextUrl = $page.path + "?" + $page.query.toString();
-	// 	$page.query.set('p' + o.id, o.pager.last_page);
-	// 	lastUrl = $page.path + "?" + $page.query.toString();
+	// 	$page.url.searchParams.set('p' + o.id, o.pager.next);
+	// 	nextUrl = $page.url.pathname + "?" + $page.url.searchParams.toString();
+	// 	$page.url.searchParams.set('p' + o.id, o.pager.last_page);
+	// 	lastUrl = $page.url.pathname + "?" + $page.url.searchParams.toString();
 	// });
 
 	/**

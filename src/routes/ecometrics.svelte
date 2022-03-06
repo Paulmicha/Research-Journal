@@ -25,7 +25,7 @@
 		// console.log("(module) set TRUE from route");
 		appIsBusy.set(true);
 
-		return true;
+		return {};
 	}
 </script>
 

@@ -9,7 +9,6 @@ import adapter from '@sveltejs/adapter-static';
 /** @type {import('@sveltejs/kit').Config} */
 const config = {
 	kit: {
-		target: '#svelte',
 		adapter: adapter(),
 		vite: {
 			resolve: {
@@ -23,6 +22,15 @@ const config = {
     	// See https://vitejs.dev/config/#optimizedeps-include
 			optimizeDeps: {
 				include: ['lodash.deburr']
+			},
+			// Workaround error :
+			// content/page/index.json?import" is outside of Vite serving allow list
+			// See https://github.com/sveltejs/kit/issues/2701
+			// kit.vite.server.fs.allow: ['locales']
+			server: {
+				fs: {
+					allow: ['content']
+				}
 			}
 		}
 	}

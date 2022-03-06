@@ -15,10 +15,10 @@ import mkdirp from 'mkdirp';
  * @param {String} file_path
  * @param {String|NodeJS.ArrayBufferView} content
  */
-export const writeFile = async (file_path, content) => {
+export const writeFile = (file_path, content) => {
 	const dirname = path.dirname(file_path);
 	if (!fs.existsSync(dirname)) {
-		await mkdirp.sync(dirname);
+		mkdirp.sync(dirname);
 	}
   fs.writeFileSync(file_path, content);
 };

@@ -9,7 +9,13 @@
 		// directly from the API because we can't read Svelte store values here),
 		// immediately redirect to the "full" version.
 		if (browser) {
-			const storedVal = localStorage.getItem('mscSearchIndexCache');
+			// TODO cache busting is done manually for now (renaming the sqlite file and
+			// the localStorage name) + need to cleanup the obsolete local storage copy
+			// for browsers having already loaded the previous version.
+			// @see scripts/experiments/search_index/extract.js
+			// @see src/lib/stores/mscSearchIndex.js
+			// @see src/lib/components/search_index/MScSearchIndexView.svelte
+			const storedVal = localStorage.getItem('mscSearchIndexCacheV3');
 			if (storedVal && storedVal.length) {
 				const cache = JSON.parse(storedVal);
 				if (cache.unixTime > 0) {

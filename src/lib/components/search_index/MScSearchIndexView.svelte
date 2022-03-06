@@ -12,7 +12,13 @@
 	// @see src/lib/view.js
 	const definition = {
 		id: 1,
-		db_name: 'search_index',
+		// TODO cache busting is done manually for now (renaming the sqlite file and
+		// the localStorage name) + need to cleanup the obsolete local storage copy
+		// for browsers having already loaded the previous version.
+		// @see scripts/experiments/search_index/extract.js
+		// @see src/routes/msc-search-index.svelte
+		// @see src/lib/stores/mscSearchIndex.js
+		db_name: 'search_index_v3',
 		base_table: 'document',
 		fields: {
 			id: { hidden: true },

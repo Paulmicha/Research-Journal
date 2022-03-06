@@ -152,8 +152,16 @@ data.documents = data.documents.map((doc, i) => {
 // console.log(data);
 // return;
 
+// TODO cache busting is done manually for now (renaming the sqlite file and
+// the localStorage name) + need to cleanup the obsolete local storage copy
+// for browsers having already loaded the previous version.
+// @see src/routes/msc-search-index.svelte
+// @see src/lib/stores/mscSearchIndex.js
+// @see src/lib/components/search_index/MScSearchIndexView.svelte
+const sqliteFileName = 'search_index_v3';
+
 // Write as sqlite file.
-initSqlJs().then(SQL => {
+await initSqlJs().then(SQL => {
 	var db = new SQL.Database();
 
 	db.run(createTableQuery('document', keys));
@@ -182,11 +190,11 @@ initSqlJs().then(SQL => {
 	));
 
 	try {
-		if (fs.existsSync('static/search_index.sqlite')) {
-			fs.unlinkSync('static/search_index.sqlite');
+		if (fs.existsSync(`static/${sqliteFileName}.sqlite`)) {
+			fs.unlinkSync(`static/${sqliteFileName}.sqlite`);
 		}
 		writeFile(
-			'static/search_index.sqlite',
+			`static/${sqliteFileName}.sqlite`,
 			new Buffer.from(db.export())
 		);
 	} catch (error) {
@@ -207,7 +215,7 @@ try {
 			// This assumes contents will change on every run. If not, manually revert
 			// to previous value in the generated file. TODO automate this case.
 			unixTime: Math.floor(Date.now() / 1000),
-			dbSize: fs.statSync('static/search_index.sqlite').size / 1024 // in ko
+			dbSize: fs.statSync(`static/${sqliteFileName}.sqlite`).size / 1024 // in ko
 		})
 	);
 } catch (error) {

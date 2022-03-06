@@ -18,13 +18,20 @@ let defaultDocumentCacheStoreVal = {
 	totalDocs: 0
 };
 const createBrowserDocumentCacheStore = () => {
-	const storedVal = localStorage.getItem('mscSearchIndexCacheV2');
+	// TODO cache busting is done manually for now (renaming the sqlite file and
+	// the localStorage name) + need to cleanup the obsolete local storage copy
+	// for browsers having already loaded the previous version.
+	// @see scripts/experiments/search_index/extract.js
+	// @see src/routes/msc-search-index.svelte
+	// @see src/lib/components/search_index/MScSearchIndexView.svelte
+	const storedVal = localStorage.getItem('mscSearchIndexCacheV3');
 	if (storedVal && storedVal.length) {
 		defaultDocumentCacheStoreVal = JSON.parse(storedVal);
 	}
 	const documentCacheStore = writable(defaultDocumentCacheStoreVal);
 	documentCacheStore.subscribe(cache => localStorage.setItem(
-		'mscSearchIndexCacheV2',
+		// TODO see manual cache busting comment above.
+		'mscSearchIndexCacheV3',
 		JSON.stringify(cache)
 	));
 	return documentCacheStore;

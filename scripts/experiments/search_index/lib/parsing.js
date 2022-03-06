@@ -25,6 +25,10 @@ const blacklisted = [
 	'plateau.',
 	'-weever.',
 	'teams.microsoft.com',
+	'goo.gl/maps',
+	'esc-clermont.fr',
+	'meet.google.com',
+	'www.google.com/imgres?',
 	'www.google.com/url?'
 ];
 
@@ -71,9 +75,11 @@ const blacklisted_channels = [
 ];
 
 const blacklisted_titles = [
+	'Log in or sign up to view',
 	'Google Docs - create and edit documents online, for free.',
 	'Meet Google Drive – One place for all your files',
 	'Google Slides - create and edit presentations online, for free.',
+	'Franceinfo - Actualités en temps réel et info en direct',
 	'Google Sheets - create and edit spreadsheets online, for free.'
 ];
 
